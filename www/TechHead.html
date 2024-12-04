@@ -1,0 +1,1378 @@
+<!--Author:WAR -->
+<!DOCTYPE html>
+<html>
+
+<head>
+    <script src="./js/myscript.js"></script>
+    <script>
+        
+              // check Logged in status
+        if(localStorage.getItem("MobileNo")== null){
+            alert("Not Logged In"); 
+            window.location.href="./index.html";
+        }
+        if(localStorage.getItem("userType")== "TH"){
+         
+        }else{
+             alert("Not Logged In"); 
+            window.location.href="./index.html";
+        }
+        
+       
+    </script>
+    
+    
+    
+    <!-- <script src="//ajax.googleapis.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
+        
+    <script src="./jsonData/jquery-2.2.4.min.js"></script> -->
+    
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+    <title>Dashboard</title>
+
+    <!-- Bootstrap CSS CDN -->
+    <link rel="stylesheet" href="./css/bootstrap/css/bootstrap.min.css">
+    
+<link rel="stylesheet" href="./font-awesome/css/font-awesome.min.css">
+
+    <!-- databale -->
+
+    <script src="./jquery/jquery.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.10.20/css/jquery.dataTables.min.css">
+    <script src="https://cdn.datatables.net/1.10.20/js/jquery.dataTables.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.4.1/css/bootstrap-datepicker3.css"/>
+<!-- databale -->
+
+
+<script src="./jquery/jqPlot/src/jquery.jqplot.js"></script>
+<script src="./jquery/jqPlot/src/plugins/jqplot.categoryAxisRenderer.js"></script>
+<script src="./jquery/jqPlot/src/plugins/jqplot.barRenderer.js"></script>
+<link rel="stylesheet" type="text/css" href="./jquery/jqPlot/src/jquery.jqplot.css" />
+
+<script type="text/javascript" src="./jquery/jqPlot/src/plugins/jqplot.pointLabels.js"></script>
+
+    <!-- Our Custom CSS -->
+    
+   <!-- Latest compiled and minified CSS -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.1/css/bootstrap-select.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"></script>
+
+ 
+<!-- Latest compiled and minified JavaScript -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.1/js/bootstrap-select.min.js"></script>
+<!--<script src="//cdn.rawgit.com/rainabba/jquery-table2excel/1.1.0/dist/jquery.table2excel.min.js"></script>-->
+<script src="./jsonData/custom.js"></script>
+
+
+
+
+        <link rel="stylesheet" href="./css/style2.css?version=1.0">
+       
+
+<script>
+
+function checkSize(){
+    let input = document.getElementById('paymentProof');
+let span = document.getElementById('paymentSize');
+ 
+   let files = input.files;
+   
+   if(files.length > 0) {
+    if(files[0].size > 100 * 1024){
+        span.innerText = 'File Size Exceeds 100kb';
+        input.value="";
+        return;
+    }
+   }
+ 
+   span.innerText = '';
+}
+</script>
+
+
+
+<script src="https://cdn.onesignal.com/sdks/OneSignalSDK.js" async=""></script>
+<script>
+  window.OneSignal = window.OneSignal || [];
+  OneSignal.push(function() {
+    OneSignal.init({
+      appId: "e6b2202c-7b7e-497f-bf02-444125c9c348",
+      notifyButton: {
+        enable: true,
+      },
+    });
+  });
+</script>
+
+
+
+
+</head>
+
+
+<body onload="getCallers()">
+    
+    <!--Loader-->
+  <div class="loader">
+    <div class="load">
+        <i class="fa fa-spinner fa-spin"></i>
+    </div>
+  </div>
+
+
+
+<!--Wrapper-->
+<div class="wrapper">
+        <!-- Sidebar  -->
+        <nav id="sidebar" class="active" >
+            <div class="sidebar-header">
+                <h3>Admin</h3>
+            </div>
+            <ul class="list-unstyled components">
+                <li class="active">
+                    <a href="./dashboard.html">Dashboard</a>
+                </li>
+                <li class="active">
+                    <a href="https://learn.teamka.in/wp-admin/">Help?</a>
+                </li>
+                
+                   
+                <li>
+                  <a href="#"  data-toggle="modal" data-target="#exampleModalprojDetails" onclick="fillProjectDetailsForm()">Add Project Details</a>
+              </li>
+                 
+                <li>
+                  <a href="#"  data-toggle="modal" data-target="#exampleModalAssignProj">Assign TASK</a>
+                </li>
+              
+                <li>
+                  <a href="#"  onclick="getAssignedTask()">Assigned TASK List</a>
+              </li>
+              
+                <li>
+                  <a href="#"  onclick="assignedToMe()">My Tasks</a>
+              </li>
+              
+<!--              <li>
+                <a href="#" onclick="getProjectDetails()">Project Details</a>
+            </li>-->
+            
+            
+          <!--  <li>
+                    <a href="#" onclick="getUnverifiedPayment()">Payments</a>
+                </li>-->
+                
+              
+              
+              <li>
+                  <a href="#"  onclick="notifyDeveloperAdmin()">Developer Notification</a>
+              </li>
+                
+              
+              <br>
+            </ul>
+
+            <ul class="list-unstyled CTAs">
+               
+                <li>
+                    <button class="download" onclick="Logout()" ><i class="fas fa-sign-out-alt"></i> Logout</button>
+                </li>
+            </ul>
+        </nav>
+
+        <!-- Page Content  -->
+        <div id="content">
+            
+            <!--Navbar-->
+           <nav class="navbar navbar-expand-sm bg-dark navbar-dark">
+              
+                    <div class="container-fluid">
+    
+                        <button type="button" id="sidebarCollapse" class="btn">
+                            <i class="fa fa-bars" style="color:#fff;font-size: xx-large;"></i> 
+                        </button>
+              
+    
+                        <div class="collapse navbar-collapse">
+                            <ul class="nav navbar-nav ml-auto">
+                                <!--<div class="mr-5">-->
+                                <!--  <font color="white" id="blink">  Total Call: <k id='Call_Today_Count'></k> </font>-->
+                                <!--</div> -->
+                                <div class="mr-5">
+                                  <font color="white" id="blink">  Total Call: <k id='Call_Today_Count'></k> </font>
+                                </div> 
+                                 <div class="mr-5">
+                                  <font color="white" id="blink"> Connected Calls: <k id='countConnected'></k> </font>
+                                </div>
+                                 <div class="mr-5">
+                                  <font color="white" id="blink">  Not Connected Calls: <k id='countNotConnected'></k> </font>
+                                </div>
+                                 <div class="mr-5">
+                                  <font color="white" id="blink">  Total Call Duration: <k id='durationDisplay'></k> </font>
+                                </div>
+                                
+                                <div class="dropdown mr-5">
+                                  <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                   <i class="fa fa-bell fa-lg" aria-hidden="true"></i>
+                                  </button>
+                                  <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                                    <a href="#" class="dropdown-item" onclick="notificationAdmin()">Caller Notification</a>
+                                    <a href="#" class="dropdown-item" onclick="notifyDeveloperAdmin()">Developer Notification</a>
+                                  </div>
+                                </div> 
+                                <li class="nav-item active">
+                                    <button class="nav-logout" onclick="Logout()">Logout</button>
+                                </li>                    
+                            </ul>
+                            
+                        </div>
+                    </div>
+                </nav>
+ 
+            <div class="container">
+                <button id="classic" class="btn btn-primary" data-toggle="modal" data-target="#exampleModalSupportStats">Stats</button>
+                   <button id="classic" class="btn btn-info" data-toggle="modal" data-target="#exampleModalAssignProj" >Assign TASK</button>
+                <button id="classic" class="btn btn-primary" onclick="getAssignedTask()">Assigned TASK List</button>
+                <button id="classic" class="btn btn-secondary" onclick="assignedToMe()">My Tasks</button>
+            <button id="classic" class="btn btn-primary"  data-toggle="modal" data-target="#exampleModalProjectSearch">Project Search</button>
+                
+
+                <!--<button class="btn btn-danger" onclick="mailSend()">Mail Test</button>-->
+                
+                <!--Add Lead-->
+                <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                    <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                        <h5 class="modal-title" id="exampleModalLabel">Add Lead</h5>
+                        <button type="button" class="btn-close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                        </div>
+                        <div class="modal-body">
+                        <form>
+                            <div class="form-group">
+                            <label for="name" class="col-form-label">Name:</label>
+                            <input type="text" class="form-control" id="name" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="mobile" class="col-form-label">Phone Number:</label>
+                                <input type="text" class="form-control" id="mobile" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="alternate_mobile" class="col-form-label">Alt Phone Number:</label>
+                                <input type="text" class="form-control" id="alternate_mobile">
+                            </div>
+                            <div class="form-group">
+                                <label for="whatsapp" class="col-form-label">Whatsapp Number:</label>
+                                <input type="text" class="form-control" id="whatsapp">
+                            </div>
+                            <div class="form-group">
+                                <label for="email" class="col-form-label">Email:</label>
+                                <input type="email" class="form-control" id="email" required>
+                            </div>
+                            <div class="row">
+                                <div class="form-group col-md-6">
+                                <label for="state">State:</label>
+                                <select id="state" class="form-control">
+                                </select>
+                              </div>
+                              <div class="form-group col-md-6">
+                                  <label for="district">City:</label>
+                                  <select id="district" class="form-control">
+                                  </select>
+                                </div>
+                            <div class="form-group col-md-6">
+                                <label for="interested_in">Interested In</label>
+                                <select id="interested_in" class="form-control">
+                                  <option selected>Grocery App</option>
+                                  <option>Service App</option>
+                                  <option>Website</option>
+                                  <option>DM Course</option>
+                                  <option>Others</option>
+                                </select>
+                              </div>
+                              <div class="form-group col-md-6">
+                                  <label for="source">Source</label>
+                                  <select id="source" class="form-control">
+                                    <option selected>Youtube</option>
+                                    <option>Inbound Call</option>
+                                    <option>FB Ad</option>
+                                    <option>FB Group</option>
+                                    <option>Email</option>
+                                  </select>
+                                </div>
+                                <div class="form-group col-md-6">
+                                    <label for="status">Status</label>
+                                    <select id="status" class="form-control">
+                                      <option selected>New</option>
+                                      <option>Proposail Mailed</option>
+                                      <option>Converted</option>
+                                      <option>Pending</option>
+                                      <option>DEAD</option>
+                                    </select>
+                                  </div>
+                                
+                                  <div class="form-group col-md-6">
+                                      <label for="caller_id" class="col-form-label">Caller:</label>
+                                      <select class="form-control" id="caller_id" required>
+                                        </select>
+                                  </div>
+                                </div>
+                                    <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                    <button type="button" class="btn btn-primary" onclick="addLead()">Add Lead</button>
+                                    </div>
+                                    <p id="errorDetails" style="text-align: right;color: crimson;"></p>
+                    </form>
+                </div>
+                
+                    </div>
+                    </div>
+                </div>
+               
+               <!--All Leads/Members-->
+                <div class="container mt-5">
+                    <div class="container text-center" id="displayContent"></div>
+                </div>
+
+                <!--Add Member-->
+                <div class="modal fade" id="exampleModal2" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+              <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                  <div class="modal-header">
+                    <h3 class="modal-title" id="exampleModalLabel">ADD MEMBER</h3>
+                    <button type="button" class="btn-close" data-dismiss="modal" aria-label="Close">
+                      <span aria-hidden="true">&times;</span>
+                    </button>
+                  </div>
+                  <div class="modal-body">
+                    <form>
+                      <div class="form-group">
+                        <label for="nameCaller" class="col-form-label">Name:</label>
+                        <input type="text" class="form-control" id="nameCaller">
+                      </div>
+                      <div class="form-group">
+                        <label for="mobileCaller" class="col-form-label">Mobile:</label>
+                        <input type="text" class="form-control" id="mobileCaller"/>
+                      </div>
+                      <div class="form-group">
+                        <label for="passwordCaller" class="col-form-label">Password:</label>
+                        <input type="password" class="form-control" id="passwordCaller"/>
+                      </div>
+                      <div class="form-group">
+                        <label for="type" class="col-form-label">Type:</label>
+                        <select class="form-control" id="type">
+                            <option selected>Admin</option>
+                            <option>Caller</option>
+                            <option>Developer</option>
+                            <option>Support</option>
+                        </select>
+                      </div>
+                    </form>
+                  </div>
+                  <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary" onclick="addCaller()">Add Member</button>
+                  </div>
+                  <p id="errorDetailsCallerForm" style="text-align: right;color: crimson;"></p>
+                </div>
+              </div>
+            </div>
+            
+                 
+                <!--Edit Lead-->
+                <div class="modal fade" id="exampleModal3" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                    <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                        <h5 class="modal-title" id="exampleModalLabel">Edit Lead</h5>
+                        <button type="button" class="btn-close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                        </div>
+                        <div class="modal-body">
+                        <form>
+                            <div class="form-group">
+                            <label for="edit_name" class="col-form-label">Name:</label>
+                            <input type="text" class="form-control" id="edit_name" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="edit_mobile" class="col-form-label">Phone Number:</label>
+                                <input type="text" class="form-control" id="edit_mobile" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="edit_alternate_mobile" class="col-form-label">Alt Phone Number:</label>
+                                <input type="text" class="form-control" id="edit_alternate_mobile">
+                            </div>
+                            <div class="form-group">
+                                <label for="edit_whatsapp" class="col-form-label">Whatsapp Number:</label>
+                                <input type="text" class="form-control" id="edit_whatsapp">
+                            </div>
+                            <div class="form-group">
+                                <label for="edit_email" class="col-form-label">Email:</label>
+                                <input type="email" class="form-control" id="edit_email" required>
+                            </div>
+                            <div class="row">
+                              <div class="form-group col-md-6">
+                                <label for="edit_state">State:</label>
+                                <select id="edit_state" class="form-control">
+                                </select>
+                              </div>
+                              <div class="form-group col-md-6">
+                                  <label for="edit_district">City:</label>
+                                  <select id="edit_district" class="form-control">
+                                  </select>
+                                </div>
+                            <div class="form-group col-md-6">
+                                <label for="edit_interested_in">Interested In</label>
+                                <select id="edit_interested_in" class="form-control">
+                                  <option selected>Grocery App</option>
+                                  <option>POS</option>
+                                  <option>Service App</option>
+                                  <option>Website</option>
+                                  <option>Promotion</option>
+                                  <option>Job</option>
+                                  <option>WDC</option>
+                                  <option>DM Course</option>
+                                  <option>Others</option>
+                                </select>
+                              </div>
+                              <div class="form-group col-md-6">
+                                  <label for="edit_source">Source</label>
+                                  <select id="edit_source" class="form-control">
+                                    <option selected>Youtube</option>
+                                    <option>website</option>
+                                    <option>Inbound Call</option>
+                                    <option>FB Ad</option>
+                                    <option>FB Group</option>
+                                    <option>Email</option>
+                                  </select>
+                                </div>
+                                <div class="form-group col-md-6">
+                                    <label for="edit_status">Status</label>
+                                    <select  id="edit_status" class="form-control" >
+                                      <option selected>New</option>
+                                      <option >Demo Done</option>
+                                      <option>Proposail Mailed</option>
+                                      <option>Converted</option>
+                                      <option>Pending</option>
+                                      <option>Followup</option>
+                                      <option>DEAD</option>
+                                    </select>
+                                  </div>
+                                
+                                  <div class="form-group col-md-6">
+                                      <label for="edit_caller_id" class="col-form-label">Caller:</label>
+                                      <select class="form-control" id="edit_caller_id" required>
+                                        </select>
+                                  </div>
+                                </div>
+                                    <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                    <button type="button" class="btn btn-primary" onclick="updateLeads()">Update</button>
+                                    </div>
+                                    <p id="editErrorDetails" style="text-align: right;color: crimson;"></p>
+                    </form>
+                </div>
+                
+                    </div>
+                    </div>
+                </div>
+                
+                
+                <!-- supoort stats -->
+
+                <div class="modal fade" id="exampleModalSupportStats" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                        <div class="modal-dialog" role="document">
+                          <div class="modal-content">
+                            <div class="modal-header">
+                              <h3 class="modal-title" id="exampleModalLabel">Search Stats</h3>
+                              <button type="button" class="btn-close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                              </button>
+                            </div>
+                            <div class="modal-body">
+                              <form>
+                                <div class="form-group">
+                                        <label for="sDate" class="col-form-label">Start Date:</label>
+                                        <input type="date" class="form-control" id="sDate">
+                                </div>
+                              </form>
+                              <div class="form-group">
+                                       <label for="eDate" class="col-form-label">End Date:</label>
+                                       <input type="date" class="form-control" id="eDate">
+                              </div>
+                            </div>
+                            <div class="modal-footer">
+                              <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                              <button type="button" class="btn btn-primary" onclick="getTHStats()">Search</button>
+                            </div>
+                            <p id="errorSearchLeads" style="text-align: right;color: crimson;"></p>
+                          </div>
+                        </div>
+                      </div>
+            
+          
+                
+                
+                
+                <!--Status-->
+                <div class="modal fade" id="exampleModal4" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                  <div class="modal-dialog modal-xl" role="document">
+                    <div class="modal-content">
+                      <div class="modal-header">
+                        <h3 class="modal-title" id="exampleModalLabel">STATUS</h3>
+                        <button type="button" class="btn-close" data-dismiss="modal" aria-label="Close">
+                          <span aria-hidden="true">&times;</span>
+                        </button>
+                      </div>
+                      <div class="container" id="allStatus">
+                          <table id='statustable' class='table table-bordered table-striped'>
+                                <thead>
+                                        <th>Called By</th>
+                                        <th>On</th>
+                                        <th>Summary</th>
+                                        <th>Next Call</th>
+                                        <th>Audio</th>
+                                </thead>
+                                <tbody>
+
+                                </tbody>
+                        </table>
+                <div class='container' id='mailOption'></div>
+                          
+                      </div>
+                      <hr>
+                      <div class="modal-body">
+                          <h4>Add Status</h4>
+                        <form>
+                          <div class="form-group">
+                            <label for="leadId" class="col-form-label">Lead ID:</label>
+                            <input type="text" class="form-control" id="leadId" disabled>
+                          </div>
+                          <div class="row">
+                              <div class="form-group col-md-6">
+                                <label for="next_call_date" class="col-form-label">Next Call Date:</label>
+                                <input type="date" class="form-control" id="next_call_date" />
+                              </div>
+                              <div class="form-group col-md-6">
+                                <label for="time" class="col-form-label">Time:</label>
+                                <input type="time" class="form-control" id="time" />
+                              </div>
+                          </div>
+                          <div class="form-group">
+                            <label for="call_status" class="col-form-label">Call Status:</label>
+                             <select class="form-control" id="call_status">
+                                                                 <option value="Feedback Call">Feedback Call</option>
+                                                                 <option value="Demo Done">Demo Done</option>
+                        <option value="Unserviceable">Unserviceable</option>
+                        <option value="Whatsapp Followup">Whatsapp Followup</option>
+                              <option value="Switched Off">Switched Off</option>
+                              <option value="Not Received">Not Received</option>
+                              <option value="Out Of Service">Out Of Service</option>
+                              <option value="Incoming Off">Incoming Off</option>
+                              <option value="Positive / Interested ">Positive / Interested</option>
+                              <option value="Confused">Confused</option>
+                              <option value="Not Interested">Not Interested</option>
+                              <option value="Pricing Issue">Pricing Issue</option>
+                              <option value="Fund Issue">Fund Issue</option>
+                              <option value="Inprocess (Interested)">Inprocess (Interested)</option>
+                              <option value="Call Busy">Call Busy</option>
+                              <option value="Incoming Call">Incoming Call</option>
+                              <option value="Call Drop">Call Drop</option>
+                              <option value="Connected(Not Available)">Connected(Not Available)</option>
+                             </select>
+                          </div>
+                          <div class="form-group">
+                            <label for="summary_note" class="col-form-label">Summary Note:</label>
+                            <textarea rows=5 class="form-control" id="summary_note"></textarea>
+                          </div>
+                        </form>
+                      </div>
+                      <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        <button type="button" class="btn btn-primary" onclick="addNewStatus()">SUBMIT</button>
+                      </div>
+                      <p id="errorDetailsStatus" style="text-align: right;color: crimson;"></p>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Search Next Call -->
+                <div class="modal fade" id="exampleModalDate" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                  <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                      <div class="modal-header">
+                        <h3 class="modal-title" id="exampleModalLabel">TO BE CONTACTED</h3>
+                        <button type="button" class="btn-close" data-dismiss="modal" aria-label="Close">
+                          <span aria-hidden="true">&times;</span>
+                        </button>
+                      </div>
+                      <div class="modal-body">
+                        <form>
+                          <div class="form-group">
+                            <label for="contactDate" class="col-form-label">Date:</label>
+                            <input type="date" class="form-control" id="contactDate">
+                          </div>
+                        </form>
+                      </div>
+                      <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        <button type="button" class="btn btn-primary" onclick="getDate()">Search</button>
+                      </div>
+                      <p id="errorDetailsDate" style="text-align: right;color: crimson;"></p>
+                    </div>
+                  </div>
+                </div>
+            
+                
+                <!-- New Search Next Call -->
+                <div class="modal fade" id="exampleModalDate1" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                  <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                      <div class="modal-header">
+                        <h3 class="modal-title" id="exampleModalLabel">TO BE CONTACTED</h3>
+                        <button type="button" class="btn-close" data-dismiss="modal" aria-label="Close">
+                          <span aria-hidden="true">&times;</span>
+                        </button>
+                      </div>
+                      <div class="modal-body">
+                        <form>
+                          <div class="form-group">
+                            <label for="contactDate" class="col-form-label">From Date:</label>
+                            <input type="date" class="form-control" id="contactDate1" onChange=dateChange()>
+                          </div>
+                          <div class="form-group">
+                            <label for="contactDate" class="col-form-label">To Date:</label>
+                            <input type="date" class="form-control" id="contactDate2">
+                          </div>
+                        </form>
+                      </div>
+                      <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        <button type="button" class="btn btn-primary" onclick="getDate1()">Search</button>
+                      </div>
+                      <p id="errorDetailsDate1" style="text-align: right;color: crimson;"></p>
+                    </div>
+                  </div>
+                </div>
+                
+            
+            
+            
+                
+                <!-- New Part -->
+
+                <!-- Add Project Details -->
+                <div class="modal fade" id="exampleModalprojDetails" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                  <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                      <div class="modal-header">
+                        <h3 class="modal-title" id="exampleModalLabel">ADD PROJECT DETAILS</h3>
+                        <button type="button" class="btn-close" data-dismiss="modal" aria-label="Close">
+                          <span aria-hidden="true">&times;</span>
+                        </button>
+                      </div>
+                      <div class="container modal-body">
+                        <form>
+                          <div class="row form-group">
+                              <div class="col-md-6 form-group">
+                                <label for="leadsA" class="col-form-label">Lead :</label>
+                                <select class="form-control" id="leadsA" onchange="setDetails()"></select>
+                              </div>
+                              <div class="col-md-6 form-group">
+                                <label for="callerA" class="col-form-label">Caller :</label>
+                                <select class="form-control" id="callerA" disabled></select>
+                              </div>
+                              <div class="col-md-6 form-group">
+                                <label for="developerA" class="col-form-label">Developer :</label>
+                                <select class="form-control" id="developerA"></select>
+                              </div>
+                              <div class="col-md-6 form-group">
+                                <label for="projectNameA" class="col-form-label">Project Name :</label>
+                                <input class="form-control" id="projectNameA" />
+                              </div>
+                              <div class="col-md-6 form-group">
+                                <label for="projectTypeA" class="col-form-label">Project Type :</label>
+                                <input class="form-control" id="projectTypeA" disabled>
+                              </div>
+                              <div class="col-md-6 form-group">
+                                <label for="cityA" class="col-form-label">State :</label>
+                                <input class="form-control" id="cityA" />
+                              </div>
+                              <div class="col-md-12 form-group">
+                                <label for="addressA" class="col-form-label">Address :</label>
+                                <textarea rows=3 class="form-control" id="addressA" ></textarea>
+                              </div>
+                              <div class="col-md-6 form-group">
+                                <label for="PINCODE" class="col-form-label">Pincode :</label>
+                                <input class="form-control" id="PINCODE" />
+                              </div>
+                              <div class="col-md-12 form-group">
+                                <label for="remarksA" class="col-form-label">Remarks :</label>
+                                         <textarea rows=3 class="form-control" id="remarksA" ></textarea>
+                              </div>
+                            
+                          </div>
+                        </form>
+                      </div>
+                      <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        <button type="button" class="btn btn-primary" onclick="addProjectDetails()">Add Details</button>
+                      </div>
+                      <p id="errorDetailsAddProject" style="text-align: right;color: crimson;"></p>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Assign Project  -->
+                <div class="modal fade" id="exampleModalAssignProj" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                  <div class="modal-dialog modal-xl" role="document">
+                    <div class="modal-content">
+                      <div class="modal-header">
+                        <h3 class="modal-title" id="exampleModalLabel">ASSIGN PROJECT</h3>
+                        <button type="button" class="btn-close" data-dismiss="modal" aria-label="Close">
+                          <span aria-hidden="true">&times;</span>
+                        </button>
+                      </div>
+                      <div class="container modal-body">
+                        <form>
+                          <div class="row form-group">
+                              <div class="col-md-12 form-group">
+                                   
+                                <label for="projDetails" class="col-form-label">Project :</label>
+                                <select class="form-control" data-live-search="true" id="projDetails"></select>
+                              </div>
+                              <div class="col-md-6 form-group">
+                                <label for="assignedTo" class="col-form-label">Assign To :</label>
+                                <select class="form-control" id="assignedTo"></select>
+                              </div>
+                              <div class="col-md-6 form-group">
+                                <label for="assignedWork" class="col-form-label">Work :</label>
+                                <input type="text" class="form-control" id="assignedWork">
+                              </div>
+                              <div class="col-md-12 form-group">
+                                <label for="remarksProjAssign" class="col-form-label">Remarks :</label>
+                                <textarea rows=3 class="form-control" id="remarksProjAssign" ></textarea>
+                              </div>
+                              <div class="col-md-6 form-group">
+                                <label for="deadline" class="col-form-label">Deadline :</label>
+                                <input class="form-control" id="deadline" type="date">
+                              </div>
+                              <div class="col-md-6 form-group">
+                                <label for="taskPriority" class="col-form-label">Priority :</label>
+                                <select class="form-control" id="taskPriority">
+                                    <option>Urgent</option>
+                                    <option>Normal</option>
+                                    <option>Super Urgent</option>
+                                </select>
+                              </div>
+                            
+                          </div>
+                        </form>
+                      </div>
+                      <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        <button type="button" class="btn btn-primary" onclick="assignProjectTask()">Assign Task</button>
+                      </div>
+                      <p id="errorDetailsAssignTask" style="text-align: right;color: crimson;"></p>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Add Rating and Feedback -->
+                <div class="modal fade" id="exampleModalFeedbackTask" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                  <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                      <div class="modal-header">
+                        <h3 class="modal-title" id="exampleModalLabel">ADD FEEDBACK</h3>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
+                          <span aria-hidden="true">&times;</span>
+                        </button>
+                      </div>
+                      <div class="modal-body">
+                        <form>
+                          <div class="form-group">
+                            <label for="taskID" class="col-form-label">Task ID:</label>
+                            <input type="number" class="form-control" id="taskID" disabled>
+                          </div>
+                          <div class="form-group">
+                            <label for="ratingTask" class="col-form-label">Rating:</label>
+                            <select class="form-control" id="ratingTask">
+                                <option value="5">5</option>
+                                <option value="4">4</option>
+                                <option value="3">3</option>
+                                <option value="2">2</option>
+                                <option value="1">1</option>
+                            </select>
+                          </div>
+                          <div class="form-group">
+                            <label for="feedbackTask" class="col-form-label">Completion Remark:</label>
+                             <textarea rows=3 class="form-control" id="feedbackTask" ></textarea>
+                          </div>
+                        </form>
+                      </div>
+                      <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <button type="button" class="btn btn-primary" data-bs-dismiss="modal" onclick="submitTaskFeedback()">Submit</button>
+                      </div>
+                      <p id="errorDetailsDate" style="text-align: right;color: crimson;"></p>
+                    </div>
+                  </div>
+                </div>
+            
+                
+    
+    
+     <!-- Search Lead -->
+                 <div class="modal fade" id="exampleModalProjectSearch" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                  <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                      <div class="modal-header">
+                        <h3 class="modal-title" id="exampleModalLabel">SEARCH Project</h3>
+                        <button type="button" class="btn-close" data-dismiss="modal" aria-label="Close">
+                          <span aria-hidden="true">&times;</span>
+                        </button>
+                      </div>
+                      <div class="modal-body">
+                        <form>
+                          <div class="form-group">
+                            <label for="searchLeadBy" class="col-form-label">Credential(Contact No./Email/Project Name):</label>
+                            <input type="text" class="form-control" id="searchProjectBy">
+                          </div>
+                        </form>
+                      </div>
+                      <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        <button type="button" class="btn btn-primary" onclick="getSearchedProject()">Search</button>
+                      </div>
+                      <p id="errorSearchLeads" style="text-align: right;color: crimson;"></p>
+                    </div>
+                  </div>
+                </div>
+                
+            
+          
+              
+                 <!-- Search Lead -->
+                 <div class="modal fade" id="exampleModalLeadSearch" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                  <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                      <div class="modal-header">
+                        <h3 class="modal-title" id="exampleModalLabel">SEARCH LEADS</h3>
+                        <button type="button" class="btn-close" data-dismiss="modal" aria-label="Close">
+                          <span aria-hidden="true">&times;</span>
+                        </button>
+                      </div>
+                      <div class="modal-body">
+                        <form>
+                          <div class="form-group">
+                            <label for="searchLeadBy" class="col-form-label">Credential(Contact No./Email):</label>
+                            <input type="text" class="form-control" id="searchLeadBy">
+                          </div>
+                        </form>
+                      </div>
+                      <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        <button type="button" class="btn btn-primary" onclick="getSearchedLead()">Search</button>
+                      </div>
+                      <p id="errorSearchLeads" style="text-align: right;color: crimson;"></p>
+                    </div>
+                  </div>
+                </div>
+  
+
+
+                <!-- Edit Project Details -->
+                 <div class="modal fade" id="exampleModalEditProject" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                  <div class="modal-dialog" role="document">
+                  <div class="modal-content">
+                      <div class="modal-header">
+                      <h5 class="modal-title" id="exampleModalLabel">Edit Project Details</h5>
+                      <button type="button" class="btn-close" data-dismiss="modal" aria-label="Close">
+                          <span aria-hidden="true">&times;</span>
+                      </button>
+                      </div>
+                      <div class="modal-body">
+                      <form>
+                        <div class="row form-group">
+                            <div class="col-md-6 form-group" style="display:none;">
+                            <input type="text" class="form-control" id="projectID">
+                          </div>
+                          <div class="col-md-6 form-group" style="display:none;">
+                            <input type="text" class="form-control" id="leadID">
+                          </div>
+                          <div class="col-md-6 form-group">
+                            <label for="edit_leadsA" class="col-form-label">Lead :</label>
+                            <input class="form-control" id="edit_leadsA" onchange="setDetails()" disabled="">
+                          </div>
+                          <div class="col-md-6 form-group">
+                            <label for="edit_callerA" class="col-form-label">Caller :</label>
+                            <select class="form-control" id="edit_callerA"></select>
+                          </div>
+                          <div class="col-md-6 form-group">
+                            <label for="edit_developerA" class="col-form-label">Developer :</label>
+                            <select class="form-control" id="edit_developerA"></select>
+                          </div>
+                          <div class="col-md-6 form-group">
+                            <label for="edit_projectNameA" class="col-form-label">Project Name :</label>
+                            <input class="form-control" id="edit_projectNameA" />
+                          </div>
+                          <div class="col-md-6 form-group">
+                            <label for="edit_projectTypeA" class="col-form-label">Project Type :</label>
+                            <input class="form-control" id="edit_projectTypeA" disabled>
+                          </div>
+                          <div class="col-md-6 form-group">
+                            <label for="edit_cityA" class="col-form-label">State :</label>
+                            <input class="form-control" id="edit_cityA" />
+                          </div>
+                          <div class="col-md-12 form-group">
+                            <label for="edit_addressA" class="col-form-label">Address :</label>
+                            <textarea rows=3 class="form-control" id="edit_addressA" ></textarea>
+                          </div>
+                          <div class="col-md-6 form-group">
+                            <label for="edit_PINCODE" class="col-form-label">Pincode :</label>
+                            <input class="form-control" id="edit_PINCODE" />
+                          </div>
+                              <div class="col-md-12 form-group">
+                                <label for="edit_remarksA" class="col-form-label">Remarks :</label>
+                                <textarea rows=3 class="form-control" id="edit_remarksA" ></textarea>
+                              </div>
+                        
+                      </div>
+                      
+                                  <div class="modal-footer">
+                                  <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                  <button type="button" class="btn btn-primary" onclick="updateProjectDetails()">Update</button>
+                                  </div>
+                                  <p id="editErrorProjectDetails" style="text-align: right;color: crimson;"></p>
+                  </form>
+                   </div>
+              
+                  </div>
+                  </div>
+              </div>
+    
+                
+                
+                       <!--Project More Details-->
+                <div class="modal fade" id="exampleModalMoreDetails" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                  <div class="modal-dialog modal-xl" role="document">
+                    <div class="modal-content" style="min-width:100%">
+                      <div class="modal-header">
+                        <h3 class="modal-title" id="exampleModalLabel">FULL DETAILS</h3>
+                        <button type="button" class="btn-close" data-dismiss="modal" aria-label="Close">
+                          <span aria-hidden="true">&times;</span>
+                        </button>
+                      </div>
+                      <div class="container" id="fullProjectDetails">
+                          
+                      </div>
+                      <p id="errorDetailsStatus" style="text-align: right;color: crimson;"></p>
+                    </div>
+                  </div>
+                </div>    
+    
+    
+    
+                       <!--Project Status-->
+                <div class="modal fade" id="exampleModalProjectStatus" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                  <div class="modal-dialog modal-xl" role="document">
+                    <div class="modal-content">
+                      <div class="modal-header">
+                        <h3 class="modal-title" id="statusTitle" style="color:red;"></h3>
+                        <button type="button" class="btn-close" data-dismiss="modal" aria-label="Close">
+                          <span aria-hidden="true">&times;</span>
+                        </button>
+                      </div>
+                      <div class="container" id="allProjectStatus">
+                          
+                      </div>
+                      <hr>
+                      <div class="modal-body">
+                          <h4>Add Status</h4>
+                        <form>
+                          <div class="form-group" style="display:none">
+                            <input type="number" class="form-control" id="projectLead" />
+                          </div>
+                          <div class="row">
+                              <div class="form-group col-md-6" style="display:none">
+                                <input type="number" class="form-control" id="projectStatusID" />
+                              </div>
+                              <div class="form-group col-md-6" style="display:none">
+                                <input type="number" class="form-control" id="projectCaller" />
+                              </div>
+                          </div>
+                          <div class="form-group">
+                            <label for="projectSummaryNote" class="col-form-label">Summary Note:</label>
+                            <select class="form-control" id="projectSummaryNote">
+                            <option>Finalised By client</option>
+                            <option>In Development</option>
+                            <option>Send For testing</option>
+                            <option>Uploaded to Playstore</option>
+                            <option>Live On PlayStore</option>
+                            <option>Suspended</option>
+                            <option>Not Renewed</option>
+                            <option>Other</option>
+                            </select>
+                          </div>
+                          <div class="form-group">
+                            <label for="projectStatusRemark" class="col-formrows=5 -label">Summary Note:</label>
+                            <textarea rows=5 class="form-control" id="projectStatusRemark"></textarea>
+                          </div>
+                        </form>
+                      </div>
+                      <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        <button type="button" class="btn btn-primary" onclick="addNewProjectStatus()">SUBMIT</button>
+                      </div>
+                      <p id="errorProjectDetailsStatus" style="text-align: right;color: crimson;"></p>
+                    </div>
+                  </div>
+                </div>
+                
+                
+                <!--Project Billing-->
+                <div class="modal fade" id="exampleModalProjectBilling" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                  <div class="modal-dialog modal-xl" role="document">
+                    <div class="modal-content">
+                      <div class="modal-header">
+                        <h3 class="modal-title" id="billingTitle"></h3>
+                        <button type="button" class="btn-close" data-dismiss="modal" aria-label="Close">
+                          <span aria-hidden="true">&times;</span>
+                        </button>
+                      </div>
+                      <div class="container" id="allProjectBilling">
+                          
+                      </div>
+                      <div id="ifDiscountAdded" class="modal-body"></div>
+                      <div id="dicountDiv" class="modal-body">
+                          <h4>Add Cupon Code</h4>
+                              <form>
+                                   <div class="row form-group">
+                                       <div class= "col-md-6 form-group">
+                                            <label for="discountAmount" class="col-form-label">Discount:</label>
+                                            <input type="text" class="form-control" id="discountAmount" />       
+                                       </div>
+                                       <div class= "col-md-6 form-group">
+                                            <label for="discountRemark" class="col-form-label">Remark:</label>
+                                            <input type="text" class="form-control" id="discountRemark" value="Discount"/>
+                                       </div>
+                                  </div>
+                              </form>
+                              <button type="button" class="btn btn-primary" onclick="addProjectDiscount()">SUBMIT</button>
+                              <p id="errorProjectDiscount" style="text-align: right;color: crimson;"></p>
+                          </div>
+                      <hr>
+                      <div class="modal-body">
+                          <h4>All Demands</h4>
+                        <form>
+                            <div class="row" >
+                          <div class="col-md-4 form-group">
+                            <label for="projectIDBilling" class="col-form-label">Project ID:</label>
+                            <input type="number" class="form-control" id="projectIDBilling" disabled />
+                          </div>
+                          
+                          <div class="col-md-8 form-group">
+                            <label for="projectBillingAddon" class="col-form-label">Addons:</label>
+                            <select class="form-control" id="projectBillingAddon">
+                          <!--/////////////////////////////////////////////-->
+                                            <option value="000">Grocery App </option>
+                                            <option value="027">Service App </option>
+                                            <option value="001">Product Image FREE </option>
+                                            <option value="002">Payment Gateway(Razorpay) Rs 2000/- </option>
+                                            <option value="003">Logo (Advance) Rs 1000/- </option>
+                                            <option value="004">Logo (Normal) FREE </option>
+                                            <option value="005">SMS Notification** FREE integration </option>
+                                            <option value="006">Simple Location Tracking as Rs 3000/- </option>
+                                            <option value="007">Delivery Boy Admin Panel (NORMAL) FREE </option>
+                                            <option value="008">Delivery Boy Admin Panel Rs 4000/- </option>
+                                            <option value="009">Play store publishing on our Google account FREE </option>
+                                            <option value="010">Play store publishing on personal Google account $25+$15 </option>//Use correct Value Later temporarily 0
+                                            <option value="011">Automatic bill generation FREE </option>
+                                            <option value="012">wallet Rs 5000/- </option>
+                                            <option value="013">Coupon code Rs 3000/- </option>
+                                            <option value="014">Ios publishing $100/year + $50 </option>//Use correct Value Later temporarily 0
+                                            <option value="015">GPS tracking Rs 20000 + google fee </option>
+                                            <option value="016">Interface Rs 13000/- </option>
+                                            <option value="017">OTP Rs 3000/- </option>
+                                            <option value="018">Export to Excel 1500/- </option>
+                                            <option value="019">Share my app 1000/- </option>
+                                            <option value="020">One page Website 5000/- </option>
+                                            <option value="021">Sub Category 3000/- </option>
+                                            <option value="022">Push Notification 3000/- </option>
+                                            <option value="023">Analytical Graph 3000/- </option>
+                                            <option value="024">Application upgrade 6000/- </option>
+                                            <option value="025">Refer and earn 8000/- </option>
+                                            <option value="026">Renewal 8000/- </option>
+                           
+                           
+                           <!--////////////////////////////////////////////-->
+                            </select>
+                          </div>
+                          </div>
+                          <b style="color:red" >If the addon is not in the list enter the details below</b>
+                          <div class="form-group">
+                              <label for="ExtraAddon" class="col-form-label">Extra Addons:</label>
+                              <div id="ExtraAddon" class="row">
+                                  <div class="col-8" >
+                                      <input type="text" class="form-control" id="AddonName" placeholder="Addon Name"/>
+                                  </div>
+                                  <div class="col-4" >
+                                      <input type="text" class="form-control" id="AddonAmount" placeholder="Addon Amount"/>
+                                  </div>
+                              </div>
+                          </div>
+                          
+                        </form>
+                      </div>
+                      <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        <button type="button" class="btn btn-primary" onclick="addProjectBilling()">SUBMIT</button>
+                      </div>
+                      <p id="errorProjectBilling" style="text-align: right;color: crimson;"></p>
+                    </div>
+                  </div>
+                </div>
+        
+        
+        
+                    <!--Project Payment--> 
+                
+                <div class="modal fade" id="exampleModalProjectPayment" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                  <div class="modal-dialog modal-xl" role="document">
+                    <div class="modal-content">
+                      <div class="modal-header">
+                        <h3 class="modal-title" id="paymentTitle"></h3>
+                        <button type="button" class="btn-close" data-dismiss="modal" aria-label="Close">
+                          <span aria-hidden="true">&times;</span>
+                        </button>
+                      </div>
+                      <div class="container" id="allProjectPayment">
+                          
+                      </div>
+                      <hr>
+                      
+                      <div class="modal-body">
+                          <h4>All Payments</h4>
+                        <form enctype="multipart/form-data">
+                          <div class="form-group" style="display:none">
+                            <input type="number" class="form-control" id="projectIDPayment" />
+                          </div>
+                          <div class="row">
+                          <div class="col-md-6 form-group">
+                            <label for="paymentAmount" class="col-form-label">Amount:</label>
+                            <input type="text" class="form-control" id="paymentAmount" />
+                          </div>
+                           <div class="col-md-6 form-group">
+                            <label for="paymentStatus" class="col-form-label">Status:</label>
+                            <select class="form-control" id="paymentStatus" >
+                                <option value="0">Unverified</option>
+                                <option value="1">Verified</option>
+                            </select>
+                          </div>
+                          </div>
+                          <div class="form-group">
+                            <label for="paymentProof" class="col-form-label">Proof:</label>
+                            <input type="file" class="fileToUpload form-control" id="paymentProof" accept="image/*" onchange="checkSize()"/>
+                            <p id="paymentSize" style="color:crimson;"></p>
+                          </div>
+                          <div class="form-group">
+                            <label for="paymentRemark" class="col-form-label">Remark:</label>
+                            <textarea rows=3 class="form-control" id="paymentRemark" ></textarea>
+                          </div>
+                         
+                          
+                        </form>
+                      </div>
+                      <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        <button type="button" class="btn btn-primary" onclick="addProjectPayment()">SUBMIT</button>
+                      </div>
+                      <p id="errorProjectPayment" style="text-align: right;color: crimson;"></p>
+                    </div>
+                  </div>
+                </div>
+        
+                 
+                 
+                <!-- Statistics-->
+                <div class="modal fade" id="exampleModalStats" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                  <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                      <div class="modal-header">
+                        <h3 class="modal-title" id="exampleModalLabel">DATE RANGE</h3>
+                        <button type="button" class="btn-close" data-dismiss="modal" aria-label="Close">
+                          <span aria-hidden="true">&times;</span>
+                        </button>
+                      </div>
+                      <div class="modal-body">
+                        <form>
+                          <div class="form-group">
+                            <label for="startDate" class="col-form-label">Start Date:</label>
+                            <input type="date" class="form-control" id="startDate">
+                          </div>
+                          <div class="form-group">
+                            <label for="endDate" class="col-form-label">End Date:</label>
+                            <input type="date" class="form-control" id="endDate">
+                          </div>
+                          <div class="form-group">
+                            <label for="statsFor" class="col-form-label">Statistics for:</label>
+                            <select id="statsFor" class="form-control">
+                                <option value="1">Grocery App</option>
+                                <option value="2">Service App</option>
+                                <option value="3">Website</option>
+                                <option value="4">DM Course</option>
+                                <option value="5">Others</option>
+                                <option value="6">All</option>
+                            </select>
+                          </div>
+                        </form>
+                      </div>
+                      <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        <button type="button" class="btn btn-primary" onclick="getStats()">Check</button>
+                      </div>
+                      <p id="errorDetailsStats" style="text-align: right;color: crimson;"></p>
+                    </div>
+                  </div>
+                </div>
+            
+                  
+       
+                
+                
+                <!--Manual Mail-->
+                <!-- Button trigger modal -->
+                 <!--MyStatus-->
+                <div class="modal fade" id="exampleModal5" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                  <div class="modal-dialog modal-xl" role="document">
+                    <div class="modal-content">
+                      <div class="modal-header">
+                        <h3 class="modal-title" id="exampleModalLabel">STATUS</h3>
+                        <button type="button" class="btn-close" data-dismiss="modal" aria-label="Close">
+                          <span aria-hidden="true">&times;</span>
+                        </button>
+                      </div>
+                      <div class="container" id="allMyStatus">
+                          
+                      </div>
+                      <hr>
+                      <!-- <div class="modal-body">
+                          <h4>Add Status</h4>
+                        <form>
+                          <div class="form-group">
+                            <label for="leadId" class="col-form-label">Lead ID:</label>
+                            <input type="text" class="form-control" id="leadId" disabled>
+                          </div>
+                          <div class="row">
+                              <div class="form-group col-md-6">
+                                <label for="next_call_date" class="col-form-label">Next Call Date:</label>
+                                <input type="date" class="form-control" id="next_call_date" />
+                              </div>
+                              <div class="form-group col-md-6">
+                                <label for="time" class="col-form-label">Time:</label>
+                                <input type="time" class="form-control" id="time" />
+                              </div>
+                          </div>
+                          <div class="form-group">
+                            <label for="call_status" class="col-form-label">Call Status:</label>
+                             <select class="form-control" id="call_status">
+                              <option value="Switched Off">Switched Off</option>
+                              <option value="Not Received">Not Received</option>
+                              <option value="Out Of Service">Out Of Service</option>
+                              <option value="Incoming Off">Incoming Off</option>
+                              <option value="Positive / Interested ">Positive / Interested</option>
+                              <option value="Confused">Confused</option>
+                              <option value="Not Interested">Not Interested</option>
+                              <option value="Pricing Issue">Pricing Issue</option>
+                              <option value="Fund Issue">Fund Issue</option>
+                              <option value="Inprocess (Interested)">Inprocess (Interested)</option>
+                              <option value="Call Busy">Call Busy</option>
+                             </select>
+                          </div>
+                          <div class="form-group">
+                            <label for="summary_note" class="col-form-label">Summary Note:</label>
+                            <textarea rows=5 class="form-control" id="summary_note"></textarea>
+                          </div>
+                        </form>
+                      </div>
+                      <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        <button type="button" class="btn btn-primary" onclick="addNewStatus()">SUBMIT</button>
+                      </div> -->
+                      <p id="errorDetailsStatus" style="text-align: right;color: crimson;"></p>
+                    </div>
+                  </div>
+                </div>
+             
+                    
+            </div>
+
+   
+        </div>
+</div>
+
+  
+
+    <!-- jQuery CDN - Slim version (=without AJAX) -->
+    <!-- Bootstrap JS -->
+    <script src="./css/bootstrap/js/bootstrap.js"></script>
+     <script src="js/all.js"></script>
+     <script>
+     getCallers();
+     loadcallerstats();
+     </script>
+     
+
+<!--
+    <script type="text/javascript">
+        $(document).ready(function () {
+
+    $('#sidebarCollapse').on('click', function () {
+        $('#sidebar').toggleClass('active');
+    });
+
+});
+
+
+$('#exampleModal4').on('show.bs.modal', function (event) {
+  var button = $(event.relatedTarget) // Button that triggered the modal
+  var recipient = button.data('whatever') // Extract info from data-* attributes
+  // If necessary, you could initiate an AJAX request here (and then do the updating in a callback).
+  // Update the modal's content. We'll use jQuery here, but you could use a data binding library or other methods instead.
+  var modal = $(this)
+  modal.find('.modal-body #leadId').val(recipient)
+})
+
+</script>
+
+<script>
+     
+        if(localStorage.getItem("leadStatus") == 0){
+            document.getElementById("leadButton").style.display = "none";
+            document.getElementById("leadButton2").style.display = "none";
+        }
+        
+        loadcallerstats();
+
+setInterval(loadcallerstats, 600000);
+
+ var blink = 
+            document.getElementById('blink');
+  
+        setInterval(function () {
+            blink.style.opacity = 
+            (blink.style.opacity == 0 ? 1 : 0);
+        }, 700); 
+getCallers();
+</script> -->
+
+
+</body>
+</html>

@@ -1,0 +1,1431 @@
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>HR DATA</title>
+        <link rel="stylesheet" href="./font-awesome/css/font-awesome.min.css" />
+        <link
+            href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css"
+            rel="stylesheet"
+            integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC"
+            crossorigin="anonymous" />
+        <link href="https://fonts.googleapis.com/css?family=Poppins" rel="stylesheet" />
+        <script src="https://code.jquery.com/jquery-3.3.1.js"></script>
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/datatables@1.10.18/media/js/jquery.dataTables.min.js"></script>
+        <link
+            href="
+       https://cdn.jsdelivr.net/npm/datatables@1.10.18/media/css/jquery.dataTables.min.css
+       "
+            rel="stylesheet" />
+
+        <style>
+            body {
+                background-color: #f1f5fc;
+                font-family: "Poppins", sans-serif;
+                margin: 1% 1%;
+            }
+
+            div#buttonsdiv {
+                display: flex;
+                gap: 10px;
+            }
+
+            payment-info .payment-info div table {
+                width: 100%;
+                border-collapse: collapse;
+                margin-bottom: 20px;
+            }
+
+            .payment-info div th,
+            .payment-info div td {
+                border: 1px solid black;
+                padding: 10px;
+                text-align: left;
+            }
+
+            .footer {
+                text-align: center;
+                font-style: italic;
+            }
+
+            .month-list {
+                display: flex;
+                justify-content: space-between;
+                max-width: 600px;
+                gap: 10px;
+                margin: 15px 0px;
+                font-family: Arial, sans-serif;
+            }
+
+            .month {
+                padding: 8px 18px;
+                /* Added padding */
+                background-color: lightblue;
+                border-radius: 5px;
+                cursor: pointer;
+                text-align: center;
+                text-decoration: none;
+                color: black;
+            }
+
+            .month:hover {
+                background-color: deepskyblue;
+            }
+
+            .active {
+                background-color: orange;
+                /* Highlight clicked month */
+                font-weight: bold;
+                color: white;
+            }
+
+            .modal-xxl {
+                max-width: 95%;
+            }
+
+            .btns {
+                display: flex;
+                width: 80%;
+                gap: 20px;
+            }
+            .filter {
+                padding: 20px;
+                margin-bottom: 14px;
+                border: none;
+                border-radius: 5px;
+                box-shadow: 0px 0 30px rgba(1, 41, 112, 0.1);
+            }
+            .overf {
+                padding: 20px;
+                margin-bottom: 14px;
+                border: none;
+                border-radius: 5px;
+                box-shadow: 0px 0 30px rgba(1, 41, 112, 0.1);
+            }
+
+            .adminStatsTable {
+                width: 100%;
+                white-space: nowrap;
+                text-align: center;
+                padding: 20px 0px;
+            }
+            .pontainer {
+                max-width: 100%;
+                margin: 2%;
+            }
+            table.dataTable thead th,
+            table.dataTable thead td {
+                padding: 10px 10px;
+                border-bottom: 1px solid #111;
+                border-top: 1px solid #111;
+            }
+            .payment-info {
+                max-width: 100%;
+            }
+            .modal-sm {
+                max-width: 65%;
+            }
+
+            .loader-overlay {
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100vw;
+                height: 100vh;
+                backdrop-filter: blur(1px);
+                background-color: rgb(61 60 60 / 40%);
+                z-index: 9999;
+            }
+
+            /* Center the loader */
+            .loader-container {
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+            }
+
+            .other {
+                width: 95%;
+                display: flex;
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            div#info-pay-btn {
+                display: flex;
+                flex-direction: column;
+                gap: 15px;
+            }
+        </style>
+    </head>
+
+    <body>
+        <div class="loader-overlay" style="display: none">
+            <!-- Loader -->
+            <div class="loader-container">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+            </div>
+        </div>
+        <div class="pontainer">
+            <div class="row">
+                <div class="col-md-12">
+                    <h1 class="text-center">HR DATA</h1>
+                </div>
+                <div class="col-12 col-md-12">
+                    <div class="modal fade" id="paymentModal" tabindex="-1" role="dialog" aria-labelledby="paymentModalLabel" aria-hidden="true">
+                        <div class="modal-dialog modal-sm" role="document">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h3 class="modal-title" id="paymentModalLabel"> Payment Info </h3>
+                                    <button type="button" class="btn-close" data-dismiss="modal" aria-label="Close">
+                                        <span aria-hidden="true">&times;</span>
+                                    </button>
+                                </div>
+                                <div class="modal-body">
+                                    <div class="d-flex payment-info gap-2 flex-column align-items-center justify-content-center">
+                                        <div id="Admin_ID" hidden></div>
+                                        <div class="details">
+                                            <table>
+                                                <tr>
+                                                    <th>Name</th>
+                                                    <th>Account No.</th>
+                                                    <th>IFSC Code</th>
+                                                    <th>UPI ID</th>
+                                                    <th>Amount</th>
+                                                </tr>
+                                                <tr>
+                                                    <td id="name"></td>
+                                                    <td id="account_no"></td>
+                                                    <td id="ifsc_code"></td>
+                                                    <td id="upi_id"></td>
+                                                    <td id="amount"></td>
+                                                </tr>
+                                            </table>
+                                        </div>
+                                        <div id="other" class="other">
+                                            <div id="info-remark">
+                                                <div class="form-group">
+                                                    <label for="info-remark-input" class="col-form-label">Remarks</label>
+                                                    <input type="text" class="form-control" id="info-remark-input" />
+                                                </div>
+                                            </div>
+                                            <div id="info-incentive">
+                                                <div class="form-group">
+                                                    <label for="info-incentiveInput" class="col-form-label">Incentive</label>
+                                                    <input type="text" class="form-control" id="info-incentiveInput" />
+                                                </div>
+                                            </div>
+                                            <div id="info-date">
+                                                <div class="form-group">
+                                                    <label for="pay-date" class="col-form-label">Payment Date</label>
+                                                    <input type="date" class="form-control" id="pay-date" />
+                                                </div>
+                                            </div>
+                                            <div id="info-pay-from">
+                                                <div class="form-group">
+                                                    <label for="Exp_for" class="col-form-label">Exp_for:</label>
+                                                    <select id="Exp_for" class="form-control">
+                                                        <option value="1">Academy</option>
+                                                        ╪
+                                                        <option value="2">Agency</option>
+                                                        ╪
+                                                        <option value="3">My Galla</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                            <div id="info-pay-from">
+                                                <div class="form-group">
+                                                    <label for="statsFor" class="col-form-label">From_Account:</label>
+                                                    <select id="From_Account" class="form-control">
+                                                        <option value="1">GreenTech India</option>
+                                                        <option value="2">Axis (Vikash)</option>
+                                                        <option value="3">Kotak (Vikash)</option>
+                                                        <option value="4">Other</option>
+                                                        <option value="5">Cash</option>
+                                                        <option value="6">My Galla HDFC</option>
+                                                        <option value="7">Kalam Foundation Axis Bank</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                            <div id="info-pay-btn"> </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <p id="errorDetailsDate1" style="text-align: right; color: crimson"></p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal fade" id="slipModal" tabindex="-1" role="dialog" aria-labelledby="slipModalLabel" aria-hidden="true">
+                        <div class="modal-dialog modal-xxl" role="document">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h3 class="modal-title" id="slipModalLabel">Salary Slip</h3>
+                                    <button type="button" class="btn-close" data-dismiss="modal" aria-label="Close">
+                                        <span aria-hidden="true">&times;</span>
+                                    </button>
+                                </div>
+                                <div class="modal-body">
+                                    <div
+                                        id="salary-slip"
+                                        class="salary-slip"
+                                        style="border: 1px solid black; padding: 20px; margin: 20px auto; width: 800px; background-color: #f5f5f5">
+                                        <div class="header" style="text-align: center; font-weight: bold; margin-bottom: 20px; color: #ff1414">
+                                            <h1>KALAM ACADEMY</h1>
+                                            <p>Digital Marketing Institute & Academy</p>
+                                        </div>
+
+                                        <div class="details" style="display: flex; justify-content: space-between; margin-bottom: 20px">
+                                            <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px">
+                                                <tbody>
+                                                    <tr>
+                                                        <th id="month" style="border: 1px solid black; padding: 10px; text-align: left">SEP 2024</th>
+                                                        <th style="border: 1px solid black; padding: 10px; text-align: left">SALARY SLIP</th>
+                                                        <th style="border: 1px solid black; padding: 10px; text-align: left">CONFIDENTIAL</th>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+
+                                        <div class="details" style="display: flex; justify-content: space-between; margin-bottom: 20px">
+                                            <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px">
+                                                <tbody>
+                                                    <tr>
+                                                        <td style="border: 1px solid black; padding: 10px; text-align: left">
+                                                            <p id="name_slip">Employee Name - Kalam BOT</p>
+                                                            <p id="bank">Bank Account No - 78281554544</p>
+                                                        </td>
+                                                        <td style="border: 1px solid black; padding: 10px; text-align: left">
+                                                            <p id="location">Location - 159</p>
+                                                        </td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+
+                                        <div class="details" style="display: flex; justify-content: space-between; margin-bottom: 20px">
+                                            <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px">
+                                                <tbody>
+                                                    <tr>
+                                                        <th style="border: 1px solid black; padding: 10px; text-align: left">Total Working Days</th>
+                                                        <th id="days" style="border: 1px solid black; padding: 10px; text-align: left">1-31 SEP = 31 Days</th>
+                                                        <th id="present" style="border: 1px solid black; padding: 10px; text-align: left">Present - 7 days + 15 Leave = 31 Days</th>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+
+                                        <div class="details" style="display: flex; justify-content: space-between; margin-bottom: 20px">
+                                            <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px">
+                                                <tbody>
+                                                    <tr>
+                                                        <th style="border: 1px solid black; padding: 10px; text-align: left">Description</th>
+                                                        <th style="border: 1px solid black; padding: 10px; text-align: left">Earning</th>
+                                                        <th style="border: 1px solid black; padding: 10px; text-align: left">Incentive</th>
+                                                        <th style="border: 1px solid black; padding: 10px; text-align: left">Late / Extra Leave</th>
+                                                    </tr>
+                                                    <tr>
+                                                        <td id="total" style="border: 1px solid black; padding: 10px; text-align: left"> Net payable Rs10000 (refer to letter) </td>
+                                                        <td id="earning" style="border: 1px solid black; padding: 10px; text-align: left">Rs 5000 + Rs 0</td>
+                                                        <td id="incentive" style="border: 1px solid black; padding: 10px; text-align: left">
+                                                            Rs <input type="number" id="incentiveInput"
+                                                        /></td>
+                                                        <td id="dues" style="border: 1px solid black; padding: 10px; text-align: left"
+                                                            >13 Extra Leave - Rs 39 2 Days Late - Rs 1000</td
+                                                        >
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+
+                                        <div class="details" style="display: flex; justify-content: space-between; margin-bottom: 20px">
+                                            <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px">
+                                                <tbody>
+                                                    <tr>
+                                                        <th style="border: 1px solid black; padding: 10px; text-align: left">Total</th>
+                                                        <td id="breakup" style="border: 1px solid black; padding: 10px; text-align: left"
+                                                            >Rs 5000 + Rs 0 - Rs 39 - Rs 1000 = Rs Three Thousand Nine Hundred Sixty One</td
+                                                        >
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+
+                                        <div class="details" style="display: flex; justify-content: space-between; margin-bottom: 20px">
+                                            <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px">
+                                                <tbody>
+                                                    <tr>
+                                                        <th id="adj" style="border: 1px solid black; padding: 10px; text-align: left">Adjusted Amount</th>
+                                                        <th id="adj-amount" style="border: 1px solid black; padding: 10px; text-align: left">Not Paid</th>
+                                                        <th style="display: none" id="temp-total"></th>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+
+                                        <div class="details" style="display: flex; justify-content: space-between; margin-bottom: 20px">
+                                            <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px">
+                                                <tbody>
+                                                    <tr>
+                                                        <th id="paymentdate" style="border: 1px solid black; padding: 10px; text-align: left">PAYMENT DATE : Not Paid</th>
+                                                        <th style="border: 1px solid; border-right: 0px; padding: 10px; text-align: left">Remarks </th>
+                                                        <th id="remarks" style="border: 1px solid; border-left: 0px; padding: 10px; text-align: left"
+                                                            ><input type="text" id="remark"
+                                                        /></th>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+
+                                        <div class="details" style="display: flex; justify-content: space-between; margin-bottom: 20px">
+                                            <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px">
+                                                <tbody>
+                                                    <tr>
+                                                        <th style="border: 1px solid black; padding: 10px; text-align: left">NET PAY : </th>
+                                                        <th id="breakuptotal" style="border: 1px solid black; padding: 10px; text-align: left"
+                                                            ><input type="number" onchange="adjustAmount()" id="netAmount" /></th>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                    <div id="buttonsdiv"> </div>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-dismiss="modal"> Close </button>
+                                </div>
+                                <p id="errorDetailsDate1" style="text-align: right; color: crimson"></p>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="hrdata">
+                        <div id="hrtable">
+                            <div class="filter">
+                                <select id="year" class="form-control">
+                                    <option value="2020">2020</option>
+                                    <option value="2021">2021</option>
+                                    <option value="2022">2022</option>
+                                    <option value="2023">2023</option>
+                                    <option value="2024" selected>2024</option>
+                                    <option value="2025">2025</option>
+                                </select>
+                                <div class="month-list">
+                                    <a href="#" class="month" onclick="handleClick(this,'01')">Jan</a>
+                                    <a href="#" class="month" onclick="handleClick(this,'02')">Feb</a>
+                                    <a href="#" class="month" onclick="handleClick(this,'03')">Mar</a>
+                                    <a href="#" class="month" onclick="handleClick(this,'04')">Apr</a>
+                                    <a href="#" class="month" onclick="handleClick(this,'05')">May</a>
+                                    <a href="#" class="month" onclick="handleClick(this,'06')">Jun</a>
+                                    <a href="#" class="month" onclick="handleClick(this,'07')">Jul</a>
+                                    <a href="#" class="month" onclick="handleClick(this,'08')">Aug</a>
+                                    <a href="#" class="month" onclick="handleClick(this,'09')">Sep</a>
+                                    <a href="#" class="month" onclick="handleClick(this,'10')">Oct</a>
+                                    <a href="#" class="month" onclick="handleClick(this,'11')">Nov</a>
+                                    <a href="#" class="month" onclick="handleClick(this,'12')">Dec</a>
+                                </div>
+                            </div>
+                            <div class="overf" style="overflow-x: scroll">
+                                <table id="adminStatsTable" class="adminStatsTable display table-striped table-bordered" style="width: 100%">
+                                    <thead>
+                                        <tr>
+                                            <th>ID</th>
+                                            <th>NAME</th>
+                                            <th>Status</th>
+                                            <th>ROLE</th>
+                                            <th>WORKING</th>
+                                            <th>Present</th>
+                                            <th>Absent</th>
+                                            <th>Late</th>
+                                            <th>Incentive</th>
+                                            <th>Total</th>
+                                            <th>Payment Status</th>
+                                            <th>Function</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody></tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </body>
+
+    <script>
+        let globalData = {};
+
+        function adjustAmount() {
+            const value = $("#netAmount").val(); // Get the current value of the input
+
+            // Check if the value has at least 3 digits
+            if (value.length >= 3) {
+                // Parse the input value as an integer
+                const netAmount = parseInt(value, 10);
+
+                // Get the temp total (assuming it is stored in an element with ID 'temp-total')
+                const tempTotal = parseInt($("#temp-total").text(), 10) || 0; // Default to 0 if not a number
+
+                // Calculate the adjusted amount
+                const adjustedAmount = netAmount - tempTotal;
+
+                // Log the values for debugging
+                console.log("Net Amount:", netAmount);
+                console.log("Temporary Total:", tempTotal);
+                console.log("Adjusted Amount:", adjustedAmount);
+
+                // Update the adj-amount display
+                $("#adj-amount").html(adjustedAmount);
+            } else {
+                $("#adj-amount").html("Not Paid");
+            }
+        }
+
+        $("#paymentModal").on("shown.bs.modal", function () {
+            // Hide the background modal or adjust its z-index
+            $("#slipModal").css("z-index", "1040");
+        });
+
+        $("#paymentModal").on("hidden.bs.modal", function () {
+            // Restore the original z-index when the paymentModal is hidden
+            $("#slipModal").css("z-index", "");
+        });
+
+        const currentMonth = String(new Date().getMonth() + 1).padStart(2, "0");
+        const currentElement = document.querySelector(`a.month[onclick*="'${currentMonth}'"]`);
+
+        if (currentElement) {
+            handleClick(currentElement, currentMonth);
+        }
+
+        function numberToWords(num) {
+            if (num === 0) return "Zero";
+
+            const ones = [
+                "",
+                "One",
+                "Two",
+                "Three",
+                "Four",
+                "Five",
+                "Six",
+                "Seven",
+                "Eight",
+                "Nine",
+                "Ten",
+                "Eleven",
+                "Twelve",
+                "Thirteen",
+                "Fourteen",
+                "Fifteen",
+                "Sixteen",
+                "Seventeen",
+                "Eighteen",
+                "Nineteen",
+            ];
+
+            const tens = ["", "", "Twenty", "Thirty", "Forty", "Fifty", "Sixty", "Seventy", "Eighty", "Ninety"];
+
+            const getBelowHundred = (n) => {
+                if (n < 20) return ones[n];
+                return tens[Math.floor(n / 10)] + (n % 10 > 0 ? " " + ones[n % 10] : "");
+            };
+
+            let words = "";
+
+            if (Math.floor(num / 100000) > 0) {
+                const hundredThousands = Math.floor(num / 100000);
+                words += ones[hundredThousands] + " Lakh ";
+                num %= 100000;
+            }
+
+            if (Math.floor(num / 1000) > 0) {
+                const thousands = Math.floor(num / 1000);
+                words += getBelowHundred(thousands) + " Thousand ";
+                num %= 1000;
+            }
+
+            if (Math.floor(num / 100) > 0) {
+                const hundreds = Math.floor(num / 100);
+                words += ones[hundreds] + " Hundred ";
+                num %= 100;
+            }
+
+            if (num > 0) {
+                words += getBelowHundred(num);
+            }
+
+            return words.trim();
+        }
+
+        function sendSlip(email, name, month, Payment_Status) {
+            // Get the values from the input boxes
+            const remarkValue = document.getElementById("remark").value;
+            const netAmountValue = document.getElementById("netAmount").value;
+            const incentiveAmountValue = document.getElementById("incentiveInput").value;
+
+            if ( netAmountValue === "" ) {
+                alert("Net Pay Amount be Blank or Zero");
+                return;
+            }
+
+            // Find the corresponding table cells and set their innerHTML with the input values
+            document.getElementById("remarks").innerHTML = remarkValue;
+            document.getElementById("breakuptotal").innerHTML = `Rs ${netAmountValue}`;
+            document.getElementById("incentive").innerHTML = `Rs ${incentiveAmountValue}`;
+
+            // Get the updated salary slip HTML
+            const salarySlipHTML = document.getElementById("salary-slip").innerHTML;
+
+            // Prepare the email content
+            const emailContent = `Dear ${name}<br><br>
+
+        I have attached your salary slip for the month of ${month}.<br><br>
+
+        Your salary is ${Payment_Status}.<br><br>
+
+        For any confusion feel free to reach HR Team<br><br>
+
+        HR BOT<br><br>
+                <html>
+                <head>
+                </head>
+                <body>
+                    ${salarySlipHTML}
+                </body>
+                </html>
+            `;
+
+            const data = {
+                to: email,
+                subject: `Salary Slip For ${month} From Kalam Academy`,
+                message: emailContent,
+            };
+
+            // Call the function to send the mail
+            sendMailNew(data);
+        }
+
+        async function getSlipData(id) {
+            const adminData = globalData[id]; // Use the id directly as it's the index
+
+            // Parse and initialize numerical values
+            const index = parseInt(id, 10) + 1;
+            const Allowed_Late = parseInt(adminData.Allowed_Late, 10) || 0;
+            const Allowed_Week_Off = parseInt(adminData.Allowed_Week_Off, 10) || 0;
+            const Due_Late = parseInt(adminData.Due_Late, 10) || 0;
+            const Due_Week_Off = parseInt(adminData.Due_Week_Off, 10) || 0;
+            let Incentive = parseFloat(adminData.Incentive) || 0; // Make Incentive variable modifiable
+            const No_dues_Incentive = parseFloat(adminData.No_dues_Incentive) || 0;
+            Number_of_dues = parseInt(adminData.Number_of_dues, 10) || 1;
+            const Total_Salary = parseInt(adminData.Total_Salary, 10) || 0;
+            const lateCount = parseInt(adminData.lateCount, 10) || 0;
+            const totalAbsent = parseInt(adminData.totalAbsent, 10) || 0;
+            const totalPresent = parseInt(adminData.totalPresent, 10) || 0;
+            const workingDays = parseInt(adminData.workingDays, 10) || 0;
+            const Month = parseInt(adminData.Month, 10) || 1;
+            const Year = parseInt(adminData.Year, 10) || new Date().getFullYear();
+            const Status = adminData.Status;
+            const paymentAmount = adminData.Amount;
+            const paymentDate = adminData.paymentDate;
+            const Joining_Date =  new Date(adminData.Joining_Date);
+
+            // Calculate derived values
+            const Total_dailySalary = Total_Salary / workingDays;
+            let incentiveAmount = 0;
+            const leaveSave = Allowed_Week_Off - totalAbsent;
+            const latesave = Allowed_Late - lateCount;
+            const extralate = lateCount > Allowed_Late ? lateCount - Allowed_Late : 0;
+            const extralateAmount = extralate * Due_Late;
+
+            // Updated leave logic based on new conditions
+            let allowedLeaveDays;
+            if (totalAbsent >= 23) {
+                allowedLeaveDays = 1; // Scenario 1
+            } else if (totalAbsent >= 14) {
+                allowedLeaveDays = 2; // Scenario 2
+            } else if (totalAbsent >= 7) {
+                allowedLeaveDays = 3; // Scenario 3
+            } else {
+                allowedLeaveDays = Allowed_Week_Off; // Default allowed leaves from data
+            }
+
+            const extraLeave = totalAbsent - allowedLeaveDays;
+            const extraLeaveAmount = extraLeave > 0 ? extraLeave * Due_Week_Off : 0;
+            const savedLeaveAmount = leaveSave * Due_Week_Off;
+
+            // Update total calculations
+            let totalWithSavedLeave = Total_Salary + incentiveAmount + savedLeaveAmount;
+            let totalSavedLeavelate = totalWithSavedLeave - extralateAmount;
+            let totalExtraLeavelate = Total_Salary + incentiveAmount - extraLeaveAmount - extralateAmount;
+
+            const slipMetaData = await getSlipMeta(id, Month, Year);
+
+            // Non-numeric values
+            const Name = adminData.Name || "N/A";
+            const Bank = adminData.Bank || "N/A";
+            const Location = adminData.Location || "N/A";
+            const Email = adminData.Email || "N/A";
+
+            // Month text array
+            const months = ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"];
+            const monthText = months[Month - 1];
+
+            // Display main info
+            const formattedDate = new Date().toISOString().slice(0, 19).replace("T", " ");
+            $("#total").html(`Net payable Rs ${Total_Salary} (refer to letter)`);
+            $("#month").html(`${monthText} ${Year}`);
+            $("#name_slip").html(`Employee Name - ${Name}`);
+            $("#bank").html(`Bank Account No - ${Bank}`);
+            $("#location").html(`Location - ${Location}`);
+            if (Joining_Date.getMonth() + 1 === Month && Joining_Date.getFullYear() === Year) {
+                // last date of month
+                lastDay = new Date(Year, Month, 0).getDate();
+                $("#days").html(`${Joining_Date.getDate()}-${lastDay} ${monthText} = ${workingDays} Days`);
+            }else{
+                $("#days").html(`1-${workingDays} ${monthText} = ${workingDays} Days`);
+            }
+            $("#present").html(`Present - ${totalPresent} days + ${totalAbsent} Leave = ${workingDays} Days`);
+            console.log(Joining_Date);
+            // Handle leave and late calculations
+            function recalculateTotals() {
+                totalWithSavedLeave = Total_Salary + incentiveAmount + savedLeaveAmount;
+                totalSavedLeavelate = totalWithSavedLeave - extralateAmount;
+                totalExtraLeavelate = Total_Salary + incentiveAmount - extraLeaveAmount - extralateAmount;
+
+                // Update relevant fields
+                if (totalAbsent < Allowed_Week_Off) {
+                    $("#earning").html(`Rs ${Total_Salary} + Rs ${incentiveAmount} + Rs ${savedLeaveAmount} (${leaveSave} Leave Save)`);
+                    if (lateCount > Allowed_Late) {
+                        $("#dues").html(`${extralate} Days Late - Rs ${extralateAmount}`);
+                        $("#breakup").html(
+                            `Rs ${Total_Salary} + Rs ${incentiveAmount} + Rs ${savedLeaveAmount} - Rs ${extralateAmount} = Rs ${totalSavedLeavelate} (${numberToWords(
+                                totalSavedLeavelate
+                            )})`
+                        );
+                        $("#temp-total").html(totalSavedLeavelate);
+                    } else {
+                        $("#dues").html(`NA`);
+                        $("#breakup").html(
+                            `Rs ${Total_Salary} + Rs ${incentiveAmount} + Rs ${savedLeaveAmount} = Rs ${totalWithSavedLeave} (${numberToWords(totalWithSavedLeave)})`
+                        );
+                        $("#temp-total").html(totalWithSavedLeave);
+                    }
+                } else {
+                    $("#earning").html(`Rs ${Total_Salary} + Rs ${incentiveAmount}`);
+                    $("#dues").html(`${extraLeave} Extra Leave - Rs ${extraLeaveAmount} <br> ${extralate} Days Late - Rs ${extralateAmount}`);
+                    $("#breakup").html(
+                        `Rs ${Total_Salary} + Rs ${incentiveAmount} - Rs ${extraLeaveAmount} - Rs ${extralateAmount} = Rs ${totalExtraLeavelate} (${numberToWords(
+                            totalExtraLeavelate
+                        )})`
+                    );
+                    $("#temp-total").html(totalExtraLeavelate);
+                }
+
+                // Update incentive field
+                // $("#incentive").val(incentiveAmount);
+                adjustAmount();
+            }
+
+            // Attach event listener to incentive input
+            $("#incentive").html(`Rs <input type="number" id="incentiveInput" value="${incentiveAmount}" />`);
+
+            if (slipMetaData.incentive != null) {
+                incentiveAmount = parseFloat(slipMetaData.incentive) || 0;
+                $("#incentiveInput").val(`${incentiveAmount}`);
+            }
+
+            $("#incentiveInput").on("input", function () {
+                incentiveAmount = parseFloat($(this).val()) || 0; // Update Incentive value
+                recalculateTotals(); // Recalculate all totals
+            });
+
+            // Payment status and date handling
+            const Payment_Status = paymentDate == null ? "Not Paid" : "Paid";
+            if (paymentDate == null) {
+                $("#paymentdate").html("PAYMENT DATE: Not Paid");
+            } else {
+                const dateObj = new Date(paymentDate);
+                const shorthandDate = dateObj.toLocaleDateString("en-GB", {
+                    day: "numeric",
+                    month: "short",
+                    year: "numeric",
+                });
+                $("#paymentdate").html(`PAYMENT DATE: ${shorthandDate}`);
+            }
+
+            // Slip metadata handling
+            if (slipMetaData.Paid_Amount != null && slipMetaData.Remarks != null) {
+                $("#breakuptotal").html(`<input type="number" onchange="adjustAmount()" id="netAmount" value="${slipMetaData.Paid_Amount}">`);
+                $("#remarks").html(`<input type="text" id="remark" value="${slipMetaData.Remarks}">`);
+                $("#incentiveInput").val(`${slipMetaData.incentive}`);
+            } else {
+                $("#breakuptotal").html(`<input type="number" onchange="adjustAmount()" id="netAmount">`);
+                $("#remarks").html(`<input type="text" id="remark">`);
+            }
+
+            // Send slip button
+            const btn_slip = `<button id="btn-slip" class="btn btn-primary" onclick="saveSlip(${id}, ${Month}, ${Year}),sendSlip('${Email}','${Name}','${monthText}','${Payment_Status}')">Send Slip</button>`;
+            const btn_resend_slip = `<button id="btn-slip" class="btn btn-danger" onclick="saveSlip(${id}, ${Month}, ${Year}),sendSlip('${Email}','${Name}','${monthText}','${Payment_Status}')">Re-Send Slip</button>`;
+            if (slipMetaData.isslipsent == 1 || slipMetaData.isslipsent == '1') {
+                $("#buttonsdiv").html(btn_resend_slip);
+            }else{
+                $("#buttonsdiv").html(btn_slip);
+            }
+            
+
+            // Initial calculation of totals
+            recalculateTotals();
+        }
+
+        async function fetchReportingTimes() {
+            return new Promise((resolve, reject) => {
+                $.ajax({
+                    url: "https://teamka.in/crm1/APIs/api.php",
+                    method: "POST",
+                    data: { operation: "getReportingtime" },
+                    success: function (response) {
+                        response = JSON.parse(response);
+                        const reportingTimesData = response.Reporting_Time;
+                        const reportingTimes = {};
+
+                        reportingTimesData.forEach((item) => {
+                            reportingTimes[item.EMP_ID] = {
+                                Reporting_Time: item.Reporting_Time,
+                                Name: item.Name,
+                                Role: item.Type,
+                                Allowed_Week_Off: item.Allowed_Week_Off,
+                                Due_Week_Off: item.Due_Week_Off,
+                                Allowed_Late: item.Allowed_Late,
+                                Due_Late: item.Due_Late,
+                                Number_of_dues: item.Number_of_dues,
+                                No_dues_Incentive: item.No_dues_Incentive,
+                                Total_Salary: item.Total_Salary,
+                                Status: item.Status,
+                                Bank: item.Bank,
+                                Location: item.Location,
+                                Email: item.Email,
+                                Joining_Date: item.Joining_Date
+                            }; // Map Admin_ID to an object containing both Reporting_Time and Name
+                        });
+                        // console.log(reportingTimes);
+                        resolve(reportingTimes); // Return the object with Admin_ID mapped to Reporting_Time and Name
+                    },
+                    error: function (error) {
+                        reject(error); // Reject the promise in case of an error
+                    },
+                });
+            });
+        }
+
+        function getAttendanceStatsForAdmins(year, month, jsonData, reportingTimes) {
+            const currentDate = new Date();
+            const monthAsInt = parseInt(month, 10); // Convert the month from string to integer
+            const yearAsInt = parseInt(year, 10); // Convert the month from string to integer
+
+            // const isCurrentMonth = yearAsInt === currentDate.getFullYear() && monthAsInt === currentDate.getMonth() + 1;
+
+            // // console.log(isCurrentMonth, yearAsInt, monthAsInt);
+
+            // // Now calculate total days based on whether it's the current month
+            // const totalDaysInMonth = isCurrentMonth ? currentDate.getDate() : new Date(year, monthAsInt , 0).getDate(); // Use monthAsInt - 1 for correct calculation
+            // const totalWorkingDaysInMonth = new Date(year, monthAsInt, 0).getDate(); // Use monthAsInt - 1 for correct calculation
+
+            const adminStats = {};
+            // console.log(totalDaysInMonth); // This should now correctly reflect 30 for September
+
+            jsonData.forEach((entry) => {
+                const adminId = entry.EMP_ID;
+
+                 const adminData = reportingTimes[adminId] ;
+                 if (!adminData) {
+                     // Skip this adminId if it doesn't exist in reportingTimes
+                     return;
+                 }
+
+                 // this handles if any admin  id is in attendence but not have filled data on attendence
+                //|| {
+                //     Admin_ID :adminId,
+                //     Name: "Rahul",
+                //     Reporting_Time: "00:00",
+                //     Role: "Unknown",
+                // };
+               // console.log(adminData);
+
+               const isCurrentMonth = yearAsInt === currentDate.getFullYear() && monthAsInt === currentDate.getMonth() + 1;
+               const JoiningDate = new Date(adminData.Joining_Date);
+               
+               
+               if (isCurrentMonth) {
+                   // Calculate days from the joining date to the current date if joined this month
+                   if(JoiningDate.getFullYear() == yearAsInt && JoiningDate.getMonth() == monthAsInt - 1){
+                       totalDaysInMonth = currentDate.getDate()- JoiningDate.getDate();
+                   }else{
+                      totalDaysInMonth = currentDate.getDate(); // +1 to include today
+                   }
+                  
+               } else {
+                   // If not joined this month, get total days in the month normally
+                   if(JoiningDate.getFullYear() == yearAsInt && JoiningDate.getMonth() == monthAsInt - 1){
+                       orginalDate = new Date(yearAsInt, monthAsInt, 0).getDate();
+                       totalDaysInMonth = orginalDate - JoiningDate.getDate();
+                   }else{
+                       totalDaysInMonth = new Date(yearAsInt, monthAsInt, 0).getDate(); 
+                   }
+                   
+               }
+
+                if (!adminStats[adminId]) {
+                    adminStats[adminId] = {
+                        presentDays: new Set(),
+                        firstLoginPerDay: {},
+                        lateCount: 0,
+                        Year: year,
+                        Month: month,
+                        workingDays: totalDaysInMonth,//totalWorkingDaysInMonth,
+                        totalPresent: 0,
+                        totalAbsent: 0,
+                        Name: adminData.Name,
+                        Role: adminData.Role,
+                        Allowed_Week_Off: adminData.Allowed_Week_Off,
+                        Due_Week_Off: adminData.Due_Week_Off,
+                        Allowed_Late: adminData.Allowed_Late,
+                        Due_Late: adminData.Due_Late,
+                        Number_of_dues: adminData.Number_of_dues,
+                        No_dues_Incentive: adminData.No_dues_Incentive,
+                        Total_Salary: adminData.Total_Salary,
+                        Bank: adminData.Bank,
+                        Location: adminData.Location,
+                        Email: adminData.Email,
+                        Status: adminData.Status,
+                        Joining_Date: adminData.Joining_Date
+                    };
+                }
+
+                const loginDate = new Date(entry.Login_Time).getDate();
+                const loginTime = new Date(entry.Login_Time).toLocaleTimeString([], {
+                    hour: "2-digit",
+                    minute: "2-digit",
+                });
+
+                adminStats[adminId].presentDays.add(loginDate);
+
+                if (!adminStats[adminId].firstLoginPerDay[loginDate] || loginTime < adminStats[adminId].firstLoginPerDay[loginDate]) {
+                    adminStats[adminId].firstLoginPerDay[loginDate] = loginTime;
+                }
+            });
+
+            Object.keys(reportingTimes).forEach((adminId) => {
+                if (!adminStats[adminId]) {
+                    const adminData = reportingTimes[adminId]; // Get the reportingTimes entry
+
+                    adminStats[adminId] = {
+                        presentDays: new Set(),
+                        firstLoginPerDay: {},
+                        lateCount: 0,
+                        Year: year,
+                        Month: month,
+                        workingDays: totalDaysInMonth,//totalWorkingDaysInMonth,
+                        totalPresent: 0,
+                        totalAbsent: 0, // Assume all days are absent
+                        Name: adminData.Name,
+                        Role: adminData.Role,
+                        Allowed_Week_Off: adminData.Allowed_Week_Off || 0,
+                        Due_Week_Off: adminData.Due_Week_Off || 0,
+                        Allowed_Late: adminData.Allowed_Late || 0,
+                        Due_Late: adminData.Due_Late || 0,
+                        Number_of_dues: adminData.Number_of_dues || 0,
+                        No_dues_Incentive: adminData.No_dues_Incentive || 0,
+                        Total_Salary: adminData.Total_Salary || 0,
+                        Bank: adminData.Bank || "Unknown",
+                        Location: adminData.Location || "Unknown",
+                        Email: adminData.Email || "Unknown",
+                        Status: adminData.Status || "Unknown",
+                        Joining_Date: adminData.Joining_Date
+                    };
+                }
+            });
+
+            // Calculate stats and check for lateness
+            for (const adminId in adminStats) {
+                const totalPresent = adminStats[adminId].presentDays.size;
+                const totalAbsent = adminStats[adminId].workingDays - totalPresent;//totalWorkingDaysInMonth - totalPresent;
+                // console.log(totalDaysInMonth, totalAbsent);
+                //const reportingTime = reportingTimes[adminId]?.Reporting_Time || "00:00";
+
+                adminStats[adminId].totalPresent = totalPresent;
+                adminStats[adminId].totalAbsent = totalAbsent;
+
+                // Calculate late count by comparing login time with reporting time
+                for (const day in adminStats[adminId].firstLoginPerDay) {
+                    
+                    loginTime = parseTime(adminStats[adminId].firstLoginPerDay[day]); 
+                    reportingTime = parseTime(reportingTimes[adminId]?.Reporting_Time+ " AM" || "00:00 AM"); 
+                    
+                    if (loginTime > reportingTime) {
+                        
+                        adminStats[adminId].lateCount++;
+                    }
+                }
+            }
+            // console.log(adminStats);
+            return adminStats;
+        }
+
+        function parseTime(timeStr) {
+            const [time, modifier] = timeStr.split(" ");
+            let [hours, minutes] = time.split(":").map(Number);
+        
+            if (modifier === "PM" && hours !== 12) hours += 12;
+            if (modifier === "AM" && hours === 12) hours = 0;
+        
+            return new Date(1970, 0, 1, hours, minutes); // Set a fixed date for comparison
+        }
+
+
+        async function getPaymentStatus(month, year) {
+            return new Promise((resolve, reject) => {
+                $.ajax({
+                    url: "https://teamka.in/crm1/APIs/api.php",
+                    data: { operation: "getPaymentStatus", month: month, year: year },
+                    method: "POST",
+                    success: function (response) {
+                        response = JSON.parse(response);
+                        // console.log(response);
+                        if (response.success == true) {
+                            resolve(response.data || 0); // Assuming response contains incentive data
+                        }
+                    },
+                    error: function (jqXHR, textStatus, errorThrown) {
+                        console.error(textStatus, errorThrown);
+                        resolve(0); // Resolve with 0 in case of an error
+                    },
+                });
+            });
+        }
+
+        async function noDues(startDate, endDate) {
+            return new Promise((resolve, reject) => {
+                $.ajax({
+                    url: "https://teamka.in/crm1/APIs/api.php",
+                    data: {
+                        operation: "getNoDuesBulk",
+                        start: startDate,
+                        end: endDate,
+                    },
+                    method: "POST",
+                    success: function (response) {
+                        response = JSON.parse(response);
+                        // console.log(response);
+                        if (response.success == true) {
+                            resolve(response.data); // Assuming response contains incentive data
+                        } else {
+                            resolve(0); // Resolve with 0 in case of an error
+                        }
+                    },
+                    error: function (jqXHR, textStatus, errorThrown) {
+                        console.error(textStatus, errorThrown);
+                        resolve(0); // Resolve with 0 in case of an error
+                    },
+                });
+            });
+        }
+
+        async function getSlipMeta(id, month, year) {
+            return new Promise((resolve, reject) => {
+                $.ajax({
+                    url: "https://teamka.in/crm1/APIs/api.php",
+                    data: { operation: "getSlipMeta", id: id.toString(), month: month, year: year },
+                    method: "POST",
+
+                    success: function (response) {
+                        response = JSON.parse(response);
+                        console.log(response.data);
+                        resolve(response.data[0]);
+                    },
+                    error: function (jqXHR, textStatus, errorThrown) {
+                        console.error(textStatus, errorThrown);
+                    },
+                });
+            });
+        }
+
+        function saveSlip(id, month, year) {
+            Amount = $("#netAmount").val();
+            remark = $("#remark").val();
+            adjAmount = $("#adj-amount").html();
+            incentive = $("#incentiveInput").val();
+            if ( Amount !== "" && Amount !== null && Amount !== 0) {
+                $.ajax({
+                url: "https://teamka.in/crm1/APIs/api.php",
+                data: {
+                    operation: "saveSlip",
+                    id: id,
+                    amount: Amount,
+                    month: month,
+                    year: year,
+                    remark: remark,
+                    adjAmount: adjAmount,
+                    incentive: incentive,
+                },
+                method: "POST",
+
+                success: function (response) {
+                    response = JSON.parse(response);
+                    console.log(response.data);
+                    if (response.success == true) {
+                        getSlipData(id);
+                    }
+                },
+                error: function (jqXHR, textStatus, errorThrown) {
+                    console.error(textStatus, errorThrown);
+                },
+            });
+            }
+            
+        }
+
+        function sendMailNew(data) {
+            $.ajax({
+                type: "post",
+                url: "https://kalamacademy.org/test/test.php",
+                data: {
+                    operation: "00100",
+                    to: data.to,
+                    subject: data.subject,
+                    message: data.message,
+                },
+                success: function (response) {
+                    if (response > 0) {
+                        alert("Slip Sent Successfully");
+                    } else {
+                        alert("Error In Sending Mail");
+                    }
+                },
+                error: function (jqXHR, exception) {
+                    var msg = displayerror(jqXHR, exception);
+                    alert(msg);
+                },
+            });
+        }
+
+        function payCaller(id, monthAsInt, year, name) {
+            const Amount = $("#actualPay").val();
+            const Remark = $("#info-remark-input").val();
+            const From_account = $("#From_Account").val();
+            const Exp_for = $("#Exp_for").val();
+            const incentive = $("#info-incentiveInput").val();
+
+            const payDateInput = $("#pay-date").val(); // Get the input value
+            // const months = { JAN: "01", FEB: "02", MAR: "03", APR: "04", MAY: "05", JUN: "06", JUL: "07", AUG: "08", SEP: "09", OCT: "10", NOV: "11", DEC: "12" };
+
+            // const formattedPayDate = payDateInput.match(/^(\d{2})-(\d{2})-(\d{4})$/)
+            //     ? payDateInput.replace(/(\d{2})-(\d{2})-(\d{4})/, (match, day, month, year) => `${year}-${month}-${day}`)
+            //     : payDateInput.match(/^(\d{2})-(\w{3})-(\d{4})$/)
+            //     ? payDateInput.replace(/(\d{2})-(\w{3})-(\d{4})/, (match, day, monthStr, year) => {
+            //           const month = months[monthStr.toUpperCase()];
+            //           return month ? `${year}-${month}-${day}` : console.error("Invalid month abbreviation");
+            //       })
+            //     : payDateInput.match(/^(\d{4})-(\w{3})-(\d{2})$/)
+            //     ? payDateInput.replace(/(\d{4})-(\w{3})-(\d{2})/, (match, year, monthStr, day) => {
+            //           const month = months[monthStr.toUpperCase()];
+            //           return month ? `${year}-${month}-${day}` : console.error("Invalid month abbreviation");
+            //       })
+            //     : payDateInput; // Assume it's already in YYYY-MM-DD format
+
+            const monthTxt = new Date(0, monthAsInt - 1).toLocaleString("default", { month: "short" });
+
+            if (!Amount || !payDateInput || !From_account || !Exp_for || !incentive  ) {
+                alert("Please ensure all fields are filled correctly.");
+                console.log(Amount, payDateInput, From_account, Exp_for);
+                return;
+            }
+
+            $.ajax({
+                type: "POST",
+                url: "https://teamka.in/crm1/APIs/api.php",
+                data: {
+                    operation: "payCaller",
+                    id: id,
+                    month: monthAsInt, // make sure it's monthAsInt
+                    year: year,
+                    amount: Amount,
+                    date: payDateInput,
+                    remark: Remark,
+                    "from-account": From_account,
+                    monthTxt: monthTxt,
+                    name: name,
+                    "exp-for": Exp_for,
+                    incentive: incentive,
+                },
+                success: function (response) {
+                    response = JSON.parse(response);
+                    console.log(response.data);
+                    if (response.success === true) {
+                        alert("Payment Done..");
+                        $(".btn-close").click();
+                        const currentElement = document.querySelector(`a.month[onclick*="${monthAsInt}"]`);
+                        if (currentElement) {
+                            currentElement.click();
+                        } else {
+                            console.log("Month element not found.");
+                        }
+                    }else{
+                        alert(response);
+                    }
+                },
+                error: function (jqXHR, exception) {
+                    var msg = displayerror(jqXHR, exception);
+                },
+            });
+        }
+
+        async function getPaymentInfo(id, Amount, month, year, date) {
+            const slipMetaData = await getSlipMeta(id, month, year);
+            $.ajax({
+                url: "https://teamka.in/crm1/APIs/api.php",
+                data: { operation: "getPaymentInfo", id: id },
+                method: "POST",
+                success: function (response) {
+                    response = JSON.parse(response);
+                    console.log(response);
+
+                    if (response.success == true) {
+                        name = response.data.Name;
+                        $("#Admin_ID").html(id);
+                        $("#name").html(response.data.Name);
+                        $("#account_no").html(response.data.Account_no);
+                        $("#ifsc_code").html(response.data.IFSC);
+                        $("#upi_id").html(response.data.Upi_id);
+                        $("#amount").html(Amount);
+
+                        if (slipMetaData.Paid_Amount != null) {
+                            actual_pay_btn = `<div class="form-group">
+                                                            <label for="actualPay" class="col-form-label">Actual Pay Amount</label><input type="text" class="form-control" id="actualPay" value="${slipMetaData.Paid_Amount}" placeholder="Actual Pay Amount" />
+                                                    </div><button type="button" class="btn btn-primary" onclick="payCaller(${id},${month},${year},'${name}')">Pay</button>`;
+                        } else {
+                            actual_pay_btn = `<div class="form-group">
+                                                            <label for="actualPay" class="col-form-label">Actual Pay Amount</label><input type="text" class="form-control" id="actualPay" placeholder="Actual Pay Amount" />
+                                                    </div><button type="button" class="btn btn-primary" onclick="payCaller(${id},${month},${year},'${name}')">Pay</button>`;
+                        }
+
+                        if (slipMetaData.Remarks != null) {
+                            $("#info-remark-input").val(slipMetaData.Remarks || 0);
+                            $("#info-incentiveInput").val(slipMetaData.incentive || 0);
+
+                        }
+
+                        $("#info-pay-btn").html(actual_pay_btn);
+                    } else {
+                        alert("Failed To Get Payment Info Data");
+                    }
+                },
+                error: function (jqXHR, textStatus, errorThrown) {
+                    console.error(textStatus, errorThrown);
+                },
+            });
+        }
+
+        async function handleClick(event, month) {
+            // Remove the "active" class from all elements with the "month" class
+             $(".loader-overlay").fadeIn();
+            const monthElements = document.querySelectorAll(".month");
+            monthElements.forEach((monthElement) => monthElement.classList.remove("active"));
+
+            // Add the "active" class to the clicked element
+            event.classList.add("active");
+            const year = document.getElementById("year").value;
+
+            $.ajax({
+                url: "https://teamka.in/crm1/APIs/api.php",
+                method: "POST",
+                data: { operation: "getAttendenceData", year: year, month: month },
+                success: async function (response) {
+                    const jsonData = JSON.parse(response);
+                    if (jsonData.success == true) {
+                        const reportingTimes = await fetchReportingTimes();
+                        const adminStats = getAttendanceStatsForAdmins(year, month, jsonData.data, reportingTimes);
+                        //console.log(adminStats);
+
+                        // Prepare data array for DataTable
+                        const tableData = [];
+                        const startDate = `${year}-${month}-01`; // Assuming the first day of the month
+                        const endDate = `${year}-${month}-${new Date(year, month, 0).getDate()}`; // Last day of the month
+                        // Fetch the Dues data for all admins in bulk
+                        const duesData = await noDues(startDate, endDate);
+                        const paymentStatus = await getPaymentStatus(month, year);
+
+                        // const duesMap = {};
+                        // duesData.forEach((item) => {
+                        //     duesMap[item.Admin_ID] = item.Dues_count; // Assuming the item contains Admin_ID and Dues_count
+                        // });
+
+                        const statusMap = {};
+                        paymentStatus.forEach((item) => {
+                            statusMap[item.EMP_ID] = {
+                                Status: item.Status,
+                                Date: item.Payment_Date, // Assuming item contains Date
+                                Amount: item.Paid_Amount, // Assuming item contains Paid_Amount
+                                Incentive: item.incentive,
+                            };
+                        });
+
+                        // Populate tableData with attendance stats and dues info
+                        for (const adminId in adminStats) {
+                            const stat = adminStats[adminId];
+
+                            // Now you can safely access duesMap[adminId]
+                            //const incentive = duesMap[adminId] ? duesMap[adminId] : 0; // Get the Dues_count for this admin, or 0 if not found
+                            //console.log("Incentive " + adminId, incentive, stat.Number_of_dues, stat.No_dues_Incentive);
+                            const paymentStatus = statusMap[adminId] || 0;
+                            //console.log(adminStats);
+                            incentive = parseInt(paymentStatus.Incentive || 0, 10);
+                            stat.paymentStatus = paymentStatus.Status;
+                            stat.paidAmount = paymentStatus.Amount;
+                            stat.paymentDate = paymentStatus.Date;
+                            stat.Amount = paymentStatus.Amount;
+                            globalData[adminId] = { ...stat };
+                            //console.log(adminId, stat);
+                            let allowedLeaveDays;
+                            if (stat.totalAbsent >= 23) {
+                                allowedLeaveDays = 1; // Scenario 1
+                            } else if (stat.totalAbsent >= 14) {
+                                allowedLeaveDays = 2; // Scenario 2
+                            } else if (stat.totalAbsent >= 7) {
+                                allowedLeaveDays = 3; // Scenario 3
+                            } else {
+                                allowedLeaveDays = stat.Allowed_Week_Off; // Default allowed leaves from data
+                            }
+
+                            const extraLeave = stat.totalAbsent - allowedLeaveDays;
+
+                            let adjustedAbsent;
+                            intTotalsalary = parseInt(stat.Total_Salary, 10);
+                            if (stat.totalAbsent < allowedLeaveDays) {
+                                adjustedAbsent = `${stat.totalAbsent} (+ Rs ${(allowedLeaveDays-stat.totalAbsent) * stat.Due_Week_Off})`;
+                                adjustedValue = stat.totalAbsent * stat.Due_Week_Off;
+                            } else {
+                                adjustedAbsent = `${stat.totalAbsent} (- Rs ${(stat.totalAbsent - allowedLeaveDays) * stat.Due_Week_Off})`;
+                                adjustedValue = (allowedLeaveDays - stat.totalAbsent) * stat.Due_Week_Off;
+
+                                //console.log( intTotalsalary,adjustedValue,(stat.lateCount * stat.Due_Late));
+                            }
+                           // console.log(adminId, stat);
+                            tableData.push({
+                                Admin_ID: adminId,
+                                Status: stat.Status || "No Status",
+                                Month: month,
+                                Name: stat.Name,
+                                Role: stat.Role || "N/A",
+                                Working_Days: stat.workingDays,
+                                Total_Present: stat.totalPresent,
+                                Total_Absent: adjustedAbsent, // Use the adjusted total absent
+                                Late_Count: stat.lateCount > stat.Allowed_Late ? `${stat.lateCount} (- Rs ${stat.lateCount * stat.Due_Late})` : stat.lateCount,
+                                Total: intTotalsalary + adjustedValue + incentive - stat.lateCount * stat.Due_Late,
+                                paymentStatus: paymentStatus.Status || "No Status",
+                                paidAmount: paymentStatus.Amount || 0,
+                                Incentive : incentive || 0,
+                            });
+                        }
+
+                        const passedMonth = month;
+                        $(".loader-overlay").fadeOut();
+                        // Initialize or reload DataTable
+                        if ($.fn.DataTable.isDataTable("#adminStatsTable")) {
+                            // If already initialized, clear and reload data
+                            const table = $("#adminStatsTable").DataTable();
+                            table.clear().rows.add(tableData).draw();
+                        } else {
+                            // Initialize the DataTable with new data
+                            $("#adminStatsTable").DataTable({
+                                responsive: true,
+                                autoWidth: false,
+                                data: tableData,
+                                columns: [
+                                    { data: "Admin_ID" },
+                                    { data: "Name" },
+                                    { data: "Status" },
+                                    { data: "Role" },
+                                    { data: "Working_Days" },
+                                    { data: "Total_Present" },
+                                    { data: "Total_Absent" },
+                                    { data: "Late_Count" },
+                                    { data: "Incentive" },
+                                    { data: null, 
+                                        render: function (data, type, row) {
+                                            if (row["paymentStatus"] === "Not Paid") {
+                                                return row["Total"];
+                                            } else {
+                                                return row["paidAmount"];
+                                            }
+                                        }
+                                    },
+                                    { data: "paymentStatus" },
+                                    {
+                                        data: null,
+                                        render: function (data, type, row) {
+                                            // Get the current date formatted based on the specific month you're using in getPaymentStatus
+
+                                            // Capture the month explicitly from your current logic (ensure it is passed correctly from the calling function)
+                                            // Ensure 'month' is the correct value being passed
+
+                                            //console.log(passedMonth);
+                                            // Use template literals to pass the correct values for Admin_ID, Total, month, year, and formattedDate
+                                            const pay = `<button class="btn m-2 btn-primary" data-toggle="modal" data-target="#paymentModal"
+                                                                      onclick="getPaymentInfo(${data.Admin_ID}, ${data.Total}, '${data["Month"]}', '${year}')">Pay</button>`;
+
+                                            const slip = `<button data-toggle="modal" data-target="#slipModal"
+                                                                   onclick="getSlipData(${data.Admin_ID})" class="btn btn-primary">Slip</button>`;
+
+                                            // Conditionally render the pay button based on status
+                                            if (row["paymentStatus"] === "Not Paid") {
+                                                return pay + slip;
+                                            } else {
+                                                return slip;
+                                            }
+                                        },
+                                    },
+                                ],
+                                createdRow: function (row, data, dataIndex) {
+                                    // Convert Late_Count and Incentive to strings to avoid the error
+                                    const lateCountStr = String(data.Late_Count);
+                                    const absentStr = String(data.Total_Absent);
+
+                                    const status = data.paymentStatus;
+
+                                    status == "Paid" ? $("td:eq(10)", row).addClass("text-success") : $("td:eq(10)", row).addClass("text-danger");
+
+                                    // Check if "Late_Count" contains a minus sign
+                                    if (lateCountStr.includes("-")) {
+                                        $("td:eq(7)", row).addClass("text-danger"); // Late_Count column (index 6) - red if negative
+                                    }
+
+                                    if (absentStr.includes("-")) {
+                                        $("td:eq(6)", row).addClass("text-danger"); // Late_Count column (index 6) - red if negative
+                                    } else {
+                                        $("td:eq(6)", row).addClass("text-success"); // green if no minus sign (considered positive)
+                                    }
+
+                                    // Check if "Incentive" contains a minus sign or a plus sign
+                                    if (data.Incentive > 0) {
+                                        $("td:eq(8)", row).addClass("text-success"); // Incentive column (index 8) - red if negative
+                                    }
+                                    //  else if (incentiveStr.includes("+")) {
+                                    //      // green if positive
+                                    // }
+                                },
+                            });
+                        }
+                    } else {
+                        console.log("Error: " + jsonData.message);
+                        alert("Error: " + jsonData.message);
+                    }
+                },
+            });
+        }
+    </script>
+</html>

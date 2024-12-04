@@ -1,0 +1,42 @@
+<?xml version='1.0' encoding='utf-8'?>
+<widget id="com.teamka.teamka" version="1.0.5" xmlns="http://www.w3.org/ns/widgets" xmlns:android="http://schemas.android.com/apk/res/android" xmlns:gap="http://phonegap.com/ns/1.0">
+    <name>TEAM KA</name>
+    <description> Start Your Business With Kalam Academy </description>
+    <author email="support@phonegap.com" href="http://phonegap.com"> Kalam Academy Team </author>
+    <content src="index.html" />
+     <preference name="ErrorUrl" value="index.html"/>
+    <preference name="loadUrlTimeoutValue" value="30000" />
+    <preference name="DisallowOverscroll" value="true" />
+	<preference name="android-targetSdkVersion" value="22" />
+    <preference name="android-compileSdkVersion " value="22" />
+    <plugin name="cordova-plugin-network-information" source="npm" spec="3.0.0" />
+    <plugin name="cordova-plugin-whitelist" source="npm" spec="~1.2.1" />
+    <plugin name="cordova-plugin-phone-call" spec="1.1.3" />
+    <plugin name="cordova-plugin-media" source="https://github.com/edvenkat/cordova-plugin-media" />
+    <plugin name="io.ash.plugin.phonecalltrap" spec="0.1.2" />
+    <plugin name="cordova-plugin-file" spec="6.0.2" />
+    <plugin name="cordova-plugin-sim" spec="1.3.3" />
+    <plugin name="cordova-plugin-file-transfer" source="https://github.com/Priyansu431/cordova-plugin-file-transfer" />
+    <plugin name="cordova-plugin-android-permissions" spec="1.1.5" />
+    <plugin name="cordova-plugin-inappbrowser" spec="5.0.0" />
+    <plugin name="cordova-plugin-androidx" spec="3.0.0" /> 
+    <plugin name="cordova-plugin-androidx-adapter" spec="1.1.3" />
+    <plugin name="cordova-plugin-call-log2" spec="0.0.4" />
+     <plugin name="cordova-plugin-background-mode" source="https://github.com/edvenkat/cordova-plugin-run-in-background" />
+    <platform name="android">
+		<icon src="www/icon.png"/> 
+        <access origin="*" />
+        <allow-intent href="http://*/*" />
+        <allow-intent href="https://*/*" />
+        <allow-intent href="tel:*" />
+        <allow-intent href="sms:*" />
+        <allow-intent href="mailto:*" />
+        <allow-intent href="geo:*" />
+        <allow-intent href="market:*" />
+        <preference name="AndroidInsecureFileModeEnabled" value="true" />
+    </platform>
+    <config-file target="AndroidManifest.xml" parent="/*">
+        <uses-permission android:name="android.permission.CALL_PHONE"/>   
+    </config-file>
+    <engine name="android" spec="9.1.0" />
+</widget>

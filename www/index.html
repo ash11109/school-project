@@ -1,0 +1,74 @@
+<html> 
+    <head>
+        <title>
+            Kalam Academy CMS
+        </title>
+        <link href="./css/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+        <link href="./css/style.css" rel="stylesheet">
+        <script src="./jquery/jquery.min.js"></script>
+        <script src="js/myscript.js"></script>
+    </head>
+    <body>
+        <div class="container text-center mt-5">
+            <div class="heading">
+                <h1>ADMIN LOGIN</h1>
+            </div>
+            <div class="row d-flex justify-content-center mt-5">
+                <div class="col-lg-8 col-md-12 login-box" style="background-color: blueviolet;">
+                    <form action="">
+                        <div class="user-box">
+                            <input type="text" name="mobileNo" value="" required="" id="mobileNo">
+                            <label>Phone Number</label>
+                            <br><span style="color: red; font-size: x-small;" id="warn_mobileNo"></span>
+                        </div> 
+                        <div class="user-box mt-3">
+                            <input type="password" name="password" value="" required="" id="password">
+                            <label>Password</label>
+                            <br><span style="color: red; font-size: x-small;" id="warn_password"></span>
+                        </div>
+                        
+                    </form>
+        
+                <p>
+            
+                    <button class="mt-5 mb-5 loginButton" onclick="login()">
+                            Login
+                    </button>
+                </p>
+                <p>
+            
+                    <button class="mt-5 mb-5 loginButton" onclick="getDeviceUserAgent()">
+                            Get Device User Agent
+                    </button>
+                </p>
+                <p id="getuserAgent">
+            
+                </p>
+                </div>
+            </div>
+            
+          
+        </div>
+          <script src="cordova.js"></script>
+        <script src="js/index.js"></script>
+        <script>
+            $(document).ready(function(){
+                
+                let userType = localStorage.getItem("userType");
+                if(userType=="Caller") {
+                    window.location.href = "./callerDashboardNEW.html";
+                } else if(userType=="Developer") {
+                    window.location.href = "./developerDashboardNEW.html";
+                } else if(userType=="Admin") {
+                    window.location.href = "./dashboardNEW.html";
+                } else if(userType=="Support") {
+                    window.location.href = "./supportExecutiveNEW.html";
+                } else if(userType=="TL") {
+                    window.location.href = "./dashboardTL.html";
+                } else if(userType=="TH") {
+                    window.location.href = "./TechHead.html";
+                } 
+            })
+        </script>
+    </body>
+</html>

@@ -1,0 +1,70 @@
+
+.heading h1{
+    margin-top: 10%;
+    font-size: xxx-large;
+    color: #440974;
+}
+
+
+.login-box {
+    padding-top: 10%;
+	background: rgba(0,0,0,.5);
+	box-sizing: border-box;
+	box-shadow: 0 15px 25px rgba(0,0,0,.6);
+}
+.login-box form{
+    padding-left: 5%;
+    padding-left: 5%;
+}
+
+
+
+.login-box .user-box {
+	position: relative;
+}
+
+.login-box .user-box input {
+	width: 100%;
+	padding: 10px 0;
+	font-size: 26px;
+	color: #F1EEE6;
+	margin-bottom: 30px;
+	border: none;
+	border-bottom: 1px solid #F1EEE6;
+	outline: none;
+	background: transparent;
+}
+
+.login-box .user-box label {
+	position: absolute;
+	top: 0;
+	left: 0;
+	padding: 10px 0;
+	font-size: 26px;
+	color: rgba(241, 238, 230, 0.685);
+	pointer-events: none;
+	transition: .5s;
+}
+
+.login-box .user-box input:focus ~ label, .login-box .user-box input:valid ~ label {
+	top: -20px; 
+	left: 0px; 
+	color: #440974;
+    font-size: 15px;
+    font-weight: bolder;
+}
+
+.loginButton {
+    width: 75%;
+    font-size: 26px;
+    border: none;
+    padding: 1%;
+    background-color: #f8f7f752;
+    color: white;
+    transition: 0.5s;
+}
+
+.loginButton:hover{
+    padding: 2%;
+}
+

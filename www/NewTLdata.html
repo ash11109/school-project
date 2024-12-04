@@ -1,0 +1,1320 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <script>
+            if (localStorage.getItem("MobileNo") == null) {
+                alert("Not Logged In");
+                window.location.href = "./index.html";
+            }
+            if (localStorage.getItem("userType") == "TL" || localStorage.getItem("userType") == "Admin") {
+            } else {
+                alert("Not Logged In");
+                window.location.href = "./index.html";
+            }
+            var start = localStorage.getItem("start");
+            var end = localStorage.getItem("end");
+            var api_url = "https://teamka.in/crm1/APIs/api.php";
+        </script>
+        <title>Real time data TL</title>
+        <link rel="stylesheet" href="./font-awesome/css/font-awesome.min.css" />
+        <link
+            href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css"
+            rel="stylesheet"
+            integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC"
+            crossorigin="anonymous" />
+        <link href="https://fonts.googleapis.com/css?family=Poppins" rel="stylesheet" />
+        <link rel="stylesheet" href="./css/graph.css" />
+        <script src="https://code.jquery.com/jquery-3.3.1.js"></script>
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+        <script src="
+         https://cdn.jsdelivr.net/npm/datatables@1.10.18/media/js/jquery.dataTables.min.js
+         "></script>
+        <link
+            href="
+       https://cdn.jsdelivr.net/npm/datatables@1.10.18/media/css/jquery.dataTables.min.css
+       "
+            rel="stylesheet" />
+
+        <style>
+            .modal-xxl {
+                max-width: 95%;
+            }
+        </style>
+    </head>
+
+    <body>
+        <div class="loader">
+            <div class="load">
+                <i class="fa fa-spinner fa-spin"></i>
+            </div>
+        </div>
+
+        <div class="main">
+            <div class="my-top-buttons-div2">
+                <div class="stats-card color-6" id="brk-time-div">
+                    <div id="brk-time">
+                        <p class="today">
+                            <span id="loader" style="display: inline; color: #fff"><i class="fa fa-spinner fa-spin"></i> </span>
+                        </p>
+                    </div>
+                    <div>Break</div>
+                </div>
+                <div class="stats-card color-6">
+                    <div id="tot-dial">
+                        <p class="today">
+                            <span id="loader" style="display: inline; color: #fff"><i class="fa fa-spinner fa-spin"></i> </span>
+                        </p>
+                    </div>
+                    <div>Dial</div>
+                </div>
+                <div class="stats-card color-6">
+                    <div id="tot-concted">
+                        <p class="today">
+                            <span id="loader" style="display: inline; color: #fff"><i class="fa fa-spinner fa-spin"></i> </span>
+                        </p>
+                    </div>
+                    <div>Connected</div>
+                </div>
+                <div class="stats-card color-6">
+                    <div id="tot-not-concted">
+                        <p class="today">
+                            <span id="loader" style="display: inline; color: #fff"><i class="fa fa-spinner fa-spin"></i> </span>
+                        </p>
+                    </div>
+                    <div>Not Connected</div>
+                </div>
+                <div class="stats-card color-6">
+                    <div id="call-durt">
+                        <p class="today">
+                            <span id="loader" style="display: inline; color: #fff"><i class="fa fa-spinner fa-spin"></i> </span>
+                        </p>
+                    </div>
+                    <div>Call Duration</div>
+                </div>
+                <div class="stats-card color-6">
+                    <div id="leads">
+                        <p class="today">
+                            <span id="loader" style="display: inline; color: #fff"><i class="fa fa-spinner fa-spin"></i> </span>
+                        </p>
+                    </div>
+                    <div>Total Leads</div>
+                </div>
+                <div class="stats-card color-6">
+                    <div id="demo">
+                        <p class="today">
+                            <span id="loader" style="display: inline; color: #fff"><i class="fa fa-spinner fa-spin"></i> </span>
+                        </p>
+                    </div>
+                    <div>Demo Done</div>
+                </div>
+
+                <div class="stats-card color-6">
+                    <div id="follow">
+                        <p class="today">
+                            <span id="loader" style="display: inline; color: #fff"><i class="fa fa-spinner fa-spin"></i> </span>
+                        </p>
+                    </div>
+                    <div>Pending Followup</div>
+                </div>
+                <div class="stats-card color-6">
+                    <div id="monster">
+                        <p class="today">
+                            <span id="loader" style="display: inline; color: #fff"><i class="fa fa-spinner fa-spin"></i> </span>
+                        </p>
+                    </div>
+                    <div>Marked Monster</div>
+                </div>
+
+                <div class="stats-card color-6">
+                    <div id="nrced">
+                        <p class="today">
+                            <span id="loader" style="display: inline; color: #fff"><i class="fa fa-spinner fa-spin"></i> </span>
+                        </p>
+                    </div>
+                    <div>Not Recorded</div>
+                </div>
+            </div>
+            <div class="sec">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 id="statsnme" class="card-title">Call Reports</h5>
+
+                            <table id="tlTable" class="table table-striped" style="width: 100%">
+                                <thead>
+                                    <tr>
+                                        <th>Name</th>
+                                        <th>Demo Ratio</th>
+                                        <th>Lead con Ratio</th>
+                                        <th>Total Leads</th>
+                                        <th>Total Call</th>
+                                        <th scope="col">Call Connected</th>
+                                        <th>Call Not Connected</th>
+                                        <th>Duration</th>
+                                        <th>Not Recorded</th>
+                                        <th>Marked Monster</th>
+                                        <th>Demo Done</th>
+                                        <th>Pending Followup</th>
+                                        <th>Break Time</th>
+                                    </tr>
+                                </thead>
+                                <tbody style="text-wrap: nowrap !important"></tbody>
+                            </table>
+
+                            <!-- Progress Bar for the first table -->
+                            <div id="loadingProgress1" class="progress" style="display: none">
+                                <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" style="width: 0%" aria-valuemin="0" aria-valuemax="100">
+                                </div>
+                            </div>
+                            <div id="loadingText1" class="text-center" style="display: none">Loading data...</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 id="statscall" class="card-title">Stats</h5>
+                            <table id="table1" class="table table-striped" style="width: 100%">
+                                <thead>
+                                    <tr>
+                                        <th>#ID</th>
+                                        <th>Name</th>
+                                        <th>Last Status</th>
+                                        <th>Summary Note</th>
+                                        <th>Recording</th>
+                                        <th>Call Duration</th>
+                                        <th>DOR</th>
+                                        <th>Intrested IN</th>
+                                        <th>Status</th>
+                                        <th>Caller</th>
+                                        <th>Transfer</th>
+                                    </tr>
+                                </thead>
+                                <tbody></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal fade" id="modalcall" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+                <div class="modal-dialog modal-xxl" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="exampleModalLongTitle"> CAll Reports </h5>
+                            <button type="button" class="btn-close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            <table id="callstats" class="table table-striped" style="width: 100%">
+                                <thead>
+                                    <tr>
+                                        <th>#ID</th>
+                                        <th>Name</th>
+                                        <th>Last Status</th>
+                                        <th>Summary Note</th>
+                                        <th>Recording</th>
+                                        <th>Call Duration</th>
+                                        <th>DOR</th>
+                                        <th>Intrested IN</th>
+                                        <th>Status</th>
+                                        <th>Caller</th>
+                                        <th>Transfer</th>
+                                    </tr>
+                                </thead>
+                                <tbody></tbody>
+                            </table>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal"> Close </button>
+                            <button type="button" class="btn btn-primary"> Save changes </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal fade" id="exampleModal4" data-backdrop="static" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                <div class="modal-dialog modal-xl" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h3 class="modal-title" id="exampleModalLabel">STATUS</h3>
+                            <button type="button" class="btn-close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="container" id="allStatus">
+                            <table id="statustable" class="table table-bordered table-striped">
+                                <thead>
+                                    <th>Called By</th>
+                                    <th>On</th>
+                                    <th>Summary</th>
+                                    <th>Next Call</th>
+                                    <th>Audio</th>
+                                </thead>
+                                <tbody></tbody>
+                            </table>
+                            <div class="container" id="mailOption"></div>
+                        </div>
+                        <hr />
+                        <div class="modal-body">
+                            <h4>Add Status</h4>
+                            <form>
+                                <div class="form-group">
+                                    <label for="leadId" class="col-form-label">Lead ID:</label>
+                                    <input type="text" class="form-control" id="leadId" disabled />
+                                </div>
+                                <div class="row">
+                                    <div class="form-group col-md-6">
+                                        <label for="next_call_date" class="col-form-label">Next Call Date:</label>
+                                        <input type="date" class="form-control" id="next_call_date" />
+                                    </div>
+                                    <div class="form-group col-md-6">
+                                        <label for="time" class="col-form-label">Time:</label>
+                                        <input type="time" class="form-control" id="time" />
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="call_status" class="col-form-label">Call Status:</label>
+                                    <select class="form-control" id="call_status">
+                                        <option value="Feedback Call">Feedback Call</option>
+                                        <option value="Incomplete DEMO">Incomplete DEMO</option>
+                                        <option value="Fake Demo">Fake Demo</option>
+                                        <option value="Demo Done">Demo Done</option>
+                                        <option value="Unserviceable">Unserviceable</option>
+                                        <option value="Whatsapp Followup">Whatsapp Followup</option>
+                                        <option value="Switched Off">Switched Off</option>
+                                        <option value="Not Received">Not Received</option>
+                                        <option value="Out Of Service">Out Of Service</option>
+                                        <option value="Incoming Off">Incoming Off</option>
+                                        <option value="Positive / Interested "> Positive / Interested </option>
+                                        <option value="Confused">Confused</option>
+                                        <option value="Not Interested">Not Interested</option>
+                                        <option value="Pricing Issue">Pricing Issue</option>
+                                        <option value="Fund Issue">Fund Issue</option>
+                                        <option value="Inprocess (Interested)"> Inprocess (Interested) </option>
+                                        <option value="Call Busy">Call Busy</option>
+                                        <option value="Incoming Call">Incoming Call</option>
+                                        <option value="Call Drop">Call Drop</option>
+                                        <option value="Connected(Not Available)"> Connected(Not Available) </option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label for="summary_note" class="col-form-label">Summary Note:</label>
+                                    <textarea rows="5" class="form-control" id="summary_note"></textarea>
+                                </div>
+                            </form>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal"> Close </button>
+                            <button type="button" class="btn btn-primary" onclick="addNewStatus()"> SUBMIT </button>
+                        </div>
+                        <p id="errorDetailsStatus" style="text-align: right; color: crimson"></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <script>
+            dateTL();
+            showLoadingProgress();
+            loadDatesAndRunTest();
+            getUsers();
+
+            function showLoadingProgress() {
+                $(`#loadingProgress1`).show();
+                $(`#loadingText1`).show();
+                $(`#loadingProgress1 .progress-bar`).css("width", "0%").attr("aria-valuenow", 0);
+            }
+
+            function updateLoadingProgress(text, percent) {
+                $(`#loadingProgress1 .progress-bar`)
+                    .css("width", percent + "%")
+                    .attr("aria-valuenow", percent);
+                $(`#loadingText1`).text(text);
+            }
+
+            function hideLoadingProgress() {
+                $(`#loadingProgress1`).hide();
+                $(`#loadingText1`).hide();
+            }
+
+            let responseData = null;
+            function getUsers() {
+                $.ajax({
+                    url: "https://teamka.in/crm1/APIs/api.php?operation=getUsers",
+                    method: "GET",
+                    success: function (response) {
+                        responseData = JSON.parse(response);
+                        callStatsTL();
+                    },
+                    error: function () {
+                        console.error("Error fetching users.");
+                    },
+                });
+            }
+
+            // Function to generate date ranges
+            function generateDateRanges(start2, end2) {
+                const startDate2 = new Date(start2);
+                const endDate2 = new Date(end2);
+
+                // Calculate the interval length between start2 and end2
+                const intervalDays = (endDate2 - startDate2) / (1000 * 60 * 60 * 24);
+
+                // Calculate start1 as start2 minus the interval
+                const start1 = new Date(startDate2);
+                start1.setDate(start1.getDate() - intervalDays); // Move back by the interval
+
+                // Calculate end1 as the last day of the month for the adjusted start1
+                const end1 = new Date(start1);
+                end1.setMonth(end1.getMonth() + 1); // Move to the next month
+                end1.setDate(0); // Set to the last day of the month (previous month)
+
+                // Format dates as YYYY-MM-DD
+                const formatDate = (date) => date.toISOString().split("T")[0];
+
+                return {
+                    start1: formatDate(start1),
+                    end1: formatDate(end1),
+                    start2: formatDate(startDate2), // Return original start2
+                    end2: formatDate(endDate2), // Return original end2
+                };
+            }
+
+            // Function to get dates from local storage and run test23()
+            function loadDatesAndRunTest() {
+                // Retrieve start2 and end2 from local storage
+                const start2 = localStorage.getItem("start");
+                const end2 = localStorage.getItem("end");
+
+                // Check if both dates exist in local storage
+                if (start2 && end2) {
+                    // Generate date ranges using the retrieved dates
+                    const { start1, end1 } = generateDateRanges(start2, end2);
+
+                    // Call test23 with the returned dates
+                    test23(start1, end1, start2, end2);
+                } else {
+                    console.error("start2 and end2 not found in local storage.");
+                }
+            }
+
+            function test23(start1, end1, start2, end2) {
+                // Helper function to fetch data for a specific date range
+                function fetchData(start, end) {
+                    return Promise.all([
+                        $.ajax({
+                            url: api_url,
+                            method: "POST",
+                            data: { operation: "callStatus", start: start, end: end },
+                        }),
+                        $.ajax({
+                            url: api_url,
+                            method: "POST",
+                            data: { operation: "pendingStatus", start: start, end: end },
+                        }),
+                        $.ajax({
+                            url: api_url,
+                            method: "POST",
+                            data: { operation: "otherStatus", start: start, end: end },
+                        }),
+                        $.ajax({
+                            url: api_url,
+                            method: "POST",
+                            data: { operation: "getRatioData", start: start, end: end },
+                        }),
+                        $.ajax({
+                            url: api_url,
+                            method: "POST",
+                            data: { operation: "getUsers", id: localStorage.getItem("userID") },
+                        }),
+                    ]);
+                }
+
+                let datamain1, datamain2;
+
+                // Fetch data for the first date range
+                updateLoadingProgress("Loading data for first date range...", 15); // Initial progress
+                fetchData(start1, end1)
+                    .then(function (responses1) {
+                        const data1 = JSON.parse(responses1[0]);
+                        const data2 = JSON.parse(responses1[1]);
+                        const data3 = JSON.parse(responses1[2]);
+                        const data4 = JSON.parse(responses1[3]);
+                        const data5 = JSON.parse(responses1[4]);
+
+                        // Process first set of data
+                        return makeTable(data1, data2, data3, data4, data5);
+                    })
+                    .then(function (datamain) {
+                        datamain1 = datamain; // Store the result of the first range
+                        console.log("datamain1:", datamain1); // Log first set of processed data
+
+                        // Update progress to indicate completion of first fetch
+                        updateLoadingProgress("First date range loaded successfully.", 30);
+
+                        // Fetch data for the second date range
+                        updateLoadingProgress("Loading data for second date range...", 45); // Reset progress for second fetch
+                        return fetchData(start2, end2);
+                    })
+                    .then(function (responses2) {
+                        const data1_2 = JSON.parse(responses2[0]);
+                        const data2_2 = JSON.parse(responses2[1]);
+                        const data3_2 = JSON.parse(responses2[2]);
+                        const data4_2 = JSON.parse(responses2[3]);
+                        const data5_2 = JSON.parse(responses2[4]);
+
+                        // Process second set of data
+                        return makeTable(data1_2, data2_2, data3_2, data4_2, data5_2);
+                    })
+                    .then(function (datamain) {
+                        datamain2 = datamain; // Store the result of the second range
+                        console.log("datamain2:", datamain2); // Log second set of processed data
+
+                        // Update progress to indicate completion of second fetch
+                        updateLoadingProgress("Second date range loaded successfully.", 60);
+
+                        // Now compare both datasets
+                        compareData(datamain1, datamain2);
+                    })
+                    .catch(function (error) {
+                        console.error("Error fetching or processing data:", error);
+                        // Optionally, you can reset the progress bar on error
+                        updateLoadingProgress("Error loading data.", 100);
+                    });
+            }
+            function compareData(datamain1, datamain2) {
+                updateLoadingProgress("Comparing data...", 75);
+                datamain2.forEach((entry2) => {
+                    const entry1 = datamain1.find((e) => e.Caller_ID == entry2.Caller_ID);
+
+                    if (entry1) {
+                        // Compare and add arrow indicators with difference
+                        entry2.demoLeadsArrow = getComparisonArrow(entry1.demoLeads, entry2.demoLeads);
+                        entry2.connectedLeadsArrow = getComparisonArrow(entry1.totalConnectedLeads, entry2.totalConnectedLeads);
+                        entry2.totalLeadsArrow = getComparisonArrow(entry1.totalLeads, entry2.totalLeads);
+                        entry2.callTodayArrow = getComparisonArrow(entry1.callToday, entry2.callToday);
+                        entry2.countConnectedArrow = getComparisonArrow(entry1.countConnected, entry2.countConnected);
+                        entry2.countNotConnectedArrow = getComparisonArrow(entry1.countNotConnected, entry2.countNotConnected);
+                        entry2.totalCallDurationArrow = getComparisonArrow(entry1.totalCallDuration, entry2.totalCallDuration, true);
+                        entry2.notRecordedArrow = getComparisonArrow(entry1.notRecorded, entry2.notRecorded);
+                        entry2.monsterCountArrow = getComparisonArrow(entry1.monsterCount, entry2.monsterCount);
+                        entry2.demoCountArrow = getComparisonArrow(entry1.demoCount, entry2.demoCount);
+                        entry2.pendingCountArrow = getComparisonArrow(entry1.pendingCount, entry2.pendingCount);
+                        entry2.breakTimeArrow = getComparisonArrow(entry1.breakTime, entry2.breakTime, true);
+                    }
+                });
+                updateLoadingProgress("Comparison completed.", 100);
+                // Render the table with comparison arrows and difference values
+                teamDatadate(datamain2); // Pass the updated datamain2 to render
+            }
+
+            function getComparisonArrow(oldValue, newValue, isTimeValue = false) {
+                const difference = newValue - oldValue;
+
+                let arrow;
+                if (newValue > oldValue) {
+                    arrow = '<i class="fa fa-arrow-up text-success"></i>'; // Value increased
+                } else if (newValue < oldValue) {
+                    arrow = '<i class="fa fa-arrow-down text-danger"></i>'; // Value decreased
+                } else if (newValue === 0 && oldValue === 0) {
+                    arrow = '<i class="fa fa-circle text-muted"></i>'; // Both values are 0
+                } else {
+                    arrow = ""; // No change
+                }
+
+                // Return both the arrow and the difference value
+                const differenceText = difference !== 0 ? ` (${difference > 0 ? "+" : ""}${difference})` : "";
+                const formattedDifference = isTimeValue && difference !== 0 ? ` (${secondsToTime(difference)})` : ` (${difference})`;
+
+                return `${arrow} ${formattedDifference}`;
+            }
+
+            async function makeTable(data1, data2, data3, data4, data5) {
+                let combinedData = {};
+
+                // Process data1 (callStatus) and group by Caller_ID
+                data1.forEach((entry) => {
+                    const callerId = entry.Caller_ID;
+                    const callStatus = entry.Call_Status;
+                    const callDuration = parseInt(entry.Duration_Of_Call) || 0; // Parse the duration as an integer
+
+                    // If the Caller_ID doesn't exist in combinedData, initialize it
+                    if (!combinedData[callerId]) {
+                        combinedData[callerId] = {
+                            countNotConnected: 0,
+                            countConnected: 0,
+                            notRecorded: 0,
+                            callToday: 0,
+                            totalCallDuration: 0,
+                            pendingCount: 0, // Initialize pending count for data2
+                        };
+                    }
+
+                    // Increment call count
+                    combinedData[callerId].callToday++;
+
+                    // Check if the call is connected or not connected based on the status
+                    if (["Switched Off", "Not Received", "Out Of Service", "Incoming Off", "Call Busy"].includes(callStatus)) {
+                        combinedData[callerId].countNotConnected++;
+                    } else {
+                        combinedData[callerId].countConnected++;
+                    }
+
+                    // Check if the call was not recorded (Duration_Of_Call = 0)
+                    if (callDuration === 0) {
+                        combinedData[callerId].notRecorded++;
+                    }
+
+                    // Sum up the total call duration
+                    combinedData[callerId].totalCallDuration += callDuration;
+                });
+
+                // Process data2 (pendingStatus) and count "Pending" status per Caller_ID
+                data2.forEach((entry) => {
+                    const callerId = entry.Caller_ID;
+
+                    // Ensure the Caller_ID exists in combinedData (if data2 has a new caller that was not in data1)
+                    if (!combinedData[callerId]) {
+                        combinedData[callerId] = {
+                            countNotConnected: 0,
+                            countConnected: 0,
+                            notRecorded: 0,
+                            callToday: 0,
+                            totalCallDuration: 0,
+                            pendingCount: 0, // Initialize pending count for data2
+                        };
+                    }
+
+                    // Increment pending count for this Caller_ID
+                    if (entry.countr === "Pending") {
+                        combinedData[callerId].pendingCount++;
+                    }
+                });
+
+                // Convert combinedData object into an array for further use
+                let finalDataArray = [];
+                for (const [callerId, stats] of Object.entries(combinedData)) {
+                    finalDataArray.push({
+                        Caller_ID: callerId,
+                        countNotConnected: stats.countNotConnected,
+                        countConnected: stats.countConnected,
+                        notRecorded: stats.notRecorded,
+                        callToday: stats.callToday,
+                        totalCallDuration: stats.totalCallDuration,
+                        pendingCount: stats.pendingCount, // Add pending count from data2
+                    });
+                }
+
+                // Now you have finalDataArray with both data1 and data2 processed
+                datamain = await processData3(data3, finalDataArray);
+
+                // Process data4 (Name Mapping)
+                const demoMap = {};
+                data4.demo.forEach((entry) => {
+                    const caller_id = entry.Caller_ID;
+                    const demoLeads = parseInt(entry.demo_leads, 10);
+                    const totalDemoLeads = parseInt(entry.total_leads, 10);
+                    if (!demoMap[caller_id]) {
+                        demoMap[caller_id] = {};
+                    }
+                    demoMap[caller_id].demoLeads = demoLeads;
+                    demoMap[caller_id].totalDemoLeads = totalDemoLeads;
+                });
+
+                // Update finalDataArray with demo data
+                datamain.forEach((entry) => {
+                    const callerId = entry.Caller_ID;
+                    const metrics = demoMap[callerId] || {
+                        demoLeads: 0,
+                        totalDemoLeads: 0,
+                    };
+                    entry.demoLeads = metrics.demoLeads;
+                    entry.totalDemoLeads = metrics.totalDemoLeads;
+                });
+
+                const connectedMap = {};
+                data4.connected.forEach((entry) => {
+                    const caller_id = entry.Caller_ID;
+                    connectedMap[caller_id] = {
+                        totalLeads: parseInt(entry.total, 10),
+                        totalConnectedLeads: parseInt(entry.total_connected, 10),
+                    };
+                });
+
+                // Update finalDataArray with connected data
+                datamain.forEach((entry) => {
+                    const callerId = entry.Caller_ID;
+                    const metrics = connectedMap[callerId] || {
+                        totalLeads: 0,
+                        totalConnectedLeads: 0,
+                    };
+                    entry.totalLeads = metrics.totalLeads;
+                    entry.totalConnectedLeads = metrics.totalConnectedLeads;
+                });
+
+                const nameMap = {};
+                data5.forEach((entry) => {
+                    const adminId = entry.Admin_ID;
+                    const name = entry.Name;
+                    nameMap[adminId] = name;
+                });
+
+                // Update finalDataArray with names from data5
+                datamain.forEach((entry) => {
+                    const callerId = entry.Caller_ID;
+                    entry.Name = nameMap[callerId] || "Unknown"; // Assign name or default to "Unknown"
+                });
+
+                // Return the filtered data instead of passing to teamDatadate
+                return await filterTeammembers(datamain);
+            }
+
+            async function filterTeammembers(datamain) {
+                try {
+                    // Retrieve the team members array from local storage
+                    const storedTeamMembers = JSON.parse(localStorage.getItem("teamMembers")) || [];
+                    console.log("Stored team members:", storedTeamMembers);
+
+                    let callerIDsArray;
+
+                    // Handle case 3: If the storedTeamMembers array is exactly ["all"], fetch data from the server
+                    if (storedTeamMembers.length === 1 && storedTeamMembers.includes("all")) {
+                        // Fetch data from the server
+                        const response = await $.ajax({
+                            type: "POST",
+                            url: api_url, // Your server URL here
+                            data: { operation: "getUsers-new", id: localStorage.getItem("userID") },
+                        });
+
+                        // Get the comma-separated caller IDs string from the server response
+                        const parsedResponse = JSON.parse(response);
+                        const callerIDsString = parsedResponse.callerIDs; // e.g., "1,2,3,4,6,7,9,11,12,13,16,19,21,23,25,124,126"
+                        console.log("Caller IDs from server:", callerIDsString);
+
+                        // Convert the string into an array of numbers
+                        callerIDsArray = callerIDsString.split(",").map(Number);
+                    } else {
+                        // Handle cases 1 and 2: Use stored values, excluding "all"
+                        console.log("Using stored team members:", storedTeamMembers);
+                        callerIDsArray = storedTeamMembers
+                            .filter((id) => id !== "all") // Exclude "all"
+                            .map(Number); // Convert strings to numbers
+                    }
+
+                    // Create a Set from the array for efficient filtering
+                    const dynamicCallerIDs = new Set(callerIDsArray);
+
+                    // Filter your data to include only those entries with Caller_ID in the dynamicCallerIDs set
+                    const filteredData = datamain.filter((item) => dynamicCallerIDs.has(Number(item.Caller_ID)));
+
+                    // Return the filtered data
+                    return filteredData;
+                } catch (error) {
+                    console.error("Error in filterTeammembers:", error);
+                    throw error; // Rethrow the error for handling in makeTable
+                }
+            }
+
+            async function processData3(data3, mainArray) {
+                const monstersData = data3.Monsters || [];
+                const demoData = data3.Demo || [];
+                const breakTimesData = data3.breakTimes || [];
+
+                // Step 1: Process Monsters (unique Caller_ID)
+                let monsterCounts = {};
+                monstersData.forEach((monster) => {
+                    const callerId = monster.Caller_ID;
+                    if (!monsterCounts[callerId]) {
+                        monsterCounts[callerId] = 1;
+                    } else {
+                        monsterCounts[callerId]++;
+                    }
+                });
+
+                // Step 2: Process Demo (count unique Lead_ID for each Caller_ID)
+                let demoCounts = {};
+                demoData.forEach((demo) => {
+                    const callerId = demo.Caller_ID;
+                    if (!demoCounts[callerId]) {
+                        demoCounts[callerId] = new Set();
+                    }
+                    demoCounts[callerId].add(demo.Lead_ID);
+                });
+
+                // Step 3: Process Break Times (calculate break time for each Caller_ID)
+                let breakTimes = {};
+                breakTimesData.forEach((breakRecord) => {
+                    const callerId = breakRecord.Admin_ID;
+
+                    // Use regex to extract hours, minutes, seconds, and AM/PM
+                    const startTime = new Date(`1970-01-01 ${breakRecord.Start_Time}`);
+                    const endTime = new Date(`1970-01-01 ${breakRecord.End_Time}`);
+
+                    // Check if the date objects are valid
+                    if (!isNaN(startTime) && !isNaN(endTime)) {
+                        const breakDuration = (endTime - startTime) / 1000; // in seconds
+
+                        if (!breakTimes[callerId]) {
+                            breakTimes[callerId] = 0;
+                        }
+                        breakTimes[callerId] += breakDuration;
+                    } else {
+                        console.log(`Invalid time format for callerId: ${callerId}`);
+                    }
+                });
+
+                //console.log(breakTimes);
+
+                // Step 4: Update the main array with Monsters, Demo counts, and Break Times
+                mainArray.forEach((entry) => {
+                    const callerId = entry.Caller_ID;
+
+                    // Update with monster count
+                    entry.monsterCount = monsterCounts[callerId] || 0;
+
+                    // Update with demo count (size of the set for unique leads)
+                    entry.demoCount = demoCounts[callerId] ? demoCounts[callerId].size : 0;
+
+                    // Update with break time (format to hh:mm:ss)
+                    const totalBreakTime = breakTimes[callerId] || 0;
+                    entry.breakTime = totalBreakTime;
+                });
+
+                return mainArray;
+            }
+
+            function teamDatadate(datamain) {
+                hideLoadingProgress();
+                $("#statsnme").html("Stats From " + localStorage.getItem("start") + " TO " + localStorage.getItem("end"));
+
+                $("#tlTable").DataTable({
+                    data: datamain,
+                    destroy: true, // Reinitialize DataTable with new data
+                    order: [[1, "desc"]],
+                    searching: false, // Hide search box
+                    lengthChange: false, // Hide "Show [X] entries" dropdown
+                    paging: false, // Hide pagination
+                    info: false, // Hide "Showing X to Y of Z entries" info
+                    columns: [
+                        { data: "Name" },
+                        {
+                            data: null,
+                            render: function (data, type, row) {
+                                const percentagedemo = row["totalDemoLeads"] > 0 ? `${((row["demoLeads"] / row["totalDemoLeads"]) * 100).toFixed(2)}%` : "0%";
+                                return percentagedemo + " " + (row.demoLeadsArrow || '<i class="fa fa-circle text-muted"></i>');
+                            },
+                        },
+                        {
+                            data: null,
+                            render: function (data, type, row) {
+                                const percentageconnected = row["totalLeads"] > 0 ? `${((row["totalConnectedLeads"] / row["totalLeads"]) * 100).toFixed(2)}%` : "0%";
+                                return percentageconnected + " " + (row.connectedLeadsArrow || '<i class="fa fa-circle text-muted"></i>');
+                            },
+                        },
+                        {
+                            data: null,
+                            render: function (data, type, row) {
+                                return (
+                                    '<a href="#" data-toggle="modal" data-target="#modalcall" onclick="callTL(' +
+                                    row["Caller_ID"] +
+                                    ", 'lead')\">" +
+                                    row["totalLeads"] +
+                                    "</a>" +
+                                    " " +
+                                    (row.totalLeadsArrow || '<i class="fa fa-circle text-muted"></i>')
+                                );
+                            },
+                        },
+                        {
+                            data: null,
+                            render: function (data, type, row) {
+                                return (
+                                    '<a href="#" data-toggle="modal" data-target="#modalcall" onclick="callTL(' +
+                                    row["Caller_ID"] +
+                                    ", 'total')\">" +
+                                    row["callToday"] +
+                                    "</a>" +
+                                    " " +
+                                    (row.callTodayArrow || '<i class="fa fa-circle text-muted"></i>')
+                                );
+                            },
+                        },
+                        {
+                            data: null,
+                            render: function (data, type, row) {
+                                return (
+                                    '<a href="#" data-toggle="modal" data-target="#modalcall" onclick="callTL(' +
+                                    row["Caller_ID"] +
+                                    ", 'con')\">" +
+                                    row["countConnected"] +
+                                    "</a>" +
+                                    " " +
+                                    (row.countConnectedArrow || '<i class="fa fa-circle text-muted"></i>')
+                                );
+                            },
+                        },
+                        {
+                            data: null,
+                            render: function (data, type, row) {
+                                return (
+                                    '<a href="#" data-toggle="modal" data-target="#modalcall" onclick="callTL(' +
+                                    row["Caller_ID"] +
+                                    ", 'not')\">" +
+                                    row["countNotConnected"] +
+                                    "</a>" +
+                                    " " +
+                                    (row.countNotConnectedArrow || '<i class="fa fa-circle text-muted"></i>')
+                                );
+                            },
+                        },
+                        {
+                            data: null,
+                            render: function (data, type, row) {
+                                return secondsToTime(row["totalCallDuration"]) + " " + (row.totalCallDurationArrow || '<i class="fa fa-circle text-muted"></i>');
+                            },
+                        },
+                        {
+                            data: null,
+                            render: function (data, type, row) {
+                                return (
+                                    '<a href="#" data-toggle="modal" data-target="#modalcall" onclick="callTL(' +
+                                    row["Caller_ID"] +
+                                    ", 'notrec')\">" +
+                                    row["notRecorded"] +
+                                    "</a>" +
+                                    " " +
+                                    (row.notRecordedArrow || '<i class="fa fa-circle text-muted"></i>')
+                                );
+                            },
+                        },
+                        {
+                            data: null,
+                            render: function (data, type, row) {
+                                return (
+                                    '<a href="#" data-toggle="modal" data-target="#modalcall" onclick="callTL(' +
+                                    row["Caller_ID"] +
+                                    ", 'monster')\">" +
+                                    row["monsterCount"] +
+                                    "</a>" +
+                                    " " +
+                                    (row.monsterCountArrow || '<i class="fa fa-circle text-muted"></i>')
+                                );
+                            },
+                        },
+                        {
+                            data: null,
+                            render: function (data, type, row) {
+                                return (
+                                    '<a href="#" data-toggle="modal" data-target="#modalcall" onclick="callTL(' +
+                                    row["Caller_ID"] +
+                                    ", 'demo')\">" +
+                                    row["demoCount"] +
+                                    "</a>" +
+                                    " " +
+                                    (row.demoCountArrow || '<i class="fa fa-circle text-muted"></i>')
+                                );
+                            },
+                        },
+                        {
+                            data: null,
+                            render: function (data, type, row) {
+                                return (
+                                    '<a href="#" data-toggle="modal" data-target="#modalcall" onclick="callTL(' +
+                                    row["Caller_ID"] +
+                                    ", 'follow')\">" +
+                                    row["pendingCount"] +
+                                    "</a>" +
+                                    " " +
+                                    (row.pendingCountArrow || '<i class="fa fa-circle text-muted"></i>')
+                                );
+                            },
+                        },
+                        {
+                            data: null,
+                            render: function (data, type, row) {
+                                return secondsToTime(row["breakTime"]) + " " + (row.breakTimeArrow || '<i class="fa fa-circle text-muted"></i>');
+                            },
+                        },
+                    ],
+                });
+            }
+
+            function getAllStatus(id) {
+                id = parseInt(id);
+
+                if ($.fn.DataTable.isDataTable("#statustable")) {
+                    // DataTable already initialized, destroy it first
+                    $("#statustable").DataTable().destroy();
+                }
+                $("#leadId").val(id);
+                $("#statustable").DataTable({
+                    order: [[1, "asc"]],
+                    processing: false,
+                    serverSide: false,
+                    paging: false, // Disable pagination
+                    searching: false, // Disable search
+                    ajax: {
+                        url: api_url, // Your server-side script to fetch data
+                        type: "POST",
+                        data: { operation: "009-new", id: id },
+                    },
+                    columns: [
+                        { data: "Name" },
+                        { data: "DOR" },
+                        { data: "Summary_Note" },
+                        { data: "Next_Call_Date" },
+                        {
+                            data: "Call_Recording",
+                            render: function (data, type, row) {
+                                var duration = row.Duration_Of_Call;
+                                if (!duration || duration == 0) {
+                                    // Return an error message if duration is 0 or empty
+                                    return "<div class='alert alert-danger' role='alert'>Audio not available </div>";
+                                }
+
+                                // Render a button to load the audio with duration as a custom attribute
+                                return '<button class="load-audio-btn" data-audio-url="' + data + '" data-duration="' + duration + '">Load Audio</button>';
+                            },
+                        },
+                    ],
+                });
+
+                // Event handler for clicking the load audio button
+                $("#statustable").on("click", ".load-audio-btn", function () {
+                    var audioUrl = $(this).data("audio-url");
+
+                    // Replace the button with the audio player
+                    var audioPlayer = '<audio controls autoplay><source src="' + audioUrl + '" type="audio/mpeg">Your browser does not support the audio element.</audio>';
+                    $(this).parent().html(audioPlayer);
+                });
+            }
+
+            // Helper function to format seconds into hh:mm:ss (reuse from before)
+            function formatSeconds(seconds) {
+                let date = new Date(0);
+                date.setSeconds(seconds);
+                return date.toISOString().substr(11, 8); // Return as hh:mm:ss
+            }
+
+            function secondsToTime(seconds) {
+                const isNegative = seconds < 0; // Check if the difference is negative
+                seconds = Math.abs(seconds); // Work with the absolute value
+
+                const hours = Math.floor(seconds / 3600);
+                const minutes = Math.floor((seconds % 3600) / 60);
+                const secs = seconds % 60;
+
+                // Format the time as HH:mm:ss
+                const timeString = [hours.toString().padStart(2, "0"), minutes.toString().padStart(2, "0"), secs.toString().padStart(2, "0")].join(":");
+
+                return isNegative ? `-${timeString}` : timeString; // Add a '-' if the original value was negative
+            }
+
+            function dateTL() {
+                var id = localStorage.getItem("userID");
+
+                $.ajax({
+                    url: "https://teamka.in/crm1/APIs/api.php",
+                    method: "POST", // You can use "GET" if appropriate
+                    data: { operation: "007-tl-date", id: id, start: start, end: end },
+                    success: function (response) {
+                        let result = JSON.parse(response);
+                        console.log(result);
+
+                        $("#brk-time .today").html(secondsToTime(result.bt));
+                        $("#tot-dial .today").html(result.call_today);
+                        $("#tot-concted .today").html(result.countConnected);
+                        $("#tot-not-concted .today").html(result.countNotConnected);
+                        $("#call-durt .today").html(secondsToTime(result.callDuration));
+                        $("#demo .today").html(result.demo);
+                        $("#follow .today").html(result.follow);
+                        $("#monster .today").html(result.call_count);
+                        $("#nrced .today").html(result.notRecorded);
+                        $("#leads .today").html(result.leads);
+                    },
+                    error: function (xhr, status, error) {
+                        console.error("AJAX Error: " + status, error);
+                    },
+                });
+            }
+
+            function secondsToHHMMSS(seconds) {
+                return new Date(seconds * 1000).toISOString().substr(11, 8);
+            }
+
+            function showfulltsk(tpe, id, dta) {
+                $("#" + tpe + "" + id + "").html(dta);
+            }
+
+            function callStatsTL() {
+                $("#statscall").html("Stats From " + start + " TO " + end);
+
+                var id = localStorage.getItem("userID");
+
+                var table = $("#table1").DataTable({
+                    order: [[0, "asc"]],
+                    processing: false,
+                    paging: true,
+                    pagingType: "full_numbers",
+                    serverSide: true,
+                    ajax: {
+                        url: api_url,
+                        method: "POST",
+                        data: {
+                            operation: "077-new",
+                            startDate: start,
+                            endDate: end,
+                            id: id,
+                        },
+                        beforeSend: function () {
+                            $(".loader").show();
+                        },
+                        complete: function () {
+                            $(".loader").hide();
+                        },
+                    },
+                    columns: [
+                        { data: "0" },
+                        { data: "1" },
+                        { data: "2" },
+                        {
+                            data: null,
+                            render: function (data, type, row) {
+                                return (
+                                    '<div id="tskwrk' +
+                                    row[0] +
+                                    '">' +
+                                    row[3].substring(0, 10) +
+                                    ' <a style="color:#212529;text-decoration: none;" href="#/" onclick="showfulltsk(`tskwrk`,' +
+                                    row[0] +
+                                    ",`" +
+                                    row[3] +
+                                    '`)">....</a></div><br><button data-toggle="modal" data-target="#exampleModal4" data-whatever="' +
+                                    row[0] +
+                                    '" onclick="getAllStatus(' +
+                                    row[0] +
+                                    ')">Status</button>'
+                                );
+                            },
+                        },
+                        {
+                            data: null,
+                            render: function (data, type, row) {
+                                //console.log(row)
+                                var duration = row[5];
+                                if (!duration || duration == 0) {
+                                    // Return an error message if duration is 0 or empty
+                                    return "<div class='alert alert-danger' role='alert'>Audio not available </div>";
+                                }
+
+                                // Render a button to load the audio with duration as a custom attribute
+                                return '<button class="load-audio-btn" data-audio-url="' + row[4] + '" data-duration="' + duration + '">Load Audio</button>';
+                            },
+                        },
+                        {
+                            data: null,
+                            render: function (data, type, row) {
+                                return secondsToHHMMSS(row[5]);
+                            },
+                        },
+                        { data: "6" },
+                        { data: "7" },
+                        { data: "8" },
+                        { data: "9" },
+                        {
+                            data: null,
+                            render: function (data, type, row) {
+                                var dropdownHTML = '<select class=" form-select user-dropdown">';
+                                responseData.forEach(function (user) {
+                                    dropdownHTML += '<option value="' + user.Admin_ID + '">' + user.Name + "</option>";
+                                });
+                                dropdownHTML += "</select>";
+                                return dropdownHTML + '<br><button class="transfer-btn btn btn-info" onclick="transferLead(' + row[0] + ', this)">Transfer</button>';
+                            },
+                        },
+                    ],
+                });
+
+                $("#table1").on("click", ".load-audio-btn", function () {
+                    var audioUrl = $(this).data("audio-url");
+
+                    // Replace the button with the audio player
+                    var audioPlayer = '<audio controls autoplay><source src="' + audioUrl + '" type="audio/mpeg">Your browser does not support the audio element.</audio>';
+                    $(this).parent().html(audioPlayer);
+                });
+            }
+
+            function addNewStatus() {
+                let callerID;
+                // Check user type
+                if (localStorage.getItem("userType") === "Support") {
+                    callerID = document.getElementById("support-agent").value;
+                } else {
+                    callerID = localStorage.getItem("userID");
+                }
+                // var callerID = localStorage.getItem("userID");
+
+                var leadId = document.getElementById("leadId").value;
+                var next_call_date = document.getElementById("next_call_date").value;
+                var time = document.getElementById("time").value;
+                var summary_note = document.getElementById("summary_note").value;
+                var call_status = document.getElementById("call_status").value;
+                if (next_call_date == "" || summary_note == "") {
+                    document.getElementById("errorDetailsStatus").innerHTML = "Fill the Form Correctly";
+                } else {
+                    document.getElementById("errorDetailsStatus").innerHTML = "";
+                    $(".loader").show();
+                    $.ajax({
+                        url: api_url,
+                        data: {
+                            operation: "008",
+                            leadId: leadId,
+                            next_call_date: next_call_date,
+                            time: time,
+                            summary_note: summary_note,
+                            call_status: call_status,
+                            callerID: callerID,
+                        },
+                        success: function (response) {
+                            console.log("response");
+                            $(".loader").hide();
+                            if (response == 1) {
+                                document.getElementById("leadId").value = "";
+                                document.getElementById("next_call_date").value = "";
+                                document.getElementById("time").value = "";
+                                document.getElementById("summary_note").value = "";
+                                alert("Status Uploaded");
+                                getAllStatus(leadId);
+                            } else {
+                                alert(response);
+                            }
+                        },
+                        error: function (jqXHR, exception) {
+                            var msg = displayerror(jqXHR, exception);
+                            alert(msg);
+                        },
+                    });
+                }
+            }
+
+            function transferLead(leadId, button) {
+                var $row = $(button).closest("tr");
+                var caller = $row.find(".user-dropdown").val();
+
+                // Disable the dropdown and the specific button
+                $row.find(".user-dropdown").prop("disabled", true);
+                $(button).prop("disabled", true);
+
+                $.ajax({
+                    url: "https://teamka.in/crm1/APIs/api.php",
+                    method: "POST",
+                    data: { operation: "transferleads", caller: caller, id: leadId },
+                    success: function (response) {
+                        var responseData = JSON.parse(response);
+                        console.log(responseData);
+                        if (responseData == 1) {
+                            $(button).html('<i class="fa fa-check" aria-hidden="true"></i> Transfer');
+                        }
+                    },
+                    error: function () {
+                        console.error("Error fetching users.");
+                    },
+                });
+            }
+
+            function callTL(id, option) {
+                if ($.fn.DataTable.isDataTable("#callstats")) {
+                    // If DataTable is already initialized, destroy it
+                    $("#callstats").DataTable().destroy();
+                }
+
+                var table = $("#callstats").DataTable({
+                    order: [[0, "asc"]],
+                    processing: false,
+                    paging: true,
+                    pagingType: "full_numbers",
+                    serverSide: true,
+                    ajax: {
+                        url: api_url,
+                        method: "POST",
+                        data: {
+                            operation: "007calls",
+                            startDate: start,
+                            endDate: end,
+                            id: id,
+                            option: option,
+                        },
+                        beforeSend: function () {
+                            $(".loader").show();
+                        },
+                        complete: function () {
+                            $(".loader").hide();
+                        },
+                    },
+                    columns: [
+                        { data: "0" },
+                        { data: "1" },
+                        { data: "2" },
+                        {
+                            data: null,
+                            render: function (data, type, row) {
+                                return (
+                                    row[3] +
+                                    '<br><button data-toggle="modal" data-target="#exampleModal4" data-whatever="' +
+                                    row[0] +
+                                    '" onclick="getAllStatus(' +
+                                    row[0] +
+                                    ')">Status</button>'
+                                );
+                            },
+                        },
+                        {
+                            data: null,
+                            render: function (data, type, row) {
+                                //console.log(row)
+                                var duration = row[5];
+                                if (!duration || duration == 0) {
+                                    // Return an error message if duration is 0 or empty
+                                    return "<div class='alert alert-danger' role='alert'>Audio not available </div>";
+                                }
+
+                                // Render a button to load the audio with duration as a custom attribute
+                                return '<button class="load-audio-btn" data-audio-url="' + row[4] + '" data-duration="' + duration + '">Load Audio</button>';
+                            },
+                        },
+                        {
+                            data: null,
+                            render: function (data, type, row) {
+                                return secondsToHHMMSS(row[5]);
+                            },
+                        },
+                        { data: "6" },
+                        { data: "7" },
+                        { data: "8" },
+                        { data: "9" },
+                        {
+                            data: null,
+                            render: function (data, type, row) {
+                                var dropdownHTML = '<select class=" form-select user-dropdown">';
+                                responseData.forEach(function (user) {
+                                    dropdownHTML += '<option value="' + user.Admin_ID + '">' + user.Name + "</option>";
+                                });
+                                dropdownHTML += "</select>";
+                                return dropdownHTML + '<br><button class="transfer-btn  btn btn-info" onclick="transferLead(' + row[0] + ', this)">Transfer</button>';
+                            },
+                        },
+                    ],
+                });
+
+                $("#callstats").on("click", ".load-audio-btn", function () {
+                    var audioUrl = $(this).data("audio-url");
+
+                    // Replace the button with the audio player
+                    var audioPlayer = '<audio controls autoplay><source src="' + audioUrl + '" type="audio/mpeg">Your browser does not support the audio element.</audio>';
+                    $(this).parent().html(audioPlayer);
+                });
+            }
+        </script>
+    </body>
+</html>

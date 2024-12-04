@@ -1,0 +1,1161 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <script>
+            // function reloadPage() {
+            //   location.reload();
+            // }
+
+            // // Set up the timer to reload the page every 15 minutes (15 * 60 * 1000 milliseconds)
+            // setTimeout(reloadPage, 15 * 60 * 1000); // 15 minutes
+            //  // 15 minutes
+
+            if (localStorage.getItem("MobileNo") == null) {
+                alert("Not Logged In");
+                window.location.href = "./index.html";
+            }
+            if (localStorage.getItem("userType") == "TL" || localStorage.getItem("userType") == "Admin") {
+            } else {
+                alert(localStorage.getItem("userType"));
+                window.location.href = "./index.html";
+            }
+        </script>
+        <title>Real time data TL</title>
+        <link
+            href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css"
+            rel="stylesheet"
+            integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC"
+            crossorigin="anonymous" />
+        <link href="https://fonts.googleapis.com/css?family=Poppins" rel="stylesheet" />
+        <link rel="stylesheet" href="./css/graph.css" />
+        <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+        <script
+            src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM"
+            crossorigin="anonymous"></script>
+        <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+        <script src="
+         https://cdn.jsdelivr.net/npm/datatables@1.10.18/media/js/jquery.dataTables.min.js
+         "></script>
+        <link
+            href="
+     https://cdn.jsdelivr.net/npm/datatables@1.10.18/media/css/jquery.dataTables.min.css
+     "
+            rel="stylesheet" />
+        <style>
+            img.background-image {
+                width: 100%;
+            }
+
+            .highlight {
+                background-color: #ffeb3b; /* Yellow highlight */
+                position: relative;
+            }
+            .highlight-red {
+                background-color: red !important;
+                color: white;
+            }
+
+            .highlight::after {
+                content: "";
+                position: absolute;
+                top: 0;
+                right: 0;
+                transform: translate(50%, -50%);
+                width: 20px; /* Adjust size as needed */
+                height: 20px; /* Adjust size as needed */
+                background-image: url("crown.png");
+                background-size: contain;
+                background-repeat: no-repeat;
+                z-index: 999;
+            }
+
+            .robber-img {
+                height: 36%;
+                width: 40%;
+            }
+
+            .overlay,
+            .overlay2,
+            .overlay3 {
+                position: absolute;
+                top: -200%;
+                left: 0;
+                justify-content: center;
+                width: 100%;
+                z-index: 999;
+                height: 200%;
+                background-color: white;
+                transition: top 1s ease-out;
+                overflow-y: auto;
+            }
+
+            .idle {
+                font-size: 25px;
+                font-weight: 600;
+            }
+
+            .blinking {
+                -webkit-animation: 1s blink ease infinite;
+                -moz-animation: 1s blink ease infinite;
+                -ms-animation: 1s blink ease infinite;
+                -o-animation: 1s blink ease infinite;
+                animation: 1s blink ease infinite;
+            }
+
+            @keyframes "blink" {
+                from,
+                to {
+                    opacity: 0;
+                }
+                50% {
+                    opacity: 1;
+                }
+            }
+
+            @-moz-keyframes blink {
+                from,
+                to {
+                    opacity: 0;
+                }
+                50% {
+                    opacity: 1;
+                }
+            }
+
+            @-webkit-keyframes "blink" {
+                from,
+                to {
+                    opacity: 0;
+                }
+                50% {
+                    opacity: 1;
+                }
+            }
+
+            @-ms-keyframes "blink" {
+                from,
+                to {
+                    opacity: 0;
+                }
+                50% {
+                    opacity: 1;
+                }
+            }
+
+            @-o-keyframes "blink" {
+                from,
+                to {
+                    opacity: 0;
+                }
+                50% {
+                    opacity: 1;
+                }
+            }
+        </style>
+    </head>
+
+    <body>
+        <div class="overlay d-flex">
+            <div class="robber-img"
+                ><img src="robber.jpg" alt="Background Image" class="background-image" /><audio id="slideAudio" src="gameover.mp3" preload="auto"></audio>
+                <div style="color: red" class="idle">Idle Users : <span style="color: red" class="idle-users"></span></div>
+            </div>
+        </div>
+        <div class="overlay2 d-flex">
+            <div class="leaderboard">
+                <div style="text-align: center; padding: 20px">
+                    <h3>leaderboard</h3>
+                    <div>Total / Connected / Not Connected</div>
+                    <audio id="slideAudio2" src="cheer.mp3" preload="auto"></audio>
+                </div>
+                <table id="leaderboardTable" class="display">
+                    <thead>
+                        <tr>
+                            <!--<th>User</th>-->
+                            <!--<th>10:00 - 11:00</th>-->
+                            <!--<th>11:00 - 12:00</th>-->
+                            <!--<th>12:00 - 01:00</th>-->
+                            <!--<th>01:00 - 02:00</th>-->
+                            <!--<th>02:00 - 03:00</th>-->
+                            <!--<th>03:00 - 04:00</th>-->
+                            <!--<th>04:00 - 05:00</th>-->
+                            <!--<th>05:00 - 06:00</th>-->
+                            <!--<th>06:00 - 07:00</th>-->
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Data will be populated here -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="overlay3 d-flex">
+            <audio id="slideAudio3" src="ambulance.mp3" preload="auto"></audio>
+            <div id="user-tiles-container"> </div>
+        </div>
+        <div class="main">
+            <div class="my-top-buttons-div2">
+                <button class="btn btn-primary" onclick="fetchUserActivity()">Show active Users</button>
+                <button class="btn btn-primary" onclick="leaderBoard()">Show LeaderBoard</button>
+                <button class="btn btn-primary" onclick="getIdleUsers()">Show Idle Users</button>
+                <div class="stats-card color-6" id="brk-time-div">
+                    <div id="brk-time">
+                        <p class="today">
+                            <span id="loader" style="display: inline; color: #fff"><i class="fa fa-spinner fa-spin"></i> </span>
+                        </p>
+                    </div>
+                    <div>Break</div>
+                </div>
+                <div class="stats-card color-6">
+                    <div id="tot-dial">
+                        <p class="today"
+                            ><span id="loader" style="display: inline; color: #fff"><i class="fa fa-spinner fa-spin"></i> </span
+                        ></p>
+                    </div>
+                    <div>Dial</div>
+                </div>
+                <div class="stats-card color-6">
+                    <div id="tot-concted">
+                        <p class="today"
+                            ><span id="loader" style="display: inline; color: #fff"><i class="fa fa-spinner fa-spin"></i> </span
+                        ></p>
+                    </div>
+                    <div>Connected</div>
+                </div>
+                <div class="stats-card color-6">
+                    <div id="tot-not-concted">
+                        <p class="today"
+                            ><span id="loader" style="display: inline; color: #fff"><i class="fa fa-spinner fa-spin"></i> </span
+                        ></p>
+                    </div>
+                    <div>Not Connected</div>
+                </div>
+                <div class="stats-card color-6">
+                    <div id="call-durt">
+                        <p class="today"
+                            ><span id="loader" style="display: inline; color: #fff"><i class="fa fa-spinner fa-spin"></i> </span
+                        ></p>
+                    </div>
+                    <div>Call Duration</div>
+                </div>
+                <div class="stats-card color-6">
+                    <div id="demo">
+                        <p class="today"
+                            ><span id="loader" style="display: inline; color: #fff"><i class="fa fa-spinner fa-spin"></i> </span
+                        ></p>
+                    </div>
+                    <div>Demo Done</div>
+                </div>
+                <div class="stats-card color-6">
+                    <div id="follow">
+                        <p class="today"
+                            ><span id="loader" style="display: inline; color: #fff"><i class="fa fa-spinner fa-spin"></i> </span
+                        ></p>
+                    </div>
+                    <div>Pending Followup</div>
+                </div>
+                <div class="stats-card color-6">
+                    <div id="monster">
+                        <p class="today"
+                            ><span id="loader" style="display: inline; color: #fff"><i class="fa fa-spinner fa-spin"></i> </span
+                        ></p>
+                    </div>
+                    <div>Marked Monster</div>
+                </div>
+                <div class="stats-card color-6">
+                    <div id="leads">
+                        <p class="today"
+                            ><span id="loader" style="display: inline; color: #fff"><i class="fa fa-spinner fa-spin"></i> </span
+                        ></p>
+                    </div>
+                    <div>Total Leads</div>
+                </div>
+                <div class="stats-card color-6">
+                    <div id="nrced">
+                        <p class="today"
+                            ><span id="loader" style="display: inline; color: #fff"><i class="fa fa-spinner fa-spin"></i> </span
+                        ></p>
+                    </div>
+                    <div> Not Recorded </div>
+                </div>
+            </div>
+            <div class="sec">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title">Stats <span>/Today</span></h5>
+                            <table id="tlTable" class="table table-striped" style="width: 100%">
+                                <thead>
+                                    <tr>
+                                        <th>Name</th>
+                                        <th>Demo Ratio</th>
+                                        <th>Lead con Ratio</th>
+                                        <th>Total Call</th>
+                                        <th>Missed Call</th>
+                                        <th scope="col">Call Connected</th>
+                                        <th>Call Not Connected</th>
+                                        <th>Duration</th>
+                                        <th>Not Recorded</th>
+                                        <th>Marked Monster</th>
+                                        <th>Demo Done</th>
+                                        <th>Followup: Today/30 Days</th>
+                                        <th>Break Time</th>
+                                    </tr>
+                                </thead>
+                                <tbody></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <!--      <div class="graph"> -->
+                <!--      <div id="carouselExampleControls" class="carousel slide" data-bs-interval="60000" data-bs-ride="carousel">-->
+                <!--  <div class="carousel-inner">-->
+                <!--    <div class="carousel-item active">-->
+                <!--      <div class="col-12">-->
+                <!--         <div class="card ">-->
+                <!--            <div class="card-body">-->
+                <!--               <h5 class="card-title">Reports <span>/Today Total Dial</span></h5>-->
+                <!-- Line Chart -->
+                <!--               <div id="reportsChart" style="min-height: 400px"></div>-->
+                <!--            </div>-->
+                <!--         </div>-->
+                <!--      </div>-->
+                <!--    </div>-->
+                <!--    <div class="carousel-item">-->
+                <!--      <div class="col-12">-->
+                <!--         <div class="card ">-->
+                <!--            <div class="card-body">-->
+                <!--               <h5 class="card-title">Reports <span>/Today Total Connected</span></h5>-->
+                <!-- Line Chart -->
+                <!--               <div id="reportsChart2" style="min-height: 400px"></div>-->
+                <!--            </div>-->
+                <!--         </div>-->
+                <!--      </div>-->
+                <!--    </div>-->
+                <!--<div class="carousel-item">-->
+                <!--  <div class="col-12">-->
+                <!--     <div class="card ">-->
+                <!--        <div class="card-body">-->
+                <!--           <h5 class="card-title">Reports <span>/Today Total Not Connected</span></h5>-->
+                <!-- Line Chart -->
+                <!--           <div id="reportsChart3" style="min-height: 400px"></div>-->
+                <!--        </div>-->
+                <!--     </div>-->
+                <!--  </div>-->
+                <!--</div>-->
+                <!--  </div>-->
+                <!--  <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleControls" data-bs-slide="prev">-->
+                <!--    <span class="carousel-control-prev-icon" aria-hidden="true"></span>-->
+                <!--    <span class="visually-hidden">Previous</span>-->
+                <!--  </button>-->
+                <!--  <button class="carousel-control-next" type="button" data-bs-target="#carouselExampleControls" data-bs-slide="next">-->
+                <!--    <span class="carousel-control-next-icon" aria-hidden="true"></span>-->
+                <!--    <span class="visually-hidden">Next</span>-->
+                <!--  </button></div>-->
+
+                <!--</div>-->
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title">Stats <span>/Today New</span></h5>
+                            <div id="bargraph" style="min-height: 400px"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <script>
+            todayTL();
+            teamData();
+            tlGraph5();
+
+            // script.js
+            function showIdleUsers() {
+                const overlay = document.querySelector(".overlay");
+                const audio = document.getElementById("slideAudio");
+
+                if (overlay) {
+                    $(".robber-img").css("display", "block");
+
+                    $(".overlay").css("top", "0");
+                    // Play audio
+                    if (audio) {
+                        audio.play().catch((error) => {
+                            console.error("Audio playback failed:", error);
+                        });
+                    } else {
+                        console.error("Audio element not found");
+                    }
+                    setTimeout(() => {
+                        $(".overlay").css("top", "-200%"); // Hide the overlay
+                    }, 15000); // 5000 milliseconds = 5 seconds
+                } else {
+                    console.error("Overlay element not found");
+                }
+            }
+
+            function showleaderBoard() {
+                const overlay2 = document.querySelector(".overlay2");
+                const audio2 = document.getElementById("slideAudio2");
+
+                if (overlay2) {
+                    $(".overlay2").css("top", "0");
+                    // Play audio
+                    if (audio2) {
+                        audio2.play().catch((error) => {
+                            console.error("Audio playback failed:", error);
+                        });
+                    } else {
+                        console.error("Audio element not found");
+                    }
+                    setTimeout(() => {
+                        $(".overlay2").css("top", "-200%"); // Hide the overlay
+                    }, 45000); // 5000 milliseconds = 5 seconds
+                } else {
+                    console.error("Overlay element not found");
+                }
+            }
+
+            function showactive() {
+                const overlay3 = document.querySelector(".overlay3");
+                const audio3 = document.getElementById("slideAudio3");
+
+                if (overlay3) {
+                    $(".overlay3").css("top", "0");
+                    if (audio3) {
+                        audio3.play().catch((error) => {
+                            console.error("Audio playback failed:", error);
+                        });
+                    } else {
+                        console.error("Audio element not found");
+                    }
+
+                    setTimeout(() => {
+                        $(".overlay3").css("top", "-200%"); // Hide the overlay
+                        document.getElementById("user-tiles-container").innerHTML = "";
+                    }, 45000); // 5000 milliseconds = 5 seconds
+                } else {
+                    console.error("Overlay element not found");
+                }
+            }
+
+            function fetchUserActivity() {
+                const time = new Date().toLocaleString("sv-SE").replace("T", " ").split(".")[0];
+
+                $.ajax({
+                    url: "https://teamka.in/crm1/APIs/api.php", // Replace with the correct URL
+                    type: "POST",
+                    data: {
+                        operation: "checkActivity",
+                        time: time,
+                        userID: localStorage.getItem("userID"),
+                    },
+                    dataType: "json",
+                    success: function (response) {
+                        // Check if the response is successful
+                        console.log(response);
+                        if (response.success) {
+                            // Call the function to generate user tiles with the fetched data
+                            generateUserTiles(response.data);
+                            showactive();
+                        } else {
+                            // Handle the case where no user activity is found or an error occurred
+                            console.error("Error:", response.message);
+                            // Optionally display an error message in the UI
+                            $("#user-tiles-container").html("<p>Error: " + response.message + "</p>");
+                            showactive();
+                        }
+                    },
+                    error: function (xhr, status, error) {
+                        // Handle network or other errors
+                        console.error("Error fetching user activity:", error);
+                        // Optionally display an error message in the UI
+                        $("#user-tiles-container").html("<p>Error fetching user activity. Please try again later.</p>");
+                    },
+                });
+            }
+
+            function generateUserTiles(users) {
+                // Get the container element where tiles will be inserted
+                const container = document.getElementById("user-tiles-container");
+
+                // Clear any existing content
+                container.innerHTML = "";
+
+                // Separate users into active and not active arrays
+                const activeUsers = users.filter((user) => user.activity_status === "Active" && user.Name !== "Kalam BOT");
+                const notActiveUsers = users.filter((user) => user.activity_status === "Inactive" && user.Name !== "Kalam BOT");
+
+                // Create HTML for active users
+                let html = `
+    <div class="row">
+        <div class="active">
+            <h3 style='text-align: center;'>Active</h3>
+            <div class="row justify-content-center">`; // Start new row for active users
+
+                activeUsers.forEach((user) => {
+                    html += `
+            <div class="col-md-3 m-2">
+                <div class="card flex-row bg-success p-2 text-white">
+                    <div class="blink">
+                        <svg height="100" width="100" class="blinking">
+                            <circle cx="50" cy="50" r="10" fill="rgb(8 215 119)" />
+                            Sorry, your browser does not support inline SVG.
+                        </svg>
+                    </div>
+                    <div class="d-flex flex-column">
+                        <div class="number">${user.Mobile}</div>
+                        <div class="name">${user.Name}</div>
+                        <div class="state">${user.state}</div>
+                    </div>
+                </div>
+            </div>`;
+                });
+
+                html += `
+                </div> <!-- End row for active users -->
+            </div> <!-- End active -->
+            <div class="inactive">
+                <h3 style="text-align: center;" >Not Active</h3>
+                <div class="row justify-content-center">`; // Start new row for not active users
+
+                notActiveUsers.forEach((user) => {
+                    html += `
+            <div class="col-md-3 m-2">
+                <div class="card flex-row bg-danger">
+                    <div class="d-flex flex-column p-2 text-white">
+                        <div class="number">${user.Mobile}</div>
+                        <div class="name">${user.Name}</div>
+                        <div class="state">${user.state}</div>
+                    </div>
+                </div>
+            </div>`;
+                });
+
+                html += `
+                </div> <!-- End row for not active users -->
+            </div> <!-- End inactive -->
+        </div> <!-- End row -->`;
+
+                // Insert the generated HTML into the container
+                container.innerHTML = html;
+            }
+
+            function getIdleUsers() {
+                var id = localStorage.getItem("userID");
+                $.ajax({
+                    url: "https://teamka.in/crm1/APIs/api.php",
+                    method: "POST",
+                    data: { operation: "getIdleUsers", id: id },
+                    success: function (data) {
+                        data = JSON.parse(data);
+                        // Array to hold names with idle times below 300
+                        var typesToSkip = "Admin,TL"; // Skip types like "Admin", "TL", and "BOT"
+                        var typesToSkipArray = typesToSkip.split(","); // Convert the string into an array
+
+                        Object.keys(data).forEach(function (key) {
+                            // Extract the total_idle_time and caller_type from the data[key] object
+                            var idleTime = data[key].total_idle_time;
+                            var callerType = data[key].caller_type;
+
+                            // Check if the caller's type is NOT in the array of types to skip and idle time is less than 300
+                            if (!typesToSkipArray.includes(callerType) && idleTime < 300) {
+                                names.push(key); // Add name to the array if conditions are met
+                            }
+                        });
+
+                        // Only set the text content if there are names
+                        if (names.length > 0) {
+                            var commaSeparatedNames = names.join(", ");
+                            console.log(commaSeparatedNames);
+                            $(".idle-users").html(commaSeparatedNames);
+                            showIdleUsers();
+                        }
+                    },
+                    error: function (error) {
+                        console.error("Error fetching data:", error);
+                    },
+                });
+            }
+
+            function teamData() {
+                if ($.fn.DataTable.isDataTable("#tlTable")) {
+                    // If DataTable is already initialized, destroy it
+                    $("#tlTable").DataTable().destroy();
+                }
+
+                var id = localStorage.getItem("userID");
+                $.ajax({
+                    url: "https://teamka.in/crm1/APIs/api.php",
+                    method: "POST",
+                    data: { operation: "007-tl-2", id: id },
+                    success: function (data) {
+                        console.log(data);
+                        data = JSON.parse(data);
+
+                        $("#tlTable").DataTable({
+                            data: data.data,
+                            order: [[1, "desc"]],
+                            searching: false, // Hide search box
+                            lengthChange: false, // Hide "Show [X] entries" dropdown
+                            paging: false, // Hide pagination
+                            info: false, // Hide "Showing X to Y of Z entries" info
+                            columns: [
+                                { data: "Name" },
+                                {
+                                    data: null,
+                                    render: function (data, type, row) {
+                                        return row["percentagetoday"] + "%/" + row["percentage"] + "%";
+                                    },
+                                },
+                                {
+                                    data: null,
+                                    render: function (data, type, row) {
+                                        return row["percentagecontoday"] + "%/" + row["percentagecon"] + "%";
+                                    },
+                                },
+                                { data: "call_today" },
+                                { data: "MissedCallCount" },
+                                { data: "countConnected" },
+                                { data: "countNotConnected" },
+                                { data: "callDuration" },
+                                { data: "notRecorded" },
+                                { data: "call_count" },
+                                { data: "demo" },
+                                {
+                                    data: null,
+                                    render: function (data, type, row) {
+                                        let follow = "";
+                                        let follow30 = "";
+
+                                        if (row["follow"] > 0) {
+                                            follow = '<div class="d-flex"><div style="background-color: red; color: white;padding: 0px 5px;">' + row["follow"] + " |</div> ";
+                                        } else {
+                                            follow = '<div class="d-flex"><div style="background-color: green; color: white;padding: 0px 5px;">' + row["follow"] + " |</div> ";
+                                        }
+
+                                        if (row["follow30"] > 0) {
+                                            follow30 = '<div style="background-color: red; color: white;padding: 0px 5px;">' + row["follow30"] + "</div><div>";
+                                        } else {
+                                            follow30 = '<div style="background-color: green; color: white;padding: 0px 5px;">' + row["follow30"] + "</div><div>";
+                                        }
+                                        return follow + follow30;
+                                    },
+                                },
+                                { data: "bt" },
+                            ],
+                            createdRow: function (row, data, index) {
+                                //console.log(row,data)
+                                if (data["MissedCallCount"] > 0) {
+                                    $("td:eq(4)", row).css({ "background-color": "red", color: "white" });
+                                } else {
+                                    $("td:eq(4)", row).css({ "background-color": "green", color: "white" });
+                                }
+
+                                let [hours, minutes, seconds] = data["bt"].split(":").map(Number);
+                                let totalSeconds = hours * 3600 + minutes * 60 + seconds;
+
+                                if (totalSeconds > 3600) {
+                                    $("td:eq(12)", row).css({ "background-color": "red", color: "white" });
+                                } else {
+                                    $("td:eq(12)", row).css({ "background-color": "green", color: "white" });
+                                }
+                            },
+                        });
+                    },
+                    error: function (error) {
+                        console.error("Error fetching data:", error);
+                    },
+                });
+            }
+
+            function secondsToTime(seconds) {
+                var hours = Math.floor(seconds / 3600);
+                var minutes = Math.floor((seconds % 3600) / 60);
+                var remainingSeconds = seconds % 60;
+
+                // Add leading zeros if needed
+                hours = hours < 10 ? "0" + hours : hours;
+                minutes = minutes < 10 ? "0" + minutes : minutes;
+                remainingSeconds = remainingSeconds < 10 ? "0" + remainingSeconds : remainingSeconds;
+
+                return hours + ":" + minutes + ":" + remainingSeconds;
+            }
+
+            function leaderBoard() {
+                if ($.fn.DataTable.isDataTable("#leaderboardTable")) {
+                    // If DataTable is already initialized, destroy it
+                    $("#leaderboardTable").DataTable().destroy();
+                }
+                var id = localStorage.getItem("userID");
+
+                $.ajax({
+                    url: "https://teamka.in/crm1/APIs/api.php",
+                    data: { operation: "leaderBoard", id: id },
+                    success: function (response) {
+                        data = JSON.parse(response);
+
+                        const columnLabels = ["10", "11", "12", "13", "14", "15", "16", "17", "18", "19"];
+
+                        const startHour = 10; // 10 AM
+                        const endHour = 19; // 7 PM (hour 19 is inclusive)
+
+                        const groupedDataByNameAndHour = data.reduce((acc, record) => {
+                            const name = record.Name;
+                            const dor = new Date(record.DOR);
+                            const hour = dor.getHours();
+
+                            if (hour >= startHour && hour <= endHour) {
+                                if (!acc[name]) {
+                                    acc[name] = {};
+                                }
+
+                                const columnLabelIndex = hour - startHour;
+                                if (!acc[name][columnLabels[columnLabelIndex]]) {
+                                    acc[name][columnLabels[columnLabelIndex]] = [];
+                                }
+
+                                acc[name][columnLabels[columnLabelIndex]].push(record);
+                            }
+
+                            return acc;
+                        }, {});
+
+                        const notConnectedStatuses = ["Switched Off", "Not Received", "Out Of Service", "Incoming Off", "Call Busy"];
+                        const whatsappFollowupStatus = "Whatsapp Followup";
+
+                        const results = {};
+                        const usedColumns = new Set();
+
+                        Object.keys(groupedDataByNameAndHour).forEach((name) => {
+                            results[name] = {};
+
+                            columnLabels.forEach((label, index) => {
+                                let countNotConnected = 0;
+                                let countConnected = 0;
+                                let notRecorded = 0;
+                                let callToday = 0;
+
+                                if (groupedDataByNameAndHour[name][label]) {
+                                    groupedDataByNameAndHour[name][label].forEach((record) => {
+                                        if (notConnectedStatuses.includes(record.Call_Status)) {
+                                            countNotConnected++;
+                                        } else {
+                                            countConnected++;
+                                        }
+
+                                        if (record.Call_Status === whatsappFollowupStatus) {
+                                            notRecorded++;
+                                        }
+
+                                        callToday++;
+                                    });
+                                    usedColumns.add(label);
+                                }
+
+                                results[name][label] = {
+                                    callToday: callToday,
+                                    countConnected: countConnected,
+                                    countNotConnected: countNotConnected,
+                                };
+                            });
+                        });
+
+                        const tableData = [];
+                        Object.keys(results).forEach((name) => {
+                            const rowData = { User: name };
+                            columnLabels.forEach((label) => {
+                                if (results[name][label]) {
+                                    const { callToday, countConnected, countNotConnected } = results[name][label];
+                                    rowData[label] = `${callToday}/${countConnected}/${countNotConnected}`;
+                                } else {
+                                    rowData[label] = "0/0/0";
+                                }
+                            });
+                            tableData.push(rowData);
+                        });
+
+                        const columns = [{ title: "User", data: "User" }];
+                        const thead = $("#leaderboardTable thead");
+                        thead.empty();
+                        const headerRow = $("<tr>");
+
+                        columns.forEach((column) => {
+                            const th = $("<th>").text(column.title);
+                            headerRow.append(th);
+                        });
+
+                        columnLabels.forEach((label) => {
+                            columns.push({ title: `${parseInt(label) % 12 || 12} ${parseInt(label) < 12 ? "AM" : "PM"}`, data: label });
+                            const th = $("<th>").text(`${parseInt(label) % 12 || 12} ${parseInt(label) < 12 ? "AM" : "PM"}`);
+                            headerRow.append(th);
+                        });
+
+                        thead.append(headerRow);
+
+                        $(document).ready(function () {
+                            $("#leaderboardTable").DataTable({
+                                data: tableData,
+                                searching: false,
+                                lengthChange: false,
+                                paging: false,
+                                info: false,
+                                columns: columns,
+                                rowCallback: function (row, data, index) {
+                                    columnLabels.forEach((label, columnIndex) => {
+                                        const cell = $("td:eq(" + (columnIndex + 1) + ")", row);
+                                        const [callToday, countConnected, countNotConnected] = data[label].split("/").map((num) => parseInt(num, 10));
+
+                                        // Store parsed data in cell for further processing
+                                        cell.data("countConnected", countConnected);
+
+                                        // Check and highlight the cell based on countConnected
+                                        if (!isNaN(countConnected) && countConnected === 0) {
+                                            cell.addClass("highlight-red");
+                                        }
+                                    });
+                                },
+                                drawCallback: function (settings) {
+                                    const api = this.api();
+
+                                    columnLabels.forEach((label, columnIndex) => {
+                                        let maxConnectedCalls = -1;
+                                        let maxCell = null;
+
+                                        api.rows().every(function (rowIdx) {
+                                            const cell = api.cell({ row: rowIdx, column: columnIndex + 1 }).node();
+                                            const countConnected = parseInt($(cell).data("countConnected"), 10);
+
+                                            if (!isNaN(countConnected) && countConnected > maxConnectedCalls) {
+                                                maxConnectedCalls = countConnected;
+                                                maxCell = cell;
+                                            }
+                                        });
+
+                                        if (maxCell) {
+                                            $(maxCell).addClass("highlight");
+                                        }
+                                    });
+                                },
+                            });
+                        });
+
+                        showleaderBoard();
+                    },
+                    error: function (jqXHR, exception) {
+                        var msg = displayerror(jqXHR, exception);
+                        alert(msg);
+                    },
+                });
+            }
+
+            function todayTL() {
+                var id = localStorage.getItem("userID");
+
+                $.ajax({
+                    url: "https://teamka.in/crm1/APIs/api.php",
+                    method: "POST", // You can use "GET" if appropriate
+                    data: { operation: "007-tl", id: id },
+                    success: function (response) {
+                        let result = JSON.parse(response);
+                        console.log(result);
+
+                        $("#brk-time .today").html(secondsToTime(result.bt));
+                        $("#tot-dial .today").html(result.call_today);
+                        $("#tot-concted .today").html(result.countConnected);
+                        $("#tot-not-concted .today").html(result.countNotConnected);
+                        $("#call-durt .today").html(secondsToTime(result.callDuration));
+                        $("#demo .today").html(result.demo);
+                        $("#follow .today").html(result.follow);
+                        $("#monster .today").html(result.call_count);
+                        $("#nrced .today").html(result.notRecorded);
+                        $("#leads .today").html(result.leads);
+                    },
+                    error: function (xhr, status, error) {
+                        console.error("AJAX Error: " + status, error);
+                    },
+                });
+            }
+
+            function processJsonData(jsonData) {
+                // Find unique Caller_ID values
+                var uniqueCallerIDs = [...new Set(jsonData.map((item) => item.Name))];
+
+                // Initialize an object to store counts for each Caller_ID
+                var counts = {};
+
+                // Loop through each unique Caller_ID
+                uniqueCallerIDs.forEach(function (callerID) {
+                    var countArray = []; // Initialize an array to store counts for each hour interval
+                    var today = new Date();
+                    // Set the time to 10:00 AM
+                    today.setHours(10, 0, 0, 0);
+
+                    var startTime = new Date(today); // Start of the date range at 10:00 AM
+                    var startDate = new Date(startTime); // Make a copy of the start time
+                    var prevCount = 0;
+
+                    for (var i = 0; i < 9; i++) {
+                        // Loop for 7 intervals (from 10:00 AM to 11:00 AM, 10:00 AM to 12:00 PM, ..., 10:00 AM to 4:00 PM)
+                        counter = false;
+                        var endDate = new Date(startDate); // Create a new end date object from the start date
+                        //endDate.setHours(endDate.getHours() + (i + 1)); // Increment the end date by i+1 hours
+                        endDate.setHours(endDate.getHours() + 1); // Increment the end date by 1 hour
+                        var count = prevCount; // Initialize count for the current interval to 0
+
+                        // Loop through the data to count occurrences within the current interval for the current Caller_ID
+                        if (endDate > new Date()) {
+                            count = null; // Set count to null if end time is in the future
+                        } else {
+                            for (var j = 0; j < jsonData.length; j++) {
+                                var dor = new Date(jsonData[j].DOR);
+                                if (jsonData[j].Name == callerID && dor >= startDate && dor < endDate) {
+                                    count++;
+                                    counter = true;
+                                }
+                            }
+                        }
+                        cstartDate = startDate.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" });
+                        cendDate = endDate.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" });
+
+                        console.log(callerID, cstartDate, count, cendDate);
+                        prevCount = count;
+
+                        // if (counter && prevCount != 0 ) {
+                        countArray.push(count);
+                        //   } else {
+                        //       countArray.push(null);
+
+                        //   }
+                        startDate = new Date(endDate);
+                    }
+
+                    // Store the countArray for the current Caller_ID
+                    counts[callerID] = countArray;
+                });
+
+                var series = [];
+
+                // Iterate over each Caller_ID in counts object
+                Object.keys(counts).forEach(function (callerID) {
+                    // Create a series object for the current Caller_ID
+                    var seriesData = {
+                        name: callerID,
+                        data: counts[callerID],
+                    };
+                    // Push the series object to the series array
+                    series.push(seriesData);
+                });
+
+                console.log("Series:", series);
+
+                return series;
+            }
+
+            function tlGraph5() {
+                var id = localStorage.getItem("userID");
+
+                $.ajax({
+                    url: "https://teamka.in/crm1/APIs/api.php",
+                    method: "POST",
+                    data: { operation: "tl-graph", id: id },
+                    success: function (data) {
+                        jsonData = JSON.parse(data);
+
+                        var uniqueCallerIDs = [...new Set(jsonData.map((item) => item.Name))];
+
+                        // Initialize an object to store counts for each Caller_ID
+                        var counts = {};
+
+                        // Loop through each unique Caller_ID
+                        uniqueCallerIDs.forEach(function (callerID) {
+                            var countArray = []; // Initialize an array to store counts for each hour interval
+                            var today = new Date();
+                            // Set the time to 10:00 AM
+                            today.setHours(10, 0, 0, 0);
+
+                            var startTime = new Date(today); // Start of the date range at 10:00 AM
+                            var startDate = new Date(startTime); // Make a copy of the start time
+                            var prevCount = 0;
+
+                            for (var i = 0; i < 9; i++) {
+                                // Loop for 7 intervals (from 10:00 AM to 11:00 AM, 10:00 AM to 12:00 PM, ..., 10:00 AM to 4:00 PM)
+
+                                var endDate = new Date(startDate); // Create a new end date object from the start date
+                                //endDate.setHours(endDate.getHours() + (i + 1)); // Increment the end date by i+1 hours
+                                endDate.setHours(endDate.getHours() + 1); // Increment the end date by 1 hour
+                                var count = 0; // Initialize count for the current interval to 0
+
+                                // Loop through the data to count occurrences within the current interval for the current Caller_ID
+                                if (endDate > new Date()) {
+                                    count = null; // Set count to null if end time is in the future
+                                } else {
+                                    for (var j = 0; j < jsonData.length; j++) {
+                                        var dor = new Date(jsonData[j].DOR);
+                                        if (jsonData[j].Name == callerID && dor >= startDate && dor < endDate) {
+                                            count++;
+                                            counter = true;
+                                        }
+                                    }
+                                }
+                                cstartDate = startDate.toLocaleTimeString("en-US", {
+                                    hour: "2-digit",
+                                    minute: "2-digit",
+                                });
+                                cendDate = endDate.toLocaleTimeString("en-US", {
+                                    hour: "2-digit",
+                                    minute: "2-digit",
+                                });
+
+                                // console.log(callerID, cstartDate, count, cendDate);
+                                // prevCount = count;
+
+                                // if (counter && prevCount != 0 ) {
+                                countArray.push(count);
+                                //   } else {
+                                //       countArray.push(null);
+
+                                //   }
+                                startDate = new Date(endDate);
+                            }
+
+                            // Store the countArray for the current Caller_ID
+                            counts[callerID] = countArray;
+                        });
+
+                        var series = [];
+
+                        // Iterate over each Caller_ID in counts object
+                        Object.keys(counts).forEach(function (callerID) {
+                            // Create a series object for the current Caller_ID
+                            var seriesData = {
+                                name: callerID,
+                                data: counts[callerID],
+                            };
+                            // Push the series object to the series array
+                            series.push(seriesData);
+                        });
+
+                        //console.log(series);
+                        bar.updateSeries(series);
+                    },
+                    error: function (error) {
+                        console.error("Error fetching data:", error);
+                    },
+                });
+            }
+
+            //reports chart
+            var barop = {
+                series: [],
+                noData: {
+                    text: "Loading...",
+                },
+                chart: {
+                    type: "bar",
+                    height: 350,
+                },
+                plotOptions: {
+                    bar: {
+                        horizontal: false,
+                        columnWidth: "55%",
+                        endingShape: "rounded",
+                    },
+                },
+                dataLabels: {
+                    enabled: true,
+                },
+                stroke: {
+                    show: true,
+                    width: 2,
+                    colors: ["transparent"],
+                },
+                xaxis: {
+                    categories: ["11 AM", "12 AM", "01 PM", "02 PM", "03 PM", "04 PM", "05 PM", "06 PM", "07 PM"],
+                },
+                yaxis: {
+                    title: {
+                        text: "No of Calls",
+                    },
+                },
+                fill: {
+                    opacity: 1,
+                },
+                tooltip: {
+                    y: {
+                        formatter: function (val) {
+                            return "$ " + val + " thousands";
+                        },
+                    },
+                },
+            };
+
+            var bar = new ApexCharts(document.querySelector("#bargraph"), barop);
+
+            bar.render();
+            setInterval(() => {
+                todayTL();
+                teamData();
+                tlGraph5();
+            }, 900000); // 15 minutes
+            // Define function names and their respective execution delays
+
+            function checkAndRunLeaderBoard() {
+                const now = Date.now();
+                const lastRun = localStorage.getItem("lastLeaderBoardRun");
+
+                // If it hasn't been run yet or if 10 minutes have passed (600000 ms)
+                if (!lastRun || now - lastRun >= 600000) {
+                    leaderBoard(); // Run the function
+                    localStorage.setItem("lastLeaderBoardRun", now); // Update the last run time
+                } else {
+                    const remainingTime = 600000 - (now - lastRun);
+                    const remainingMinutes = Math.ceil(remainingTime / 60000);
+                    console.log(`Skipping leaderBoard(), ${remainingMinutes} minutes left`);
+                }
+            }
+
+            function checkAndRunIdleUser() {
+                const now = Date.now();
+                const lastRun = localStorage.getItem("lastIdleUserRun");
+
+                // If it hasn't been run yet or if 10 minutes have passed (600000 ms)
+                if (!lastRun || now - lastRun >= 720000) {
+                    getIdleUsers(); // Run the function
+                    localStorage.setItem("lastIdleUserRun", now); // Update the last run time
+                } else {
+                    const remainingTime = 720000 - (now - lastRun);
+                    const remainingMinutes = Math.ceil(remainingTime / 60000);
+                    console.log(`Skipping IdleUser(), ${remainingMinutes} minutes left`);
+                }
+            }
+
+            function checkAndRunFetchActivity() {
+                const now = Date.now();
+                const lastRun = localStorage.getItem("lastFetchActivityRun");
+
+                // If it hasn't been run yet or if 10 minutes have passed (600000 ms)
+                if (!lastRun || now - lastRun >= 840000) {
+                    fetchUserActivity(); // Run the function
+                    localStorage.setItem("lastFetchActivityRun", now); // Update the last run time
+                } else {
+                    const remainingTime = 840000 - (now - lastRun);
+                    const remainingMinutes = Math.ceil(remainingTime / 60000);
+                    console.log(`Skipping FetchActivity(), ${remainingMinutes} minutes left`);
+                }
+            }
+
+            // Initial check
+            function checkAndRun() {
+                checkAndRunLeaderBoard();
+                checkAndRunIdleUser();
+                // checkAndRunFetchActivity();
+            }
+
+            // Set an interval to check every minute (60000 ms)
+            setInterval(checkAndRun, 10000);
+        </script>
+    </body>
+</html>

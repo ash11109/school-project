@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dashboard Calendar</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/css/bootstrap.min.css"/>
+    <link href="https://fonts.googleapis.com/css?family=Nunito" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <style>
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+        font-family: "Nunito";
+        font-size: 18px;
+        background-color: #e2ebf2;
+      }
+      h2#fc-dom-1 {
+        font-size: 34px;
+        font-weight: 600;
+      }
+      a {
+        text-decoration: none;
+        font-weight: 600;
+        color: #212529;
+      }
+      .content {
+        font-size: 20px;
+        font-weight: 600;
+      }
+      div#info {
+        display: flex;
+        gap: 17%;
+        border-radius: 10px;
+      }
+      #calendar,
+      #info {
+        max-width: 900px;
+        margin: 40px auto;
+        background: #fff;
+        padding: 20px;
+        border-radius: 25px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="row">
+        <div class="col-md-12">
+          <div id="info">
+            <div class="content" id="Name"><i class="fa fa-spinner fa-spin" style="font-size:24px"></i></div>
+            <div class="content" id="JDate"><i class="fa fa-spinner fa-spin" style="font-size:24px"></i></div>
+            <div class="content" id="RTime"><i class="fa fa-spinner fa-spin" style="font-size:24px"></i></div>
+          </div>
+          <div id="calendar"></div>
+        </div>
+      </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/229.4.0/moment.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.13/index.global.min.js"></script>
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+         
+         var id = localStorage.getItem("selectedUser");
+        
+        $.ajax({
+          url: "https://teamka.in/crm1/APIs/api.php",
+          data: { operation: "getAdminMeta", id: id },
+          method: "POST",
+          success: function (response) {
+            response = JSON.parse(response);
+            console.log(response);
+            $('#Name').html(response.data.Name);
+            $('#JDate').html("Joined on "+response.data.Joining_Date);
+            $('#RTime').html("Reporting Time : "+response.data.Reporting_Time);
+          },
+          error: function (jqXHR, textStatus, errorThrown) {
+            console.error(textStatus, errorThrown);
+          },
+        });
+          
+          
+        var calendarEl = document.getElementById("calendar");
+
+        $.ajax({
+          url: "https://teamka.in/crm1/APIs/api.php",
+          data: { operation: "getCalendarData", id: id },
+          method: "POST",
+          success: function (response) {
+            response = JSON.parse(response);
+            console.log(response);
+            var events = [];
+
+            $.each(response.data, function (date, time) {
+              events.push({
+                title: time,
+                start: date,
+              });
+            });
+
+            var calendar = new FullCalendar.Calendar(calendarEl, {
+              initialView: "dayGridMonthCustom",
+              initialDate: "2024-05-01",
+              duration: { weeks: 8 },
+              events: events,
+              views: {
+                dayGridMonthCustom: {
+                  type: "dayGridMonth",
+                  fixedWeekCount: true,
+                },
+              },
+            });
+
+            calendar.render();
+          },
+          error: function (jqXHR, textStatus, errorThrown) {
+            console.error(textStatus, errorThrown);
+          },
+        });
+      });
+    </script>
+  </body>
+</html>

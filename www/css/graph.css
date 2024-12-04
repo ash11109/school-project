@@ -1,0 +1,181 @@
+
+
+body {
+  background-color: #f1f5fc;
+  font-family: 'Poppins', sans-serif;
+  margin: 1% 1%;
+}
+
+.apexcharts-text tspan {
+    font-family: inherit;
+    font-size: 8px;
+}
+
+.table>:not(caption)>*>* {
+    padding: 2px;
+}
+
+.loader{
+	position: fixed;
+	top:0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	background-color: rgba(0, 0, 0, 0.5);
+	z-index: 9999;	
+	display: none;	
+}
+.loader .load{
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	height: 100%;
+	width: 100%;
+}
+.loader .load i{
+	color: #fff;
+	font-size: 40px;
+}
+
+.main {
+    display: flex;
+    align-items: flex-start;
+}
+
+.card-body {
+    flex: 1 1 auto;
+    padding: 4px;
+}
+
+.card {
+  margin-bottom: 14px;
+  border: none;
+  border-radius: 5px;
+  box-shadow: 0px 0 30px rgba(1, 41, 112, 0.1);
+}
+
+.card-title {
+   
+    font-size: 10px;
+    font-weight: 500;
+    color: #012970;
+    text-align: center;
+    font-family: "Poppins", sans-serif;
+}
+
+#statsnme,#statscall{
+    font-size: 20px;
+    font-weight: 500;
+}
+    
+    table#tlTable {
+    border: 1px solid #e0e0e0;
+    font-size: 15px;
+        margin: 0;
+}
+    
+      
+     .my-top-buttons-div2 {
+    
+    padding: 1px 10px;
+    display: flex;
+    flex-direction: column;
+    justify-content: start;
+    align-items: center;
+    /* flex-wrap: wrap; */
+    gap: 5px;
+}  
+    .my-top-buttons-div {
+        width : 90%;
+        margin : 30px auto;
+        display : flex;
+        justify-content: start;
+        align-items: center;
+        flex-wrap : wrap ;
+        gap : 5px;
+    }
+      
+    .my-top-buttons-div > button {
+        all : unset;
+        height : 70px;
+        width : 120px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        border: none;
+        box-shadow: 0px 0 30px rgba(1, 41, 112, 0.1);
+        border-radius: 5px;
+        padding: 20px;
+        flex-direction: column;
+        color : #ffffff;
+    }
+    
+    .my-top-buttons-div-last-child {
+        font-size: 10px;
+    }
+      
+    .color-1 {
+        background-color: #27a9e3 !important;
+    }
+    
+    .color-2 {
+        background-color: #28b779 !important;
+    }
+    
+    .color-3 {
+        background-color: #ffb747 !important;
+    }
+    
+    .color-4 {
+        background-color: #da542e !important;
+    }
+    
+    .color-5 {
+        background-color: #2255a4 !important;
+    }
+    
+    .color-6 {
+        background-color: grey !important;
+    }
+
+    .iconsize {
+        font-size : 24px;
+    }
+    
+    
+    .stats-card {
+        height : 68px;
+        width: 100%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        text-align: center !important;
+            padding: 15px 10px;
+        flex-direction: column;
+        border: none;
+        box-shadow: 0 0 5px #2b2929;
+        border-radius: 1px;
+        color : #ffffff;
+    }
+    
+    .stats-card > div:nth-child(1) {
+        font-size : 22px;
+        font-weight : bold ;
+    }
+    
+    .stats-card > div:nth-child(2) {
+    font-size: 14px;
+    }
+    
+    .stats-card > div:nth-child(2) > p {
+        color : #ffffff ;
+        font-size : 12px ;
+    }
+    
+    .today, .month {
+        margin : 0 ;
+        padding : 0 ;
+        text-align : center;
+        font-size : 12px;
+        color : white;
+    }
