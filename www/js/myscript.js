@@ -1,9 +1,5 @@
 var api_url = "https://teamka.in/crm1/APIs/api.php";
-// var api_url = "https://teamka.in/crm1/APIs/api_02022024.php";
-//var api_url = "https://teamka.in/crm1/APIsTEST/api.php";
-// var api_url = "https://test.kalamitcompany.com/testkalam/crm1/APIs/api.php";
-
-//     import from html
+//var api_url = "https://teamka.in/crm1/APIs/api_development.php";
 
 document.addEventListener("DOMContentLoaded", function () {
     var leadButton = document.getElementById("leadButton");
@@ -28,8 +24,6 @@ document.addEventListener("DOMContentLoaded", function () {
     $("#exampleModal4").on("show.bs.modal", function (event) {
         var button = $(event.relatedTarget); // Button that triggered the modal
         var recipient = button.data("whatever"); // Extract info from data-* attributes
-        // If necessary, you could initiate an AJAX request here (and then do the updating in a callback).
-        // Update the modal's content. We'll use jQuery here, but you could use a data binding library or other methods instead.
         console.log("Lead Id : " + recipient);
 
         var modal = $(this);
@@ -108,17 +102,6 @@ function getusersnew() {
         success: function (response) {
             const data = JSON.parse(response);
             console.log(data);
-
-            // Clear previous options and add default "All" option
-            // $("#team-select").empty().append(
-            //     $("<option>", {
-            //         value: "all",
-            //         text: "All",
-            //         selected: true, // Set as default selected
-            //     })
-            // );
-
-            // Add dynamic options
             data.forEach(function (option) {
                 $("#team-select").append(
                     $("<option>", {
@@ -808,44 +791,6 @@ function generateReport() {
         console.error("start2 and end2 not found in local storage.");
     }
 }
-
-// Function to fetch and display all data in a single table
-// function fetchAllReports(start, end) {
-//     $(".loader").show();
-//     $.when(
-//         $.ajax({
-//             url: api_url,
-//             method: "POST",
-//             data: { operation: "expenseReport", start: start, end: end },
-//         }),
-//         $.ajax({
-//             url: api_url,
-//             method: "POST",
-//             data: { operation: "expenseReport-2", start: start, end: end },
-//         }),
-//         $.ajax({
-//             url: api_url,
-//             method: "POST",
-//             data: { operation: "expenseReport-3", start: start, end: end },
-//         }),
-//         $.ajax({
-//             url: api_url,
-//             method: "POST",
-//             data: { operation: "expenseReport-4", start: start, end: end },
-//         })
-//     )
-//         .done(function (response1, response2, response3, response4) {
-//             var data1 = JSON.parse(response1[0]);
-//             var data2 = JSON.parse(response2[0]);
-//             var data3 = JSON.parse(response3[0]);
-//             var data4 = JSON.parse(response4[0]);
-//             generateCombinedTable(start, end, data1, data2, data3, data4);
-//         })
-//         .fail(function (xhr, status, error) {
-//             console.error("Error fetching reports:", error);
-//         });
-// }
-
 function fetchExpenseReportcomb(start1, end1, start2, end2) {
     // Helper function to fetch reports for a specific date range
     function fetchAllReports(start, end) {
@@ -917,155 +862,12 @@ function fetchExpenseReportcomb(start1, end1, start2, end2) {
             };
 
             console.log("datamain2:", datamain2); // Log second set of processed data
-
-            // Now you can access totals like this:
-            // Example: datamain1.data1.totals.spend_mygalla
-            // Replace 'totals' and 'spend_mygalla' with the actual structure of your data
-            
-            // Now compare both datasets
-           // compareData(datamain1, datamain2);
            generateCombinedTable(start2, end2, datamain1, datamain2)
         })
         .catch(function (error) {
             console.error("Error fetching or processing data:", error);
         });
 }
-
-
-// Function to generate a single table combining all report data
-// function generateCombinedTable(start, end, data1, data2, data3, data4) {
-//     // Utility function to safely parse values and return 0 if the value is NaN
-//     function parseSafe(value) {
-//         return isNaN(parseFloat(value)) ? 0 : parseFloat(value);
-//     }
-//     $(".loader").hide();
-//     // Parsing data values to ensure they are numbers
-//     const spendMyGalla = parseSafe(data1.totals.spend_mygalla);
-//     const leadMyGalla = parseSafe(data1.totals.lead_mygalla);
-//     const spendDM = parseSafe(data1.totals.spend_DM);
-//     const leadDM = parseSafe(data1.totals.lead_DM);
-//     const spendOther = parseSafe(data1.totals.spend_other);
-//     const leadOther = parseSafe(data1.totals.lead_other);
-
-//     const noDuesMyGalla = parseSafe(data3.noDuesLeadCounts.noDues_mygalla);
-//     const noDuesDM = parseSafe(data3.noDuesLeadCounts.noDues_dm);
-//     const noDuesOther = parseSafe(data3.noDuesLeadCounts.noDues_other);
-
-//     const totalExpenseMyGalla = parseSafe(data1.totals.total_expense_mygalla);
-//     const totalExpenseDM = parseSafe(data1.totals.total_expense_DM);
-//     const totalExpenseOther = parseSafe(data1.totals.total_expense_other);
-
-//     const totalPaymentAmount1 = parseSafe(data3.totalPaymentAmount1);
-//     const totalPaymentAmount2 = parseSafe(data3.totalPaymentAmount2);
-//     const totalPaymentAmount3 = parseSafe(data3.totalPaymentAmount3);
-
-//     const leadCountMyGalla = parseSafe(data4.leadCounts.mygalla);
-//     const avgDaysDifferenceMyGalla = parseSafe(data4.averageDaysDifference.mygalla);
-
-//     const leadCountDM = parseSafe(data4.leadCounts.dm_dmcourse_wdc);
-//     const avgDaysDifferenceDM = parseSafe(data4.averageDaysDifference.dm_dmcourse_wdc);
-
-//     const leadCountOther = parseSafe(data4.leadCounts.other);
-//     const avgDaysDifferenceOther = parseSafe(data4.averageDaysDifference.other);
-
-//     // Calculate percentage values and financials safely
-//     const percentageNoDuesMyGalla = leadMyGalla > 0 ? Math.round((noDuesMyGalla / leadMyGalla) * 100) : 0;
-//     const percentageNoDuesDM = leadDM > 0 ? Math.round((noDuesDM / leadDM) * 100) : 0;
-//     const percentageNoDuesOther = leadOther > 0 ? Math.round((noDuesOther / leadOther) * 100) : 0;
-
-//     const profitMyGalla = totalPaymentAmount1 - totalExpenseMyGalla;
-//     const patMyGalla = Math.round(profitMyGalla * 0.7);
-
-//     const profitDM = totalPaymentAmount2 - totalExpenseDM;
-//     const patDM = Math.round(profitDM * 0.7);
-
-//     const profitOther = totalPaymentAmount3 - totalExpenseOther;
-//     const patOther = Math.round(profitOther * 0.7);
-
-//     var content = `
-        
-//         <h3 class="text-center m-3">From ${start} to ${end}</h3>
-//         <table id="combinedReportTable" class="display table table-bordered table-striped" style="width:100%">
-//             <thead>
-//                 <tr>
-//                     <th>No Of Leads</th>
-//                     <th>CPL</th>
-//                     <th>Unanswered Lead</th>
-//                     <th>Demo Done</th>
-//                     <th>Conversion</th>
-//                     <th>CAC (M)</th>
-//                     <th>CAC (ALL)</th>
-//                 </tr>
-//             </thead>
-//             <tbody>
-//                 <tr>
-//                     <td>MY GALLA</td>
-//                     <td>₹${spendMyGalla} / ${leadMyGalla} = ₹${Math.round(spendMyGalla / leadMyGalla)}</td>
-//                     <td>${parseSafe(data2.leadCounts.unassigned_mygalla)}</td>
-//                     <td>${parseSafe(data2.demoCounts.demo_mygalla)}</td>
-//                     <td>${noDuesMyGalla}/${percentageNoDuesMyGalla}%</td>
-//                     <td>₹${spendMyGalla} / ${noDuesMyGalla} = ₹${Math.round(spendMyGalla / noDuesMyGalla)}</td>
-//                     <td>₹${totalExpenseMyGalla} / ${noDuesMyGalla} = ₹${Math.round(totalExpenseMyGalla / noDuesMyGalla)}</td>
-//                 </tr>
-//                 <tr>
-//                     <td>DM, DM Course, WDC</td>
-//                     <td>₹${spendDM} / ${leadDM} = ₹${Math.round(spendDM / leadDM)}</td>
-//                     <td>${parseSafe(data2.leadCounts.unassigned_dm)}</td>
-//                     <td>${parseSafe(data2.demoCounts.demo_dm)}</td>
-//                     <td>${noDuesDM}/${percentageNoDuesDM}%</td>
-//                     <td>₹${spendDM} / ${noDuesDM} = ₹${Math.round(spendDM / noDuesDM)}</td>
-//                     <td>₹${totalExpenseDM} / ${noDuesDM} = ₹${Math.round(totalExpenseDM / noDuesDM)}</td>
-//                 </tr>
-//                 <tr>
-//                     <td>Other</td>
-//                     <td>₹${spendOther} / ${leadOther} = ₹${Math.round(spendOther / leadOther)}</td>
-//                     <td>${parseSafe(data2.leadCounts.unassigned_other)}</td>
-//                     <td>${parseSafe(data2.demoCounts.demo_other)}</td>
-//                     <td>${noDuesOther}/${percentageNoDuesOther}%</td>
-//                     <td>₹${spendOther} / ${noDuesOther} = ₹${Math.round(spendOther / noDuesOther)}</td>
-//                     <td>₹${totalExpenseOther} / ${noDuesOther} = ₹${Math.round(totalExpenseOther / noDuesOther)}</td>
-//                 </tr>
-//                 <tr>
-//                     <td colspan="7">Projects</td>
-//                 </tr>
-//                 <tr>
-//                     <th>Projects</th>
-//                     <th>Time To Live</th>
-//                     <th>Avg Orders in 7 Days</th>
-//                     <th>Transaction</th>
-//                     <th>Profit</th>
-//                     <th>PAT</th>
-//                 </tr>
-//                 <tr>
-//                     <td>MY GALLA</td>
-//                     <td>${leadCountMyGalla} / ${avgDaysDifferenceMyGalla}</td>
-//                     <td>0</td>
-//                     <td>₹<a  onclick="getTrancations('mygalla')" data-toggle="modal" data-target="#exampleModalviewtranc">${totalPaymentAmount1}</a></td>
-//                     <td>₹${profitMyGalla}</td>
-//                     <td>₹${patMyGalla}</td>
-//                 </tr>
-//                 <tr>
-//                     <td>DM, DM Course, WDC</td>
-//                     <td>${leadCountDM} / ${avgDaysDifferenceDM}</td>
-//                     <td>0</td>
-//                     <td>₹<a  onclick="getTrancations('dm')" data-toggle="modal" data-target="#exampleModalviewtranc">${totalPaymentAmount2}</a></td>
-//                     <td>₹${profitDM}</td>
-//                     <td>₹${patDM}</td>
-//                 </tr>
-//                 <tr>
-//                     <td>Other</td>
-//                     <td>${leadCountOther} / ${avgDaysDifferenceOther}</td>
-//                     <td>0</td>
-//                     <td>₹<a  onclick="getTrancations('other')" data-toggle="modal" data-target="#exampleModalviewtranc">${totalPaymentAmount3}</a></td>
-//                     <td>₹${profitOther}</td>
-//                     <td>₹${patOther}</td>
-//                 </tr>
-//             </tbody>
-//         </table>`;
-
-//     document.getElementById("displayContent").innerHTML = "<h1>Expense Report</h1><div style='overflow-x:scroll;'>" + content + "</div>";
-// }
-
 function generateCombinedTable(start, end, dataMain1, dataMain2) {
 
     $(".loader").hide();
@@ -1630,14 +1432,6 @@ function getMembers() {
                     })
                 );
             });
-
-            // data.members.forEach(function(option) {
-            //   $('#mb-select').append($('<option>', {
-            //     value: option.Admin_ID,
-            //     text: option.Name
-            //   }));
-            // });
-
             $("#mb-select").selectpicker("refresh");
             $("#tl-select").selectpicker("refresh");
         },
@@ -1965,14 +1759,6 @@ function addTaskImage() {
     // Insert the new input element after the textarea
     textarea.after(loader, newImageInput, successMsg, errorMsg);
 }
-
-// // Find the textarea element
-// var textarea = $('#fileurl');
-
-// // Insert the new input element after the textarea
-// textarea.after(loader,newImageInput, successMsg, errorMsg);
-// }
-
 function sendMailNew(data) {
     $.ajax({
         type: "post",
@@ -2063,24 +1849,6 @@ function addNewProjMail(id) {
         },
     });
 }
-
-// function demoDoneMail(id) {
-//     $.ajax({
-//         type: "post",
-//         url: api_url,
-//         data: { operation: "demoDoneMail", id: id },
-//         success: function (response) {
-//             response = JSON.parse(response);
-//             sendMailNew(response);
-//             console.log(response);
-//         },
-//         error: function (jqXHR, exception) {
-//             var msg = displayerror(jqXHR, exception);
-//             alert(msg);
-//         },
-//     });
-// }
-
 function projStatusChange(id, description) {
     $.ajax({
         type: "post",
@@ -2638,9 +2406,6 @@ function getDevices() {
         data: { operation: "079" },
         success: function (res) {
             $(".loader").hide();
-            //console.log(res);
-            // var data  = jQuery.parseJSON(res);
-            // 			console.log(data);
             var the_table =
                 '<table id="table1" class="class="display" cellspacing="0" width="100%" border=1><thead><tr><th>Actions</th><th>#ID</th><th>Device</th><th>Belongs</th><th>Admin ID</th><th></th></tr></thead><tbody>';
 
@@ -2779,10 +2544,6 @@ function disableDevice(deviceid) {
                 success: function (response) {
                     $(".loader").hide();
                     if (response == 1) {
-                        // document.getElementById("namedevice").value = "";
-                        // document.getElementById("belongdevice").value = "";
-                        // document.getElementById("adminid").value = "";
-                        // // document.getElementById("type").value = "Admin";
                         alert("Device Disabled");
                         // $('.close').click();
                         getDevices();
@@ -3174,10 +2935,6 @@ function getAudioLink(condition) {
     }
 }
 function CheckCallWaiseStatus(startDate, endDate) {
-    //  $('.loader').show();
-    //var chkforDate = document.getElementById("chkforDate").value;
-    //   console.log(chkforDate);
-
     $.ajax({
         url: api_url,
         data: { operation: "077", startDate: startDate, endDate: endDate },
@@ -3557,24 +3314,6 @@ function testLoadOrphanLeads() {
                 targets: 1,
                 render: function (data, type, row, meta) {
                     var index = meta.row;
-                    //   var details = {
-                    //       leadID : row[1],
-                    //       mobile : row[9],
-                    //       email : row[10],
-                    //       whatsapp : row[16],
-                    //       index : index,
-                    //       alternative_no : row[15]
-                    //   }
-                    //   var detail = []
-                    //   detail.push(details)
-                    //   var detailString = JSON.stringify(detail);
-                    //   console.log(detailString,"detailString");
-                    //   details.leadID = row[1];
-                    //   details.mobile = row[9];
-                    //   details.email = row[10];
-                    //   details.whatsapp = row[16];
-                    //   details.index = index;
-                    //   details.alternative_no = row[15];
                     return (data =
                         row[8] +
                         ' <k id="hideShow' +
@@ -3724,9 +3463,6 @@ function NewShowprsnlDetails(name, Lid, mobile, email, whatsapp, index, alternat
 function testShowprsnlDetails(name, Lid, userID, mobile, email, whatsapp, index, alternative_no) {
     var ab = confirm("You need to add this lead to your account to see details");
     if (ab) {
-        // $("#hideShow"+Lid).html(+mobile+'<br>'+email);
-        // var details = JSON.parse(detail)
-        // console.log("details",details);
         $("#hideShow" + Lid).html(
             `<a href="javascript:void(0)" onclick="makeCall('${name}', '${Lid}', '${mobile}', '${index}')">${mobile}</a><br>
             <a href="javascript:void(0)" onclick="makeCall('${name}', '${Lid}', '${alternative_no}', '${index}')">${alternative_no}</a><br>
@@ -3813,12 +3549,6 @@ function stopRecordIncomingCall() {
 }
 function stopRecordMulti(lead_id, index, tableId) {
     isCalledByMakeCall = false;
-    // alert("stopRecord");
-    // isrecord = 0;
-    // cordova.plugins.backgroundMode.disable();
-    // myMedia.stopRecord();
-    // getSupport();
-
     const recordings = JSON.parse(localStorage.getItem("recordings")) || [];
     if (recordings.length === 0) {
         console.error("No recordings to process");
@@ -3843,12 +3573,6 @@ function stopRecordMulti(lead_id, index, tableId) {
 }
 function stopRecord(lead_id, index) {
     isCalledByMakeCall = false;
-    // alert("stopRecord");
-    // isrecord = 0;
-    // cordova.plugins.backgroundMode.disable();
-    // myMedia.stopRecord();
-    // getSupport();
-
     const recordings = JSON.parse(localStorage.getItem("recordings")) || [];
     if (recordings.length === 0) {
         console.error("No recordings to process");
@@ -3871,17 +3595,6 @@ function stopRecord(lead_id, index) {
 
     document.getElementById("save-id-" + index).style.display = "none";
 }
-//    function uploadSave() {
-//            const recordingInfo = JSON.parse(localStorage.getItem('currentRecording'));
-//           // const leadId = document.getElementById("leadId").value; // Get leadId from form
-//            // && recordingInfo.callDetails.leadId == leadId
-//            if (recordingInfo ) {
-//                uploadPhoto(cordova.file.externalRootDirectory + recordingInfo.filename);
-//            } else {
-//            addNewStatus();
-//        }
-//    }
-
 function uploadSave() {
     const filename = document.getElementById("modalFilename").value;
     const recordings = JSON.parse(localStorage.getItem("recordings")) || [];
@@ -3997,28 +3710,6 @@ function uploadPhoto(imageURI, callDetails, callback) {
         //https://test.kalamitcompany.com/testkalam/crm1/APIs/upload/upload.php;
     }
 }
-//    function win(r) {
-//        $('.loader').hide();
-//        document.getElementById('overlay').style.display = 'none';
-//         localStorage.removeItem('currentRecording');
-//        myMedia = null;
-//        var leadId = document.getElementById("leadId").value;
-//        console.log("lead",leadId)
-//        //document.getElementById("save-id-"+index).style.display="none";
-//
-//        // document.getElementById("leadId").value = "";
-//        document.getElementById("next_call_date").value = "";
-//        document.getElementById("time").value = "";
-//        document.getElementById("summary_note").value = "";
-//        alert("Status Uploaded",JSON.stringify(r));
-//
-//        getAllStatus(leadId);
-//        // alert("upload success");
-//    }
-//    function fail(error) {
-//        alert("upload failed")
-//    }
-
 function updateLeadDetails(leadId, leadName) {
     // Update the recording info in localStorage
     const recordingInfo = JSON.parse(localStorage.getItem("currentRecording"));
@@ -4028,62 +3719,6 @@ function updateLeadDetails(leadId, leadName) {
         localStorage.setItem("currentRecording", JSON.stringify(recordingInfo));
     }
 }
-
-//   function populateModalTable() {
-//       const tableBody = document.getElementById('callDetailsTableBody');
-//       tableBody.innerHTML = ''; // Clear previous content
-//       const recordings = JSON.parse(localStorage.getItem('recordings')) || [];
-//
-//       if (recordings.length === 0) {
-//           console.error('No recording info found');
-//           return;
-//       }
-//
-//       recordings.forEach((recording, index) => {
-//           const audioSrc = cordova.file.externalRootDirectory + recording.filename;
-//           const leadId = recording.callDetails.leadId;
-//           const leadName = recording.callDetails.leadName;
-//           const phoneNumber = recording.callDetails.phone;
-//
-//           // Determine which button to display
-//           let buttonHTML;
-//           if (leadId == 'Unknown') {
-//               buttonHTML = `
-//                   <button class="btn btn-primary" data-toggle="modal" data-target="#exampleModal" onclick="addmissedlead('${phoneNumber}')">Add New Lead</button>
-//                   <div class="search-container">
-//                       <input type="text" id="searchInput" placeholder="Search..." onkeyup="searchLeads(this.value)">
-//                       <div id="selectButtonContainer" style="display: none;"></div>
-//                       <div id="searchResults" class="dropdown-content"></div>
-//                   </div>
-//               `;
-//           } else {
-//               buttonHTML = `
-//                   <button class="btn btn-primary" data-toggle="modal" data-target="#exampleModal4" onclick="getAllStatus('${leadId}')" data-whatever="${leadId}"> Upload</button>
-//               `;
-//           }
-//
-//           // Create a new row for the current recording
-//           const row = `
-//               <tr>
-//                   <td>${index + 1}</td>
-//                   <td>
-//                       <audio controls>
-//                           <source src="${audioSrc}" type="audio/mpeg">
-//                           Your browser does not support the audio element.
-//                       </audio>
-//                   </td>
-//                   <td id="leadIdCell">${leadId ? leadId : ''}</td>
-//                   <td id="leadInfoCell">${leadName} <br> ${phoneNumber}</td>
-//                   <td id="buttonCell">
-//                       ${buttonHTML}
-//                   </td>
-//               </tr>
-//           `;
-//
-//           tableBody.innerHTML += row;
-//       });
-//   }
-
 function populateModalTable() {
     const tableBody = document.getElementById("callDetailsTableBody");
     tableBody.innerHTML = ""; // Clear previous content
@@ -4603,13 +4238,6 @@ function showdataTLLeads(id, encoded) {
     let decoded = decodeURI(encoded);
 
     $("#showdataTLLeads" + id).html(decoded);
-
-    //mobile,alternate,whatsapp,email
-    //$("#showdataTLLeads"+id).html("<a href='tel:"+mobile+"'>"+mobile+"</a><br><a href='tel:"+alternate+"'>"+alternate+"</a><br><a href='https://api.whatsapp.com/send?phone=91"+whatsapp+"'>"+whatsapp+"</a><br>"+email+"");
-
-    //$("#showdataTLLeads"+id).html('<a href="javascript:void(0)" onclick=makeCall("'+mobile+'","'+id+'")>'+mobile+'</a><br><a href="javascript:void(0)" onclick=makeCall("'+alternate+'","'+id+'")>'+alternate+'</a><br><a href="https://api.whatsapp.com/send?phone=91'+whatsapp+'">'+whatsapp+'</a><br>'+email+'<br><button style="display:none"  data-toggle="modal" data-target="#exampleModal4" data-whatever="'+id+'" id="save-id-'+id+'" onclick=stopRecord("'+id+'","'+id+'")>End Call</button>');
-
-    //<a href="javascript:void(0)" onclick=makeCall("'+part[2]+'","'+index+'")>'+part[2]+'</a><br><a href="javascript:void(0)" onclick=makeCall("'+part[3]+'","'+index+'")>'+part[3]+'</a><br><a href="https://api.whatsapp.com/send?phone=91'+part[4]+'">'+part[4]+'</a><br>'+part[5]+'<br><button style="display:none"  data-toggle="modal" data-target="#exampleModal4" data-whatever="'+part[0]+'" id="save-id-'+index+'" onclick=stopRecord("'+part[0]+'","'+index+'")>End Call</button>
 }
 
 function testallLeadsTL() {
@@ -5132,7 +4760,7 @@ function allCaller() {
                                 '<button class="btn btn-success" data-toggle="modal" data-target="#ModalAttendence" onclick="getAdminMeta(' +
                                 row.EMP_ID +
                                 ",'" +
-                                row.Name +
+                                row.username +
                                 "')\">Edit</button>"
                             );
                         } else {
@@ -5578,25 +5206,6 @@ function enableLead(id) {
         },
     });
 }
-
-// function disableLeadAdd(aid,sts){
-//     var k=confirm(sts+" ?");
-//     if(k){
-//       $('.loader').show();
-//     $.ajax({
-//         url: api_url,
-//         data: {operation: "059",'aid':aid,'sts':sts},
-//         success: function (response){
-//             $('.loader').hide();
-//             alert(response);
-//             allCaller();
-
-//         }
-//     })
-//   }
-// }
-
-// Add New Status
 function addNewStatus() {
     let callerID;
     // Check user type
@@ -5632,9 +5241,6 @@ function addNewStatus() {
                 console.log("response");
                 $(".loader").hide();
                 if (response == 1) {
-                    // if (call_status == "Demo Done") {
-                    //     demoDoneMail(leadId);
-                    // }
                     handleDemoCallScenario(call_status, leadId, callerID);
 
                     document.getElementById("leadId").value = "";
@@ -5778,69 +5384,6 @@ function getAudio(condition) {
         return "";
     }
 }
-
-//     function getAllStatus(id){
-//       //getAllStatus getAllStatus
-//         id=parseInt(id); //lead_id
-//         // alert(id);
-//         document.getElementById("allStatus").innerHTML = "";
-//           //$('.loader').show();
-//         $.ajax({
-//             url: api_url,
-//             data: {operation: "009",id:id},
-//             success: function (response){
-//           //$('.loader').hide();
-//           //console.log(response);
-
-//                 var info = response.split("/END/");
-//                 var content = "<table id='statustable' class='table table-bordered table-striped'><thead><th>Called By</th><th>On</th><th>Summary</th><th>Next Call</th><th>Audio</th></thead><tbody>";
-//                 // for(let i=0;i<info.length -1;i++){
-//                 //     var element = info[i];
-//                 //     var part = element.split("<-->");
-//                 //     content += "<tr><td>"+part[0]+"</td><td>"+part[1].split(" ")[0]+"<br>"+part[1].split(" ")[1]+"</td><td>"+part[2]+"</td><td>"+part[3]+"</td><td>"+getAudio(part[5])+"</td></tr>";
-//                 // }
-
-//                var table= $('#statustable').DataTable({
-//                         data: response.data,
-//                         "columns": [
-//                             { "data": "name" },
-//                             { "data": "position" },
-//                             { "data": "office" },
-//                             { "data": "age" },
-//                             { "data": "start_date" },
-//                             { "data": "salary" }
-//                         ]
-//                     });
-
-//                 showMailOption(id);
-//                 if(localStorage.getItem("userType") == "Admin"){
-//                 document.getElementById("allStatus").innerHTML = content+"</tbody></table><div class='container' id='mailOption'></div>";
-
-//                     }else if(localStorage.getItem("userType") == "Caller"){
-//                         document.getElementById("allStatus").innerHTML = content+"</tbody></table><div class='container' id='mailOption'></div>";
-//                         document.getElementById("allStatusCallers").innerHTML = content+"</tbody></table>";
-
-//                     }else if(localStorage.getItem("userType") == "Developer"){
-//                         document.getElementById("allStatus").innerHTML = content+"</tbody></table><div class='container' id='mailOption'></div>";
-//                         document.getElementById("allStatusCallers").innerHTML = content+"</tbody></table>";
-
-//                     }else if(localStorage.getItem("userType") == "TL"){
-//                         //allMyStatus
-//                         document.getElementById("allStatus").innerHTML = content+"</tbody></table><div class='container' id='mailOption'></div>";
-//                         document.getElementById("allMyStatus").innerHTML = content+"</tbody></table><div class='container' id='mailOption'></div>";
-
-//                     }else if(localStorage.getItem("userType") == "Support"){
-//                         //allMyStatus
-//                        // console.log(content);
-//                         document.getElementById("allStatus").innerHTML = content+"</tbody></table><div class='container' id='mailOption'></div>";
-//                         document.getElementById("allMyStatus").innerHTML = content+"</tbody></table><div class='container' id='mailOption'></div>";
-
-//                     }
-//             }, error: function (jqXHR, exception) { var msg=displayerror(jqXHR, exception); alert(msg); },
-//         })
-
-//     }
-
 function getAllStatus(id) {
     id = parseInt(id);
     console.log("Getting Status For Lead ID " + id);
@@ -5940,14 +5483,6 @@ function getUserDetails() {
 
 //Leads to be contacted today
 function allLeadsOnDate(date) {
-    // var today = new Date();
-    // var dd = today.getDate();
-    // var mm = today.getMonth()+1;
-    // var yyyy = today.getFullYear();
-    // if(dd<10) dd='0'+dd;
-    // if(mm<10) mm='0'+mm;
-    // var date = yyyy+"-"+mm+"-"+dd;
-
     $(".loader").show();
     $.ajax({
         url: api_url,
@@ -6252,58 +5787,6 @@ function allLeadsOnDate(date) {
 
 //Leads to be contacted today
 function allLeadsOnDate1(fromdate, todate) {
-    //         var today = new Date();
-    //         var dd = today.getDate();
-    //         var mm = today.getMonth()+1;
-    //         var yyyy = today.getFullYear();
-    //         if(dd<10) dd='0'+dd;
-    //         if(mm<10) mm='0'+mm;
-    //         var date = yyyy+"-"+mm+"-"+dd;
-
-    //   $('.loader').show();
-    //         $.ajax({
-    //                 url : api_url,
-    //                 data : {operation : "014-new",fromdate:fromdate,todate:todate},
-    //                 success : function (response){
-    //   $('.loader').hide();
-    //                     var partialArranged = response.split("<END>");
-    //                     var content = '<table id="table1" class="table table-bordered table-striped"><thead><tr><th scope="col">Lead ID</th><th scope="col">Name</th><th scope="col">Mobile/<br>Alternate/<br>Whatsapp/<br>Email</th><th scope="col">Interested In</th><th scope="col">Source</th><th scope="col">Status</th><th scope="col">DOR</th><th scope="col">Call Status</th><th scope="col">Option</th><th scope="col">Caller</th></tr></thead><tbody>';
-    //                     var totalUpdates = partialArranged.length - 1;
-
-    //                     for (let index = 1; index <= totalUpdates; index++) {
-    //                         var element = partialArranged[index-1];
-    //                         var part = element.split("<-->");
-    //                         // console.log(part)
-    //                         var callStatus = '<td></td>';
-    //                         if(part[13]=="1") {
-    //                             callStatus = '<td style="background-color:green;color:white">Done</td>';
-    //                         } else if(part[13]=="2") {
-    //                             callStatus = '<td style="background-color:yellow;color:black">Pending</td>';
-    //                         } else if(part[13]=="3") {
-    //                             callStatus = '<td style="background-color:red;color:white">Missed</td>';
-    //                         }
-
-    //                         if(part[8]=="New"){
-    //                         content+= '<tr><th scope="row">'+part[0]+'</th><td>'+part[1]+'</td><td><a href="javascript:void(0)" onclick=makeCall("'+part[2]+'","'+index+'")>'+part[2]+'</a><br><a href="javascript:void(0)" onclick=makeCall("'+part[3]+'","'+index+'")>'+part[3]+'</a><br><a href="https://api.whatsapp.com/send?phone=91'+part[4]+'">'+part[4]+'</a><br>'+part[5]+'<br><button style="display:none" id="save-id-'+index+'" data-toggle="modal" data-target="#exampleModal4" data-whatever="'+part[0]+'" onclick=stopRecord("'+part[0]+'","'+index+'")>End Call</button></td><td>'+part[6]+'</td><td>'+part[7]+'</td><td style="background-color:red;color:white">'+part[8]+'</td><td>'+part[9]+'</td>'+callStatus+'<td><button data-toggle="modal" data-target="#exampleModal3" onclick="fillUpdateForm('+part[0]+')">Edit</button><br><button data-toggle="modal" data-target="#exampleModal4" data-whatever="'+part[0]+'" onclick="getAllStatus('+part[0]+')">Status</button></td><td>'+part[10]+'</td></tr>';
-    //                         }else if(part[8]=="Converted"){
-    //                         content+= '<tr><th scope="row">'+part[0]+'</th><td>'+part[1]+'</td><td><a href="javascript:void(0)" onclick=makeCall("'+part[2]+'","'+index+'")>'+part[2]+'</a><br><a href="javascript:void(0)" onclick=makeCall("'+part[3]+'","'+index+'")>'+part[3]+'</a><br><a href="https://api.whatsapp.com/send?phone=91'+part[4]+'">'+part[4]+'</a><br>'+part[5]+'<br><button style="display:none" id="save-id-'+index+'" data-toggle="modal" data-target="#exampleModal4" data-whatever="'+part[0]+'" onclick=stopRecord("'+part[0]+'","'+index+'")>End Call</button></td><td>'+part[6]+'</td><td>'+part[7]+'</td><td style="background-color:green;color:white">'+part[8]+'</td><td>'+part[9]+'</td>'+callStatus+'<td><button data-toggle="modal" data-target="#exampleModal3" onclick="fillUpdateForm('+part[0]+')">Edit</button><br><button data-toggle="modal" data-target="#exampleModal4" data-whatever="'+part[0]+'" onclick="getAllStatus('+part[0]+')">Status</button></td><td>'+part[10]+'</td></tr>';
-    //                         }else if(part[8]=="Proposail Mailed"){
-    //                         content+= '<tr><th scope="row">'+part[0]+'</th><td>'+part[1]+'</td><td><a href="javascript:void(0)" onclick=makeCall("'+part[2]+'","'+index+'")>'+part[2]+'</a><br><a href="javascript:void(0)" onclick=makeCall("'+part[3]+'","'+index+'")>'+part[3]+'</a><br><a href="https://api.whatsapp.com/send?phone=91'+part[4]+'">'+part[4]+'</a><br>'+part[5]+'<br><button style="display:none" id="save-id-'+index+'" data-toggle="modal" data-target="#exampleModal4" data-whatever="'+part[0]+'" onclick=stopRecord("'+part[0]+'","'+index+'")>End Call</button></td><td>'+part[6]+'</td><td>'+part[7]+'</td><td style="background-color:yellow;color:black">'+part[8]+'</td><td>'+part[9]+'</td>'+callStatus+'<td><button data-toggle="modal" data-target="#exampleModal3" onclick="fillUpdateForm('+part[0]+')">Edit</button><br><button data-toggle="modal" data-target="#exampleModal4" data-whatever="'+part[0]+'" onclick="getAllStatus('+part[0]+')">Status</button></td><td>'+part[10]+'</td></tr>';
-    //                         }else if(part[8]=="Pending"){
-    //                         content+= '<tr><th scope="row">'+part[0]+'</th><td>'+part[1]+'</td><td><a href="javascript:void(0)" onclick=makeCall("'+part[2]+'","'+index+'")>'+part[2]+'</a><br><a href="javascript:void(0)" onclick=makeCall("'+part[3]+'","'+index+'")>'+part[3]+'</a><br><a href="https://api.whatsapp.com/send?phone=91'+part[4]+'">'+part[4]+'</a><br>'+part[5]+'<br><button style="display:none" id="save-id-'+index+'" data-toggle="modal" data-target="#exampleModal4" data-whatever="'+part[0]+'" onclick=stopRecord("'+part[0]+'","'+index+'")>End Call</button></td><td>'+part[6]+'</td><td>'+part[7]+'</td><td style="background-color:orange;color:white">'+part[8]+'</td><td>'+part[9]+'</td>'+callStatus+'<td><button data-toggle="modal" data-target="#exampleModal3" onclick="fillUpdateForm('+part[0]+')">Edit</button><br><button data-toggle="modal" data-target="#exampleModal4" data-whatever="'+part[0]+'" onclick="getAllStatus('+part[0]+')">Status</button></td><td>'+part[10]+'</td></tr>';
-    //                         }else{
-    //                         content+= '<tr><th scope="row">'+part[0]+'</th><td>'+part[1]+'</td><td><a href="javascript:void(0)" onclick=makeCall("'+part[2]+'","'+index+'")>'+part[2]+'</a><br><a href="javascript:void(0)" onclick=makeCall("'+part[3]+'","'+index+'")>'+part[3]+'</a><br><a href="https://api.whatsapp.com/send?phone=91'+part[4]+'">'+part[4]+'</a><br>'+part[5]+'<br><button style="display:none" id="save-id-'+index+'" data-toggle="modal" data-target="#exampleModal4" data-whatever="'+part[0]+'" onclick=stopRecord("'+part[0]+'","'+index+'")>End Call</button></td><td>'+part[6]+'</td><td>'+part[7]+'</td><td>'+part[8]+'</td><td>'+part[9]+'</td>'+callStatus+'<td><button data-toggle="modal" data-target="#exampleModal3" onclick="fillUpdateForm('+part[0]+')">Edit</button><br><button data-toggle="modal" data-target="#exampleModal4" data-whatever="'+part[0]+'" onclick="getAllStatus('+part[0]+')">Status</button></td><td>'+part[10]+'</td></tr>';
-    //                         }
-
-    //                     }
-    //                     content += '</tbody></table></div>';
-    //                     document.getElementById("displayContent").innerHTML = "<h1>&#x2706; To be Contacted.... </h1><a href='https://teamka.in/crm1/APIs/export_daily_leads.php?startDate="+fromdate+"&endDate="+todate+"'>Export</a><div style='overflow-x:scroll;'>"+content;
-
-    //                     $("#table1").DataTable( {   "order": [[ 0, "desc" ]] , stateSave: true  });
-    //                 }, error: function (jqXHR, exception) { var msg=displayerror(jqXHR, exception); alert(msg); },
-
-    //             });
-
     var content =
         '<table id="table1" class="table table-bordered table-striped"><thead><tr><th scope="col">Lead ID</th><th scope="col">Name</th><th scope="col">Mobile/<br>Alternate/<br>Whatsapp/<br>Email</th><th scope="col">Interested In</th><th scope="col">Source</th><th scope="col">Status</th><th scope="col">DOR</th><th scope="col">Call Status</th><th scope="col">Option</th><th scope="col">Caller</th></tr></thead><tbody>';
     content += "</tbody></table></div>";
@@ -6516,58 +5999,6 @@ function allLeadsOnDateTL(fromdate, todate) {
 }
 
 function allLeadsOnDate2(fromdate, todate) {
-    // var today = new Date();
-    // var dd = today.getDate();
-    // var mm = today.getMonth()+1;
-    // var yyyy = today.getFullYear();
-    // if(dd<10) dd='0'+dd;
-    // if(mm<10) mm='0'+mm;
-    // var date = yyyy+"-"+mm+"-"+dd;
-
-    //   $('.loader').show();
-    //         $.ajax({
-    //                 url : api_url,
-    //                 data : {operation : "014-caller",fromdate:fromdate,todate:todate,caller_id:localStorage.getItem("userID")},
-    //                 success : function (response){
-    //   $('.loader').hide();
-    //                     var partialArranged = response.split("<END>");
-    //                     var content = '<table id="table1" class="table table-bordered table-striped"><thead><tr><th scope="col">Lead ID</th><th scope="col">Name</th><th scope="col">Mobile/<br>Alternate/<br>Whatsapp/<br>Email</th><th scope="col">Interested In</th><th scope="col">Source</th><th scope="col">Status</th><th scope="col">DOR</th><th scope="col">Call Status</th><th scope="col">Option</th><th scope="col">Caller</th></tr></thead><tbody>';
-    //                     var totalUpdates = partialArranged.length - 1;
-
-    //                     for (let index = 1; index <= totalUpdates; index++) {
-    //                         var element = partialArranged[index-1];
-    //                         var part = element.split("<-->");
-    //                         // console.log(part)
-    //                         var callStatus = '<td></td>';
-    //                         if(part[13]=="1") {
-    //                             callStatus = '<td style="background-color:green;color:white">Done</td>';
-    //                         } else if(part[13]=="2") {
-    //                             callStatus = '<td style="background-color:yellow;color:black">Pending</td>';
-    //                         } else if(part[13]=="3") {
-    //                             callStatus = '<td style="background-color:red;color:white">Missed</td>';
-    //                         }
-
-    //                         if(part[8]=="New"){
-    //                         content+= '<tr><th scope="row">'+part[0]+'</th><td>'+part[1]+'</td><td><a href="javascript:void(0)" onclick=makeCall("'+part[2]+'","'+index+'")>'+part[2]+'</a><br><a href="javascript:void(0)" onclick=makeCall("'+part[3]+'","'+index+'")>'+part[3]+'</a><br><a href="https://api.whatsapp.com/send?phone=91'+part[4]+'">'+part[4]+'</a><br>'+part[5]+'<br><button style="display:none" id="save-id-'+index+'" data-toggle="modal" data-target="#exampleModal4" data-whatever="'+part[0]+'" onclick=stopRecord("'+part[0]+'","'+index+'")>End Call</button></td><td>'+part[6]+'</td><td>'+part[7]+'</td><td style="background-color:red;color:white">'+part[8]+'</td><td>'+part[9]+'</td>'+callStatus+'<td><button data-toggle="modal" data-target="#exampleModal3" onclick="fillUpdateForm('+part[0]+')">Edit</button><br><button data-toggle="modal" data-target="#exampleModal4" data-whatever="'+part[0]+'" onclick="getAllStatus('+part[0]+')">Status</button></td><td>'+part[10]+'</td></tr>';
-    //                         }else if(part[8]=="Converted"){
-    //                         content+= '<tr><th scope="row">'+part[0]+'</th><td>'+part[1]+'</td><td><a href="javascript:void(0)" onclick=makeCall("'+part[2]+'","'+index+'")>'+part[2]+'</a><br><a href="javascript:void(0)" onclick=makeCall("'+part[3]+'","'+index+'")>'+part[3]+'</a><br><a href="https://api.whatsapp.com/send?phone=91'+part[4]+'">'+part[4]+'</a><br>'+part[5]+'<br><button style="display:none" id="save-id-'+index+'" data-toggle="modal" data-target="#exampleModal4" data-whatever="'+part[0]+'" onclick=stopRecord("'+part[0]+'","'+index+'")>End Call</button></td><td>'+part[6]+'</td><td>'+part[7]+'</td><td style="background-color:green;color:white">'+part[8]+'</td><td>'+part[9]+'</td>'+callStatus+'<td><button data-toggle="modal" data-target="#exampleModal3" onclick="fillUpdateForm('+part[0]+')">Edit</button><br><button data-toggle="modal" data-target="#exampleModal4" data-whatever="'+part[0]+'" onclick="getAllStatus('+part[0]+')">Status</button></td><td>'+part[10]+'</td></tr>';
-    //                         }else if(part[8]=="Proposail Mailed"){
-    //                         content+= '<tr><th scope="row">'+part[0]+'</th><td>'+part[1]+'</td><td><a href="javascript:void(0)" onclick=makeCall("'+part[2]+'","'+index+'")>'+part[2]+'</a><br><a href="javascript:void(0)" onclick=makeCall("'+part[3]+'","'+index+'")>'+part[3]+'</a><br><a href="https://api.whatsapp.com/send?phone=91'+part[4]+'">'+part[4]+'</a><br>'+part[5]+'<br><button style="display:none" id="save-id-'+index+'" data-toggle="modal" data-target="#exampleModal4" data-whatever="'+part[0]+'" onclick=stopRecord("'+part[0]+'","'+index+'")>End Call</button></td><td>'+part[6]+'</td><td>'+part[7]+'</td><td style="background-color:yellow;color:black">'+part[8]+'</td><td>'+part[9]+'</td>'+callStatus+'<td><button data-toggle="modal" data-target="#exampleModal3" onclick="fillUpdateForm('+part[0]+')">Edit</button><br><button data-toggle="modal" data-target="#exampleModal4" data-whatever="'+part[0]+'" onclick="getAllStatus('+part[0]+')">Status</button></td><td>'+part[10]+'</td></tr>';
-    //                         }else if(part[8]=="Pending"){
-    //                         content+= '<tr><th scope="row">'+part[0]+'</th><td>'+part[1]+'</td><td><a href="javascript:void(0)" onclick=makeCall("'+part[2]+'","'+index+'")>'+part[2]+'</a><br><a href="javascript:void(0)" onclick=makeCall("'+part[3]+'","'+index+'")>'+part[3]+'</a><br><a href="https://api.whatsapp.com/send?phone=91'+part[4]+'">'+part[4]+'</a><br>'+part[5]+'<br><button style="display:none" id="save-id-'+index+'" data-toggle="modal" data-target="#exampleModal4" data-whatever="'+part[0]+'" onclick=stopRecord("'+part[0]+'","'+index+'")>End Call</button></td><td>'+part[6]+'</td><td>'+part[7]+'</td><td style="background-color:orange;color:white">'+part[8]+'</td><td>'+part[9]+'</td>'+callStatus+'<td><button data-toggle="modal" data-target="#exampleModal3" onclick="fillUpdateForm('+part[0]+')">Edit</button><br><button data-toggle="modal" data-target="#exampleModal4" data-whatever="'+part[0]+'" onclick="getAllStatus('+part[0]+')">Status</button></td><td>'+part[10]+'</td></tr>';
-    //                         }else{
-    //                         content+= '<tr><th scope="row">'+part[0]+'</th><td>'+part[1]+'</td><td><a href="javascript:void(0)" onclick=makeCall("'+part[2]+'","'+index+'")>'+part[2]+'</a><br><a href="javascript:void(0)" onclick=makeCall("'+part[3]+'","'+index+'")>'+part[3]+'</a><br><a href="https://api.whatsapp.com/send?phone=91'+part[4]+'">'+part[4]+'</a><br>'+part[5]+'<br><button style="display:none" id="save-id-'+index+'" data-toggle="modal" data-target="#exampleModal4" data-whatever="'+part[0]+'" onclick=stopRecord("'+part[0]+'","'+index+'")>End Call</button></td><td>'+part[6]+'</td><td>'+part[7]+'</td><td>'+part[8]+'</td><td>'+part[9]+'</td>'+callStatus+'<td><button data-toggle="modal" data-target="#exampleModal3" onclick="fillUpdateForm('+part[0]+')">Edit</button><br><button data-toggle="modal" data-target="#exampleModal4" data-whatever="'+part[0]+'" onclick="getAllStatus('+part[0]+')">Status</button></td><td>'+part[10]+'</td></tr>';
-    //                         }
-
-    //                     }
-    //                     content += '</tbody></table></div>';
-    //                     document.getElementById("displayContent").innerHTML = "<h1>&#x2706; To be Contacted.... </h1><a href='https://teamka.in/crm1/APIs/export_daily_leads.php?startDate="+fromdate+"&endDate="+todate+"'>Export</a><div style='overflow-x:scroll;'>"+content;
-
-    //                     $("#table1").DataTable( {   "order": [[ 0, "desc" ]] , stateSave: true  });
-    //                 }, error: function (jqXHR, exception) { var msg=displayerror(jqXHR, exception); alert(msg); },
-
-    //             });
-
     var content =
         '<table id="table1" class="table table-bordered table-striped"><thead><tr><th scope="col">Lead ID</th><th scope="col">Name</th><th scope="col">Mobile/<br>Alternate/<br>Whatsapp/<br>Email</th><th scope="col">Interested In</th><th scope="col">Source</th><th scope="col">Status</th><th scope="col">DOR</th><th scope="col">Call Status</th><th scope="col">Option</th><th scope="col">Caller</th></tr></thead><tbody>';
     content += "</tbody></table></div>";
@@ -7997,246 +7428,6 @@ function sendCustomerIdsToServer(customerIds) {
         },
     });
 }
-
-//   function getProjectDetailsSupportNew(){
-
-//               var content = `
-//           <div class="d-flex justify-content-center">
-
-//               <div class="btn-item" id="notlive">Not Live <span id="noti1">0</span></div>
-//               <div class="btn-item" id="final">Finalised By Client</div>
-//               <div class="btn-item" id="in">In Development</div>
-//               <div class="btn-item" id="send">Send For Testing</div>
-//               <div class="btn-item" id="upload">Uploaded To Playstore</div>
-//               <div class="btn-item" id="live">Live on Playstore</div>
-//               <div class="btn-item" id="suspended">Suspended</div>
-//               <div class="btn-item" id="not">Not Renewed <span id="noti2">0</span></div>
-//           </div>
-//           <table id="tableProjects" class="table table-bordered table-striped">
-//               <thead>
-//                   <tr>
-//                       <th>Project ID</th>
-//                       <th>Orders</th>
-//                       <th>Lead Name</th>
-//                       <th>Caller</th>
-//                       <th>Developer</th>
-//                       <th>Project Name</th>
-//                       <th>Project Type</th>
-//                       <th>Dues</th>
-//                       <th>DOR</th>
-//                       <th>Status</th>
-//                       <th>Time To Live</th>
-//                       <th>OPTION</th>
-//                   </tr>
-//               </thead>
-//               <tbody></tbody>
-//           </table>
-//       `;
-
-//       document.getElementById("displayContent").innerHTML = `<h1>Project Details</h1> <div class="d-flex column-gap-3 justify-content-center" > <select id="projectTypeFilter">
-//                       <option value="">Select Project Type</option>
-//                       <option value="Grocery App">Grocery App</option>
-//                       <option value="Website">Website</option>
-//                       <option value="Service App">Service App</option>
-//                       <option value="DM Course">DM Course</option>
-//                       <option value="Promotion">Promotion</option>
-//                       <option value="WDC">WDC</option>
-//                       <option value="PDP">PDP</option>
-//                       <option value="POS">POS</option>
-//                       <option value="DM Online">DM Online</option>
-//                   </select><select id="recordsorder">
-//       <option value="">Select No of Orders</option>
-//      <option value="0">0</option>
-//     <option value="10">10</option>
-//     <option value="20">20</option>
-//     <option value="30">30</option>
-//     <option value="50">50</option>
-// </select></div><div style="overflow-x:scroll;">${content}</div>`;
-
-//       $('#recordsorder').on('change', function() {
-//         var selectedValue = $(this).val();
-//         var selectedValue = parseInt(selectedValue, 10);
-//         if(selectedValue ==0){
-//             option ="zero";
-//             loadtable();
-//         }else{
-//         fetchCustomerIds(selectedValue);}
-//     });
-
-//     $('#tableProjects button').click(function() {
-//     // Get the clicked button
-//     const clickedButton = $(this);
-
-//     // Find the closest table row (TR) element
-//     const clickedRow = clickedButton.closest('tr');
-
-//     // Add the "highlited" class to the row
-//     clickedRow.addClass('table-primary');
-//   });
-//         var option ="default";
-//         var type ="default";
-
-//               function loadtable(){
-//                   if ($.fn.DataTable.isDataTable('#tableProjects')) {
-//         // If DataTable is already initialized, destroy it
-//         $('#tableProjects').DataTable().destroy();
-//     }
-//     if(type == "default"){
-//       countNotLive("All Project");
-//       countNotRenewed("All Project");
-
-//     }else{
-//         countNotLive(type);
-//         countNotRenewed(type);
-//     }
-
-//     var table = $("#tableProjects").DataTable({
-//         "order": [[ 0, "desc" ]] ,
-//              processing: false,
-//              "paging": true,
-//             "pagingType": "full_numbers",
-//             serverSide: true,
-//         ajax: {
-//             url: api_url,
-//             method: "POST",
-//             data: { operation: "020-new" ,option:option,type:type},
-//             beforeSend: function () {
-//                 $('.loader').show();
-//             },
-//             complete: function () {
-//                 $('.loader').hide();
-//             },
-//         },
-//         columns: [
-//             { data: "0" },
-//             { data: "21",
-
-//             },
-//             {
-//                 data: '1',
-//                 render: function (data, type, row,meta) {
-//                                          var index = meta.row;
-//                                       return row[1] + '<br>' + row[16] + '<br><a href="javascript:void(0)" onclick="makeCall(\'' + row[1] + '\', \'' + row[0] + '\', \'' + row[15] + '\', ' + index + ')">' + row[15]+ '</a><br><a href="javascript:void(0)" onclick="makeCall(\'' + row[1] + '\', \'' + row[0] + '\', \'' + row[18] + '\', ' + index + ')">' + row[18]+ '</a><br><a href="https://api.whatsapp.com/send?phone=91'+row[19]+'">'+row[19]+'</a><br><button style="display:none"  data-toggle="modal" data-target="#exampleModal4" data-whatever="' + row[0] + '" id="save-id-' + index + '" onclick=stopRecord("' + row[0] + '","' + index + '")>End Call</button>';
-//                                     }
-//             },
-//             { data: "2" },
-//             { data: "4" },
-//             {
-//                 data: '5',
-//                 render: function (data, type, row) {
-//                 return row[5] + '<br><button data-toggle="modal" data-target="#exampleModalAssignProj" onclick="addProjForTask(' + row[0] + ')">Assign Task</button><br><button data-toggle="modal" data-target="#exampleModalviewProjecttask" onclick="viewProjectTask(' + row[0] + ')">View Task</button>';
-//           }
-//             },
-//             {
-//                 data: '6', // Project_Type
-//                 render: function (data, type, row) {
-
-//                 return row[6];
-
-//             }
-//             },
-//             {
-//                 data: "14"
-//             },
-//             { data: "10" },
-//             {
-//                 data: '13',
-//                 render: function (data, type, row) {
-//                 return row[13] + '<br><button data-toggle="modal" data-target="#exampleModalProjectStatus" onclick="fillUpdateProjectStatus(' + row[0] + ')">Full Status</button>';
-//               }
-//             },
-//             {
-//                 data: "20"
-//             },
-//             {
-//                 data: null,
-//                 render: function (data, type, row) {
-//                 return '<button data-toggle="modal" data-target="#exampleModalEditProject" onclick="fillUpdateProjectForm(' + row[0] + ')">Edit</button><br>' +
-//                     '<button data-toggle="modal" data-target="#exampleModalProjectBilling" onclick="getProjectBillingSupport(' + row[0] + ')">Billing</button><br>' +
-//                     '<button data-toggle="modal" data-target="#exampleModalMoreDetails" onclick="fullDetails(' + row[0] + ')">Details</button><br>' +
-//                     '<button data-toggle="modal" data-target="#exampleModal4" onclick="getAllStatus(' + row[17] + ')" data-whatever="' + row[17] + '">Status</button>' ;
-//             }
-//             }
-//         ],
-//         createdRow: function(row, data, dataIndex) {
-//                 var $td = $(row).find('td:eq(7)'); // Target the 6th TD within the row
-//                 if (data[14] == "No dues") {
-//                     $td.css({'background-color': 'green', 'color': 'white'});
-//                 } else if (data[14] == "No payment details") {
-//                     $td.css({'background-color': 'red', 'color': 'white'});
-//                 }
-
-//                  const statusButton = $(row).find('button');
-//                 statusButton.on('click', function() {
-//                   // Remove "highlighted" class from all table rows (optional)
-//                   $('table#tableProjects tr').removeClass('table-primary');
-
-//                   // Get the table row (TR) of the clicked button
-//                   var tr = $(this).closest('tr');
-
-//                   // Add "highlighted" class to the clicked row
-//                   tr.addClass('table-primary');
-//                 });
-
-//             }
-//     });
-//     }
-//     loadtable();
-
-//     $('.btn-item').each(function() {
-//     // Attach click event listener
-//     $(this).on('click', function() {
-//         // Get the id of the clicked button
-//          $('.btn-item').removeClass('active');
-
-//         // Add 'bhj' class to the clicked button
-//         $(this).addClass('active');
-//         var id = $(this).attr('id');
-
-//         // Assign option based on the id of the clicked button
-//         switch(id) {
-//             case 'notlive':
-//                 option = "notlive";
-//                 break;
-//             case 'final':
-//                 option = "final";
-//                 break;
-//             case 'in':
-//                 option = "in";
-//                 break;
-//             case 'send':
-//                 option = "send";
-//                 break;
-//             case 'upload':
-//                 option = "upload";
-//                 break;
-//             case 'live':
-//                 option = "live";
-//                 break;
-//             case 'suspended':
-//                 option = "suspended";
-//                 break;
-//             case 'not':
-//                 option = "not";
-//                 break;
-//             default:
-//                 option = "default";
-//                 break;
-//         }
-
-//         // Call loadtable() function with the updated option
-//         loadtable();
-//     });
-// });
-
-//     $('#projectTypeFilter').on('change', function() {
-//         type = $(this).val();
-
-//         loadtable();
-//     });
-
-//     }
-
 function getProjectDetailsSupportNew() {
     var content = `
           <div class="d-flex justify-content-center">
@@ -8284,25 +7475,6 @@ function getProjectDetailsSupportNew() {
                       <option value="POS">POS</option>
                       <option value="DM Online">DM Online</option>
                    </select></div><div style="overflow-x:scroll;">${content}</div>`;
-
-    // <select id="recordsorder">
-    // //       <option value="">Select No of Orders</option>
-    // //      <option value="0">0</option>
-    // //     <option value="10">10</option>
-    // //     <option value="20">20</option>
-    // //     <option value="30">30</option>
-    // //     <option value="50">50</option>
-    // // </select>
-    //   $('#recordsorder').on('change', function() {
-    //     var selectedValue = $(this).val();
-    //     var selectedValue = parseInt(selectedValue, 10);
-    //     if(selectedValue ==0){
-    //         option ="zero";
-    //         loadtable();
-    //     }else{
-    //     fetchCustomerIds(selectedValue);}
-    // });
-
     $("#tableProjects button").click(function () {
         // Get the clicked button
         const clickedButton = $(this);
@@ -8790,15 +7962,6 @@ function addNewProjectStatus() {
 
                     alert("Status Uploaded");
                     getProjectStatus(projectID);
-                    //      if(localStorage.getItem("userType") == "Caller"){
-                    //          getProjectDetailsCaller();
-                    //     }else if(localStorage.getItem("userType") != "Admin"){
-
-                    //     getProjectDetailsDeveloper();
-
-                    // }else{
-                    //         getProjectDetails();
-                    //     }
                     document.getElementById("projectSummaryNote").value = "";
                     document.getElementById("projectStatusRemark").value = "";
                 } else {
@@ -8845,10 +8008,6 @@ function fillUpdateProjectForm(id) {
         success: function (response) {
             $(".loader").hide();
             var part = response.split("<-->");
-            // var x = "option"+ part[0].split(" ");
-            // alert(x);
-            // document.getElementById(x).selected = "true";
-
             document.getElementById("projectID").value = part[10];
             document.getElementById("leadID").value = part[9];
             document.getElementById("edit_leadsA").value = part[0];
@@ -8912,19 +8071,6 @@ function updateProjectDetails() {
                 if (response == 1) {
                     alert("Project Details Updated");
                     $(".close").click();
-                    // if(localStorage.getItem("userType") == "Admin"){
-                    //     console.log("admin");
-                    //     getProjectDetails();
-                    // }else if(localStorage.getItem("userType") == "Caller"){
-
-                    //   getProjectDetailsCaller();
-
-                    // }
-                    // else if(localStorage.getItem("userType") != "Admin"){
-                    //     console.log("admin");
-                    //     getProjectDetailsDeveloper();
-
-                    // }
                 } else {
                     alert(response);
                 }
@@ -9086,35 +8232,6 @@ function getProjectDetailsDeveloper() {
 
 // Get Details for Caller
 function getProjectDetailsCaller() {
-    //   $('.loader').show();
-    //  $.ajax({
-    //     url: api_url,
-    //     data: {operation:"020"},
-    //     success: function(response){
-    //   $('.loader').hide();
-    //         var partialArranged = response.split("/END/");
-    //        var content = '<table id="tableProjects" class="table table-bordered table-striped"><thead><th>Project ID:</th><th>Lead Name:</th><th>Caller:</th><th>Developer:</th><th>Project Name:</th><th>Project Type:</th><th>Dues:</th><th>DOR:</th><th>Status:</th><th>OPTIONS</th></thead><tbody>';
-    //         var totalUpdates = partialArranged.length - 1;
-
-    //         for (let index = 1; index <= totalUpdates; index++) {
-    //             var element = partialArranged[index-1];
-    //             var part = element.split("<-->");
-    //             if(localStorage.getItem("userID") == parseInt(part[3])||localStorage.getItem("userID") == parseInt(part[12])){
-    //                 if(part[14]=="No payment details"){
-    //                 content += '<tr><td>'+part[0]+'</td><td>'+part[1]+'<br>'+part[15]+'<br>'+part[16]+'</td><td>'+part[2]+'</td><td>'+part[4]+'</td><td>'+part[5]+'<br><button data-toggle="modal" data-target="#exampleModalAssignProj"  onclick="addProjForTask('+part[0]+')">Assign Task</button><br><button data-toggle="modal" data-target="#exampleModalviewProjecttask"  onclick="viewProjectTask('+part[0]+')">View Task</button></td><td>'+part[6]+'</td><td style="background-color:red;color:white;" >'+part[14]+'</td><td>'+part[10]+'</td><td>'+part[13]+'<br><button data-toggle="modal" data-target="#exampleModalProjectStatus" onclick="fillUpdateProjectStatus('+part[0]+')">Full Status</button></td><td><button data-toggle="modal" data-target="#exampleModalEditProject" onclick="fillUpdateProjectForm('+part[0]+')">Edit</button><br><button data-toggle="modal" data-target="#exampleModalProjectBilling")" onclick="getProjectBilling('+part[0]+')">Billing</button><br><button data-toggle="modal" data-target="#exampleModalMoreDetails" onclick="fullDetails('+part[0]+')">Details</button><br><button data-toggle="modal" data-target="#exampleModalProjectPayment")" onclick="addProjectIDPayment('+part[0]+')">Payment</button></td></td></tr>';
-    //             }else if(part[14]=="No dues"){
-    //                 content += '<tr><td>'+part[0]+'</td><td>'+part[1]+'<br>'+part[15]+'<br>'+part[16]+'</td><td>'+part[2]+'</td><td>'+part[4]+'</td><td>'+part[5]+'<br><button data-toggle="modal" data-target="#exampleModalAssignProj"  onclick="addProjForTask('+part[0]+')">Assign Task</button><br><button data-toggle="modal" data-target="#exampleModalviewProjecttask"  onclick="viewProjectTask('+part[0]+')">View Task</button></td><td>'+part[6]+'</td><td style="background-color:green;color:white;" >'+part[14]+'</td><td>'+part[10]+'</td><td>'+part[13]+'<br><button data-toggle="modal" data-target="#exampleModalProjectStatus" onclick="fillUpdateProjectStatus('+part[0]+')">Full Status</button></td><td><button data-toggle="modal" data-target="#exampleModalEditProject" onclick="fillUpdateProjectForm('+part[0]+')">Edit</button><br><button data-toggle="modal" data-target="#exampleModalProjectBilling")" onclick="getProjectBilling('+part[0]+')">Billing</button><br><button data-toggle="modal" data-target="#exampleModalMoreDetails" onclick="fullDetails('+part[0]+')">Details</button><br><button data-toggle="modal" data-target="#exampleModalProjectPayment")" onclick="addProjectIDPayment('+part[0]+')">Payment</button></td></td></tr>';
-    //             }else{
-    //                 content += '<tr><td>'+part[0]+'</td><td>'+part[1]+'<br>'+part[15]+'<br>'+part[16]+'</td><td>'+part[2]+'</td><td>'+part[4]+'</td><td>'+part[5]+'<br><button data-toggle="modal" data-target="#exampleModalAssignProj"  onclick="addProjForTask('+part[0]+')">Assign Task</button><br><button data-toggle="modal" data-target="#exampleModalviewProjecttask"  onclick="viewProjectTask('+part[0]+')">View Task</button></td><td>'+part[6]+'</td><td>'+part[14]+'</td><td>'+part[10]+'</td><td>'+part[13]+'<br><button data-toggle="modal" data-target="#exampleModalProjectStatus" onclick="fillUpdateProjectStatus('+part[0]+')">Full Status</button></td><td><button data-toggle="modal" data-target="#exampleModalEditProject" onclick="fillUpdateProjectForm('+part[0]+')">Edit</button><br><button data-toggle="modal" data-target="#exampleModalProjectBilling")" onclick="getProjectBilling('+part[0]+')">Billing</button><br><button data-toggle="modal" data-target="#exampleModalMoreDetails" onclick="fullDetails('+part[0]+')">Details</button><br><button data-toggle="modal" data-target="#exampleModalProjectPayment")" onclick="addProjectIDPayment('+part[0]+')">Payment</button></td></tr>';
-    //             }
-    //             }
-
-    //         }
-    //         document.getElementById("displayContent").innerHTML = "<h1>Project Details</h1><div style='overflow-x:scroll;'>"+content+"</tbody></table>";
-    //         $("#tableProjects").DataTable( {   "order": [[ 0, "desc" ]] , stateSave: true  });
-    // }, error: function (jqXHR, exception) { var msg=displayerror(jqXHR, exception); alert(msg); },
-    // });
-
     var content =
         '<table id="tableProjects" class="table table-bordered table-striped"><thead><th>Project ID:</th><th>Lead Name:</th><th>Caller:</th><th>Developer:</th><th>Project Name:</th><th>Project Type:</th><th>Dues:</th><th>DOR:</th><th>Status :</th><th>OPTION</th></thead><tbody>';
     content += "</tbody></table></div>";
@@ -9427,15 +8544,6 @@ function updateProjectDetailsDeveloper() {
                 if (response == 1) {
                     alert("Project Details Updated");
                     $(".close").click();
-                    // if(localStorage.getItem("userType") == "Admin"){
-                    //     getProjectDetails();
-                    // }else if(localStorage.getItem("userType") == "Caller"){
-
-                    //   getProjectDetailsCaller();
-
-                    // }else if(localStorage.getItem("userType") != "Admin" ){
-                    //     getProjectDetailsDeveloper();
-                    // }
                 } else {
                     alert("Server Error");
                 }
@@ -9447,23 +8555,6 @@ function updateProjectDetailsDeveloper() {
         });
     }
 }
-
-// function fillUpdateProjectStatus(id){
-//     getProjectStatus(id);
-//       $('.loader').show();
-//     $.ajax({
-//         url: api_url,
-//         data: {operation:"027",id,id},
-//         success: function(response){
-//       $('.loader').hide();
-//             var data = response.split("<-->");
-//              document.getElementById("projectLead").value = parseInt(data[0]);
-//              document.getElementById("projectStatusID").value = id;
-//              document.getElementById("projectCaller").value = parseInt(data[1]);
-//         }
-//     });
-// }
-
 function sendMail(id) {
     $(".loader").show();
     $.ajax({
@@ -9741,15 +8832,6 @@ function deleteProjectBilling(id, projectId) {
                 if (response == 1) {
                     alert("Addon Removed");
                     getProjectBilling(projectId);
-                    //  if(localStorage.getItem("userType") == "Caller"){
-                    //          getProjectDetailsCaller();
-                    //     }else if(localStorage.getItem("userType") != "Admin"){
-
-                    //     getProjectDetailsDeveloper();
-
-                    // }else{
-                    //         getProjectDetails();
-                    //     }
                 } else {
                     alert("Server Error");
                 }
@@ -9880,16 +8962,6 @@ function addProjectBilling() {
                         document.getElementById("AddonAmount").value = "";
                         document.getElementById("errorProjectBilling").innerHTML = "";
                         alert("Billing Details Uploaded");
-
-                        //  if(localStorage.getItem("userType") == "Caller"){
-                        //          getProjectDetailsCaller();
-                        //     }else if(localStorage.getItem("userType") != "Admin"){
-
-                        //     getProjectDetailsDeveloper();
-
-                        // }else{
-                        //         getProjectDetails();
-                        //     }
                         getProjectBilling(projectIDBilling);
                     } else if (parseInt(response) == 2) {
                         document.getElementById("errorProjectBilling").innerHTML = "Similar details uploaded";
@@ -9928,15 +9000,6 @@ function addProjectBilling() {
                         document.getElementById("errorProjectBilling").innerHTML = "";
                         alert("Billing Details Uploaded");
                         getProjectBilling(projectIDBilling);
-                        //       if(localStorage.getItem("userType") == "Caller"){
-                        //          getProjectDetailsCaller();
-                        //     }else if(localStorage.getItem("userType") != "Admin"){
-
-                        //     getProjectDetailsDeveloper();
-
-                        // }else{
-                        //         getProjectDetails();
-                        //     }
                     } else if (parseInt(response) == 2) {
                         document.getElementById("errorProjectBilling").innerHTML = "Similar details uploaded";
                     } else {
@@ -10264,13 +9327,6 @@ function billingMail(id) {
 
 // testing start
 function sendBillMail(content, email, projectName) {
-    //     $.post('https://kalamacademy.org/test/test.php', {action:'sendBillMail'}).done(function(data){
-    // 		if(data==1){
-    // 		    alert('okay');
-    // 		}else{
-    // 		    alert('wrong');
-    // 		}
-    // 	})
     var subject = projectName + "Invoice From Kalam Academy";
     $(".loader").show();
     $.ajax({
@@ -10340,15 +9396,6 @@ function addProjectPayment() {
                     alert("Payment Uploaded");
                     getAllProjectPayment(id);
                     getProjectStatus(projectID);
-                    //       if(localStorage.getItem("userType") == "Caller"){
-                    //          getProjectDetailsCaller();
-                    //     }else if(localStorage.getItem("userType") != "Admin"){
-
-                    //     getProjectDetailsDeveloper();
-
-                    // }else{
-                    //         getProjectDetails();
-                    //     }
                     document.getElementById("paymentAmount").value = "";
                     document.getElementById("paymentRemark").value = "";
                     document.getElementById("paymentStatus").value = "0";
@@ -10462,15 +9509,6 @@ function addProjectPayment1() {
                     alert("Payment Uploaded");
                     getAllProjectPayment(id);
                     getProjectStatus(projectID);
-                    //       if(localStorage.getItem("userType") == "Caller"){
-                    //          getProjectDetailsCaller();
-                    //     }else if(localStorage.getItem("userType") != "Admin"){
-
-                    //     getProjectDetailsDeveloper();
-
-                    // }else{
-                    //         getProjectDetails();
-                    //     }
                     document.getElementById("paymentAmount").value = "";
                     document.getElementById("paymentRemark").value = "";
                     document.getElementById("paymentStatus").value = "0";
@@ -10626,15 +9664,6 @@ function verifyPayment(id, pd_id) {
                     paymentVerifyMail(pd_id, id);
                     alert("Payment Verified");
                     getAllProjectPayment(pd_id);
-                    // if(localStorage.getItem("userType") == "Caller"){
-                    //          getProjectDetailsCaller();
-                    //     }else if(localStorage.getItem("userType") != "Admin"){
-
-                    //     getProjectDetailsDeveloper();
-
-                    // }else{
-                    //         getProjectDetails();
-                    //     }
                 } else {
                     alert("Server Error");
                 }
@@ -10776,13 +9805,6 @@ function getGroceryStatus(num, id) {
         url: api_url,
         data: { operation: "0058", num: num },
         async: false,
-        // success: function(response){
-        // $('.loader').hide();
-        //     var value = response;
-        //     document.getElementById('"'+id+'"').innerHTML = response;
-        //     value.push(response);
-        //     console.log(response);
-        // }
     }).responseText;
     console.log(value);
     $(".loader").hide();
@@ -11358,25 +10380,6 @@ function unverifiedVerify(id) {
 
 function unverifiedDelete(id) {
     alert("Button Disabled");
-    // if(confirm("Delete Payment ?")){
-    //  $('.loader').show();
-    //  $.ajax({
-    //      url: api_url,
-    //      data: {operation:"043",id:id},
-    //      success: function(response){
-    //          $('.loader').hide();
-    //          if(response==1){
-    //              alert("Payment Deleted");
-    //              getUnverifiedPayment();
-    //          }else{
-    //              alert("Server Error");
-    //              console.log(response);
-    //              getUnverifiedPayment();
-    //          }
-
-    //      }
-    //  });
-    //  }
 }
 
 function getSearchedLead() {
@@ -11414,9 +10417,6 @@ function getSearchedLead() {
                 for (let index = 1; index <= totalUpdates; index++) {
                     var element = partialArranged[index - 1];
                     var part = element.split("<-->");
-                    // if(parseInt(part[13])==parseInt(localStorage.getItem("userID"))){
-                    // content+= '<tr><th scope="row">'+part[0]+'</th><td>'+part[1]+'</td><td>'+part[2]+'<br>'+part[3]+'<br>'+part[4]+'<br>'+part[5]+'</td><td>'+part[11]+'<br>'+part[12]+'</td><td>'+part[6]+'</td><td>'+part[7]+'</td><td>'+part[8]+'</td><td>'+part[9]+'</td><td><button data-toggle="modal" data-target="#exampleModal3" onclick="fillUpdateForm('+part[0]+')">Edit</button><br><button data-toggle="modal" data-target="#exampleModal4" data-whatever="'+part[0]+'" onclick="getAllStatus('+part[0]+')">Status</button></td><td>'+part[10]+'</td></tr>';
-                    // }else{
                     if (localStorage.getItem("userType") == "TL") {
                         // for tl show edit button in leads
                         edtbtn = '<button data-toggle="modal" data-target="#exampleModal3" onclick="fillUpdateForm(' + part[0] + ')">Edit</button>';
@@ -11700,36 +10700,6 @@ function getSearchedLead() {
             },
             async: false,
         });
-
-        // var content2 = "<div class='container'><center><h1>Raw Data Grocery Search Result</h1></center><table id='rawDataTableChecked' class='table table-striped table-bordered'><thead><th>ID</th><th>Name</th><th>Mobile</th><th>DOR</th><th>Uses</th><th>Last Used</th></thead><tbody>";
-        //   $('.loader').show();
-        //  $.ajax({
-        //                 type: "POST",
-        //                 url: "https://softwarezsolution.com/app/SampleEComApp/admin/api/forcrm.php",
-        //                 data: {type:"0008",credential:credential},
-        //                 success: function(response){
-        //                 $('.loader').hide();
-        //                     var element = JSON.parse(response);
-        //                     for(let i = 0;i<element.length;i++){
-        //                         var data = element[i];
-        //                         // content += "<tr><td>"+data[0]+"</td><td>"+data[1]+"</td><td onclick='shownumber(`"+data[2]+"`,`"+data[0]+"`)' id=shwnum"+data[0]+">Show Number</td><td>"+data[5]+"</td><td>"+data[6]+"</td><td>"+data[7]+"</td><td id='"+data[0]+"'>"+getGroceryStatus(data[2],data[0])+"</td></tr>"
-        //                         y=1; //found in raw data
-        //                         content2 += "<tr><td>"+data[0]+"</td><td>"+data[1]+"</td><td class='unselectable'>"+data[2]+"<button class='ml-3' onclick='copyNo("+data[2]+")'>Copy</button></td><td>"+data[5]+"</td><td>"+data[6]+"</td><td>"+data[7]+"</td></tr>"
-        //                     }
-
-        //                    // document.getElementById("displayContent").outerHTML= content1+"</tbody></table></div>";
-
-        //                    var d1 = document.getElementById('displayContent');
-        //                     d1.insertAdjacentHTML('beforeend', content2+"</tbody></table></div>");
-
-        //                      $("#rawDataTableChecked").DataTable( { stateSave: true  });
-        //                  //    close_btn_srch
-        //                     $('#close_btn_srch').click();
-        //                 }, error: function (jqXHR, exception) { var msg=displayerror(jqXHR, exception); alert(msg); },
-        //             });
-        //    //document.getElementById("displayContent").innerHTML= content1+"</tbody></table></div>";
-        //  //$("#rawDataTableChecked").DataTable( { stateSave: true  });
-        //    //  $("#table1").DataTable( {   "order": [[ 0, "desc" ]] , stateSave: true  });
     }
 
     /*  console.log(x);
@@ -13799,15 +12769,6 @@ function checkDiscountPaymentSupport(id) {
             var msg = displayerror(jqXHR, exception);
             alert(msg);
         },
-        //   $('.loader').hide();
-        //       if(response!=0){
-        //           document.getElementById("dicountDiv").style.display = "block";
-        //           document.getElementById("ifDiscountAdded").innerHTML = "<h4>Discount of Rs. "+response+"/- applied</h4>";
-        //       }else{
-        //           document.getElementById("ifDiscountAdded").innerHTML ="";
-        //           document.getElementById("dicountDiv").style.display = "block";
-        //       }
-        //     }
     });
 }
 function syncmail() {
@@ -13922,64 +12883,6 @@ function addTask() {
         });
     }
 }
-
-// Get assigned task
-
-// Get Project Details
-// function getAssignedTask(){
-//       $('.loader').show();
-//     $.ajax({
-//         url: api_url,
-//         data: {operation:"065"},
-//         success: function(response){
-//             console.log(response);
-
-//             var partialArranged = response.split("/END/");
-//             var content = '<table id="tableProjects" class="table table-bordered table-striped"><thead><th>TaskID</th><th>Project :</th><th>Assigned By :</th><th>Assigned To<Br>Completed By :</th><th>Work :</th><th>Remark :</th><th>Assigned On :</th><th>Priority :</th><th>Deadline :</th><th>Completion Date :</th><th>Status :</th><th>Rating :</th></thead><tbody>';
-//             var totalUpdates = partialArranged.length - 1;
-
-//             for (let index = 1; index <= totalUpdates; index++) {
-//                 var element = partialArranged[index-1];
-//                 var part = element.split("<-->");
-//                 var d1 = new Date();
-//                 var d2 = new Date(part[8]);
-//                 var d3 = new Date(part[9]);
-//                 var condition = d1.getTime()<=d2.getTime();
-//                 var status = "Not Completed Yet";
-//                 var special = part[9];
-//                 var completed = false;
-//                 if(part[9] != ''){
-//                     completed = true;
-//                     if(d3.getTime() < d2.getTime())status = "Completed Before Time";
-//                     if(d3.getTime() == d2.getTime())status = "Completed On Time";
-//                     if(d3.getTime() > d2.getTime())status = "Delayed Completed";
-//                 }else{
-//                     if(!condition)
-// {
-//     status = "Delayed Not Completed";
-// }
-//                   // special = "<button onclick='markCompletion1("+part[13]+")'>Mark Complete</button>";
-//                   special = " <button onclick='markCompletion2("+part[13]+"); setTaskIdOnFeedback("+part[13]+")'>Mark Complete</button>";
-//                 }
-//                 if(condition || completed){
-//                     //part 3,4
-//                     //<a href="#" onclick=showfulltsk(`tskwrk`,`'+part[13]+'`,`'+part[5]+'`)>....</a>
-//                      content += '<tr><td>'+part[13]+'</td><td>'+part[0]+'<br>('+part[1]+')</td><td>'+part[2]+'</td><td>'+part[3]+'<br>'+part[15]+'</td><td id=tskwrk'+part[13]+'>'+part[4].substring(0, 10)+' <a href="#/" onclick="showfulltsk(`tskwrk`,'+part[13]+',`'+part[4]+'`)">....</a> </td><td id=tskrmrk'+part[13]+'>'+part[5].substring(0, 20)+' <a href="#/" onclick="showfulltsk(`tskrmrk`,'+part[13]+',`'+part[5]+'`)">....</a></td><td>'+part[6]+'</td><td>'+part[7]+'</td><td>'+part[8]+'</td><td>'+special+'</td><td>'+status+'</td><td id=tskrtng'+part[13]+'>'+part[11].substring(0, 20)+' <a href="#/" onclick="showfulltsk(`tskrtng`,'+part[13]+',`'+part[11]+'`)">....</a></td></tr>';
-
-//                 }else{
-//                      content += '<tr><td>'+part[13]+'</td><td>'+part[0]+'<br>('+part[1]+')</td><td>'+part[2]+'</td><td>'+part[3]+'<br>'+part[15]+'</td><td id=tskwrk'+part[13]+'>'+part[4].substring(0, 10)+' <a href="#/" onclick="showfulltsk(`tskwrk`,'+part[13]+',`'+part[4]+'`)">....</a></td><td id=tskrmrk'+part[13]+'>'+part[5].substring(0, 20)+' <a href="#/" onclick="showfulltsk(`tskrmrk`,'+part[13]+',`'+part[5]+'`)">....</a></td><td>'+part[6]+'</td><td>'+part[7]+'</td><td style="background-color:red;color:white;">'+part[8]+'</td><td>'+special+'</td><td>'+status+'</td><td id=tskrtng'+part[13]+'>'+part[11].substring(0, 20)+' <a href="#/" onclick="showfulltsk(`tskrtng`,'+part[13]+',`'+part[11]+'`)">....</a></td></tr>';
-
-//                 }
-
-//             }
-//             document.getElementById("displayContent").innerHTML = "<h1>Project Task Assigned</h1><button class='btn btn-link' onclick='assignedByMe()'>Assigned By Me</button><div style='overflow-x:scroll;'>"+content+"</tbody></table>";
-//             $("#tableProjects").DataTable( {   "order": [[ 7, "desc" ]] , stateSave: true  });
-//     }, error: function (jqXHR, exception) { var msg=displayerror(jqXHR, exception); alert(msg); },
-//     async:false
-//     });
-//     $('.loader').hide();
-// }
-
 function getAssignedTask() {
     var content =
         '<table id="tableProjects" class="table table-bordered table-striped"><thead><th>TaskID</th><th>Project :</th><th>Assigned By :</th><th>Assigned To<Br>Completed By :</th><th>Work :</th><th>Remark :</th><th>Assigned On :</th><th>Priority :</th><th>Deadline :</th><th>Completion Date :</th><th>Status :</th><th>Rating :</th></thead><tbody>';
@@ -14079,25 +12982,6 @@ function getAssignedTask() {
             {
                 data: null,
                 render: function (data, type, row) {
-                    //         var d1 = new Date();
-                    //   var d2 = new Date(row[8]);
-                    //   var d3 = new Date(row[9]);
-                    //   var condition = d1.getTime()<=d2.getTime();
-                    //     console.log(row)
-                    //   var status = "Not Completed Yet";
-                    //  console.log(row);
-                    //         if (row[9]) {
-                    //          // completed = true;
-                    //           if (d3.getTime() < d2.getTime()) status = "Completed Before Time";
-                    //           if (d3.getTime() === d2.getTime()) status = "Completed On Time";
-                    //           if (d3.getTime() > d2.getTime()) status = "Delayed Completed";
-
-                    //       }else if (!condition) {
-                    //           status = "Delayed Not Completed";
-
-                    //       }
-
-                    //       return status;
                     return row[10];
                 },
             },
@@ -14232,25 +13116,6 @@ function assignedByMe() {
             {
                 data: null,
                 render: function (data, type, row) {
-                    //         var d1 = new Date();
-                    //   var d2 = new Date(row[8]);
-                    //   var d3 = new Date(row[9]);
-                    //   var condition = d1.getTime()<=d2.getTime();
-                    //   var status = "Not Completed Yet";
-                    //  console.log(row);
-                    //         if (row[9]) {
-                    //          // completed = true;
-                    //           if (d3.getTime() < d2.getTime()) status = "Completed Before Time";
-                    //           if (d3.getTime() === d2.getTime()) status = "Completed On Time";
-                    //           if (d3.getTime() > d2.getTime()) status = "Delayed Completed";
-
-                    //       }else if (!condition) {
-                    //           status = "Delayed Not Completed";
-                    //           //console.log("condition")
-
-                    //       }
-
-                    //       return status;
                     return row[10];
                 },
             },
@@ -14380,25 +13245,6 @@ function assignedToMe() {
             {
                 data: null,
                 render: function (data, type, row) {
-                    //         var d1 = new Date();
-                    //   var d2 = new Date(row[8]);
-                    //   var d3 = new Date(row[9]);
-                    //   var condition = d1.getTime()<=d2.getTime();
-                    //   var status = "Not Completed Yet";
-                    //  console.log(row);
-                    //         if (row[9]) {
-                    //          // completed = true;
-                    //           if (d3.getTime() < d2.getTime()) status = "Completed Before Time";
-                    //           if (d3.getTime() === d2.getTime()) status = "Completed On Time";
-                    //           if (d3.getTime() > d2.getTime()) status = "Delayed Completed";
-
-                    //       }else if (!condition) {
-                    //           status = "Delayed Not Completed";
-                    //           //console.log("condition")
-
-                    //       }
-
-                    //       return status;
                     return row[10];
                 },
             },

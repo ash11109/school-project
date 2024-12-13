@@ -21,12 +21,6 @@
        
     </script>
     
-    
-    
-    <!-- <script src="//ajax.googleapis.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
-    
-    <script src="./jsonData/jquery-2.2.4.min.js"></script> -->
-    
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -1610,49 +1604,7 @@ checkForAgentBreak();
                           
                       </div>
                       <hr>
-                      <!-- <div class="modal-body">
-                          <h4>Add Status</h4>
-                        <form>
-                          <div class="form-group">
-                            <label for="leadId" class="col-form-label">Lead ID:</label>
-                            <input type="text" class="form-control" id="leadId" disabled>
-                          </div>
-                          <div class="row">
-                              <div class="form-group col-md-6">
-                                <label for="next_call_date" class="col-form-label">Next Call Date:</label>
-                                <input type="date" class="form-control" id="next_call_date" />
-                              </div>
-                              <div class="form-group col-md-6">
-                                <label for="time" class="col-form-label">Time:</label>
-                                <input type="time" class="form-control" id="time" />
-                              </div>
-                          </div>
-                          <div class="form-group">
-                            <label for="call_status" class="col-form-label">Call Status:</label>
-                             <select class="form-control" id="call_status">
-                              <option value="Switched Off">Switched Off</option>
-                              <option value="Not Received">Not Received</option>
-                              <option value="Out Of Service">Out Of Service</option>
-                              <option value="Incoming Off">Incoming Off</option>
-                              <option value="Positive / Interested ">Positive / Interested</option>
-                              <option value="Confused">Confused</option>
-                              <option value="Not Interested">Not Interested</option>
-                              <option value="Pricing Issue">Pricing Issue</option>
-                              <option value="Fund Issue">Fund Issue</option>
-                              <option value="Inprocess (Interested)">Inprocess (Interested)</option>
-                              <option value="Call Busy">Call Busy</option>
-                             </select>
-                          </div>
-                          <div class="form-group">
-                            <label for="summary_note" class="col-form-label">Summary Note:</label>
-                            <textarea rows=5 class="form-control" id="summary_note"></textarea>
-                          </div>
-                        </form>
-                      </div>
-                      <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                        <button type="button" class="btn btn-primary" onclick="addNewStatus()">SUBMIT</button>
-                      </div> -->
+                      
                       <p id="errorDetailsStatus" style="text-align: right;color: crimson;"></p>
                     </div>
                   </div>
@@ -1665,34 +1617,10 @@ checkForAgentBreak();
         </div>
 </div>
 
-  
 
-    <!-- jQuery CDN - Slim version (=without AJAX) -->
-    <!-- Bootstrap JS -->
     <script src="./css/bootstrap/js/bootstrap.js"></script>
     <script src="js/all.js"></script>
-<!-- 
 
-    <script type="text/javascript">
-        $(document).ready(function () {
-
-    $('#sidebarCollapse').on('click', function () {
-        $('#sidebar').toggleClass('active');
-    });
-
-});
-
-
-$('#exampleModal4').on('show.bs.modal', function (event) {
-  var button = $(event.relatedTarget) // Button that triggered the modal
-  var recipient = button.data('whatever') // Extract info from data-* attributes
-  // If necessary, you could initiate an AJAX request here (and then do the updating in a callback).
-  // Update the modal's content. We'll use jQuery here, but you could use a data binding library or other methods instead.
-  var modal = $(this)
-  modal.find('.modal-body #leadId').val(recipient)
-})
-
-</script> -->
 <script>
 loadcallerstats();
 todayTL();

@@ -100,21 +100,7 @@
     </script>
 
      <style>
-      /*.ash1 {*/
-      /*  background-color: red;*/
-      /*  color: white;*/
-      /*  padding: 10px 10px;*/
-      /*  border-radius: 20px;*/
-      /*  display: flex;*/
-      /*  flex-direction: column;*/
-      /*  justify-content: center;*/
-      /*  align-items: center;*/
-      /*  gap: 10px 20px;*/
-      /*}*/
-      /*.ash1 > p {*/
-      /*  color: white;*/
-      /*}*/
-      
+     
     .srch-bar-container {
         width : 90%;
         margin : 30px auto;
@@ -1129,26 +1115,7 @@
             </div>
           </div>
 
-          <!--Status Callers-->
-          <!--                            
-                <div class="modal fade" id="exampleModal5" data-backdrop="static" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
-                  <div class="modal-dialog" role="document">
-                    <div class="modal-content">
-                      <div class="modal-header">
-                        <h3 class="modal-title" id="exampleModalLabel">STATUS</h3>
-                        <button type="button" class="btn-close" data-dismiss="modal" aria-label="Close">
-                          <span aria-hidden="true">&times;</span>
-                        </button>
-                      </div>
-                      <div class="container" id="allStatusCallers">
-                          
-                      </div>
-                   
-                      <p id="errorDetailsStatus" style="text-align: right;color: crimson;"></p>
-                    </div>
-                  </div>
-                </div>
--->
+          
           <!-- Search Next Call -->
           <div
             class="modal fade"
@@ -1325,79 +1292,7 @@
             </div>
           </div>
 
-          <!-- Search Lead -->
-          <!--<div-->
-          <!--  class="modal fade"-->
-          <!--  id="exampleModalLeadSearch"-->
-          <!--  tabindex="-1"-->
-          <!--  role="dialog"-->
-          <!--  aria-labelledby="exampleModalLabel"-->
-          <!--  aria-hidden="true"-->
-         
-          <!--  <div class="modal-dialog" role="document">-->
-          <!--    <div class="modal-content">-->
-          <!--      <div class="modal-header">-->
-          <!--        <h3 class="modal-title" id="exampleModalLabel">-->
-          <!--          SEARCH LEADS-->
-          <!--        </h3>-->
-          <!--        <button-->
-          <!--          type="button"-->
-          <!--          class="btn-close"-->
-          <!--          data-dismiss="modal"-->
-          <!--          aria-label="Close"-->
-          <!--        >-->
-          <!--          <span aria-hidden="true">&times;</span>-->
-          <!--        </button>-->
-          <!--      </div>-->
-          <!--      <div class="modal-body">-->
-          <!--        <form>-->
-          <!--          <div class="form-group">-->
-                        
-          <!--            <label for="searchLeadBy" class="col-form-label"-->
-          <!--              >Credential(Contact No./Email):</label-->
-          <!--            >-->
-          <!--            <input-->
-          <!--              type="text"-->
-          <!--              class="form-control"-->
-          <!--              id="searchLeadBy"-->
-          <!--            />-->
-          <!--          </div>-->
-          <!--          <div class="form-group">-->
-          <!--            <label for="searchLeadBy" class="col-form-label"-->
-          <!--              >Search In</label-->
-          <!--            >-->
-          <!--            <select class="form-control" id="searchtype">-->
-          <!--              <option value="all">All(Lead/Raw Data)</option>-->
-                        <!-- <option></option>      -->
-          <!--            </select>-->
-          <!--          </div>-->
-          <!--        </form>-->
-          <!--        <p id="srch_sts"></p>-->
-          <!--      </div>-->
-          <!--      <div class="modal-footer">-->
-          <!--        <button-->
-          <!--          type="button"-->
-          <!--          class="btn btn-secondary"-->
-          <!--          data-dismiss="modal"-->
-          <!--          id="close_btn_srch"-->
-          <!--        >-->
-          <!--          Close-->
-          <!--        </button>-->
-          <!--        <button-->
-          <!--          type="button"-->
-          <!--          class="btn btn-primary"-->
-          <!--          onclick="getSearchedLead()"-->
-          <!--        >-->
-          <!--          Search-->
-          <!--        </button>-->
-          <!--      </div>-->
-          <!--      <p-->
-          <!--        id="errorSearchLeads"-->
-          <!--        style="text-align: right; color: crimson"-->
-          <!--      ></p>-->
-          <!--    </div>-->
-          <!--  </div>-->
-          <!--</div>-->
+          
 
           <!-- Add Project Details -->
           <div
@@ -2312,41 +2207,6 @@
          callerDataToday();
          loadcallerdemoleads();
          </script>
-<!--
-    <script type="text/javascript">
-      $(document).ready(function () {
-        $("#sidebarCollapse").on("click", function () {
-          $("#sidebar").toggleClass("active");
-        });
-      });
-
-      $("#exampleModal4").on("show.bs.modal", function (event) {
-        var button = $(event.relatedTarget); // Button that triggered the modal
-        var recipient = button.data("whatever"); // Extract info from data-* attributes
-        // If necessary, you could initiate an AJAX request here (and then do the updating in a callback).
-        // Update the modal's content. We'll use jQuery here, but you could use a data binding library or other methods instead.
-        var modal = $(this);
-        modal.find(".modal-body #leadId").val(recipient);
-      });
-      loadcallerstats();
-
-      setInterval(loadcallerstats, 800000);
-      checkForAgentBreak();
-
-//       var blink = document.getElementById("blink");
-
-//       setInterval(function () {
-//         blink.style.opacity = blink.style.opacity == 0 ? 1 : 0;
-//       }, 700);
-    </script>
-
-    <script>
-      if (localStorage.getItem("leadStatus") == 0) {
-        document.getElementById("leadButton").style.display = "none";
-        document.getElementById("leadButton2").style.display = "none";
-      }
-    </script>
--->
     <script src="cordova.js"></script> 
     <script src="js/index.js"></script>
     
