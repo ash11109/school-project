@@ -1,6 +1,703 @@
 var api_url = "https://teamka.in/crm1/APIs/api.php";
 //var api_url = "https://teamka.in/crm1/APIs/api_development.php";
 
+//new code starts Here 
+
+
+function checkUserStatus(requiredUserType) {
+    // Get the user details from localStorage
+    let mobileNo = localStorage.getItem("MobileNo");
+    let userType = localStorage.getItem("userType");
+
+    // If no mobile number, user is not logged in
+    if (mobileNo === null) {
+        alert("Not Logged In");
+        window.location.href = "./index.html";
+        return; // Stop further execution
+    }
+
+    // Check if the user type matches the required user type (Admin or Caller)
+    if (requiredUserType.includes(userType)) {
+        return; // User is allowed to access the page, do nothing
+    } else  {
+        alert("Not Logged In");
+        window.location.href = "./index.html";
+        return; // Stop further execution
+    }
+}
+
+async function login() {
+    $(".loader").show();
+    const mobileNo = document.getElementById("mobileNo").value;
+    const password = document.getElementById("password").value;
+
+    try {
+        const response = await fetch(api_url, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+                operation: "001",
+                mobileNo: mobileNo,
+                password: password,
+            }),
+        });
+
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const data = await response.json();
+        $(".loader").hide();
+
+        const id = parseInt(data.userID);
+        checkAbsent(id);
+        checkLate(id);
+
+        if (data.status === "success") {
+            localStorage.setItem("MobileNo", mobileNo);
+            localStorage.setItem("userID", data.userID);
+            localStorage.setItem("userName", data.userName);
+            localStorage.setItem("userType", data.userType);
+
+            window.location.href = data.dashboardURL;  // Redirect to the appropriate dashboard
+        } else {
+            alert(data.message);  // Display error message
+        }
+
+    } catch (error) {
+        displayError(error);
+    }
+}
+
+
+async function logout() {
+    const user_id = localStorage.getItem("userID");
+
+    try {
+        const response = await fetch(api_url, {
+            method: "POST",
+            body: new URLSearchParams({
+                operation: "001-1",
+                user_id: user_id,
+            }),
+        });
+
+        // If response is not ok, throw an error
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        localStorage.removeItem("userID");
+        localStorage.removeItem("userName");
+        localStorage.removeItem("userType");
+        localStorage.removeItem("lead_id");
+        window.location.href = "./index.html";
+    } catch (error) {
+        displayError(error);
+    }
+}
+
+
+function displayError(error) {
+    console.error("Error:", error);
+    alert(`Error: ${error.message || error}`);
+}
+
+async function checkAbsent(id) {
+    try {
+        const response = await fetch(api_url, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+                operation: "checkAbsent",
+                id: id,
+            }),
+        });
+
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const data = await response.json();
+
+        if (data.success === true) {
+            sendMailNew(data.data);
+        }
+    } catch (error) {
+        console.error("Error fetching options:", error);
+    }
+}
+
+async function checkLate(id) {
+    try {
+        const response = await fetch(api_url, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+                operation: "checkLate",
+                id: id,
+            }),
+        });
+
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const data = await response.json();
+
+        if (data.success === true) {
+            sendMailNew(data.data);
+        }
+    } catch (error) {
+        console.error("Error fetching options:", error);
+    }
+}
+
+async function addAdminmeta() {
+    var id = $("#admin_id").val();
+    var emp_id = $("#adminEMP_id").val();
+    var username = $("#admin_name").val();
+    var joined_date = $("#joined_date").val();
+    var reporting_time = $("#reporting_time").val();
+    var attendence_status = $("#attendence_status").val();
+    var basicSalary = $("#basic_salary").val();
+    var allowedWeekOff = $("#allowed_week_off").val();
+    var dueWeekOff = $("#due_week_off").val();
+    var allowedLate = $("#allowed_late").val();
+    var dueLate = $("#due_late").val();
+    var numberOfNodes = $("#number_of_nodes").val();
+    var nodesIncentive = $("#nodes_incentive").val();
+    var numberOfDemos = $("#number_of_demos").val();
+    var demosIncentive = $("#demos_incentive").val();
+
+    // New fields
+    var userac = $("#user_ac").val();
+    var userifsc = $("#user_ifsc").val();
+    var userupi = $("#user_upi").val();
+    var userPhoneNumber = $("#user_phone_number").val();
+    var userEmail = $("#user_email").val();
+    var addressPresent = $("#address_present").val();
+    var addressPermanent = $("#address_permanent").val();
+    var altContactPerson1 = $("#alt_contact_person_1").val();
+    var altNumber1 = $("#alt_number_1").val();
+    var altContactPerson2 = $("#alt_contact_person_2").val();
+    var altNumber2 = $("#alt_number_2").val();
+    var altContactPerson3 = $("#alt_contact_person_3").val();
+    var altNumber3 = $("#alt_number_3").val();
+    var fileurl = $("#fileurl").val();
+
+    try {
+        const response = await fetch(api_url, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+                operation: "addAdminmeta",
+                id: emp_id,
+                username: username,
+                joined_date: joined_date,
+                reporting_time: reporting_time,
+                attendence_status: attendence_status,
+                basicSalary: basicSalary,
+                allowedWeekOff: allowedWeekOff,
+                dueWeekOff: dueWeekOff,
+                allowedLate: allowedLate,
+                dueLate: dueLate,
+                numberOfNodes: numberOfNodes,
+                nodesIncentive: nodesIncentive,
+                numberOfDemos: numberOfDemos,
+                demosIncentive: demosIncentive,
+                // New fields
+                userPhoneNumber: userPhoneNumber,
+                userEmail: userEmail,
+                addressPresent: addressPresent,
+                addressPermanent: addressPermanent,
+                altContactPerson1: altContactPerson1,
+                altNumber1: altNumber1,
+                altContactPerson2: altContactPerson2,
+                altNumber2: altNumber2,
+                altContactPerson3: altContactPerson3,
+                altNumber3: altNumber3,
+                fileurl: fileurl,
+                userac: userac,
+                userifsc: userifsc,
+                userupi: userupi,
+            }),
+        });
+
+        // Check if the response is successful
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const data = await response.json();
+        
+        // Handle the success/failure based on the response
+        alert(data.message);
+        if (data.success === "true") {
+            $(".close").click();
+            // Clear the form fields
+            $("#admin_name").val("");
+            $("#joined_date").val("");
+            $("#reporting_time").val("");
+            $("#attendence_status").val("");
+            // Clear new fields
+            $("#user_phone_number").val("");
+            $("#user_email").val("");
+            $("#address_present").val("");
+            $("#address_permanent").val("");
+            $("#alt_contact_person_1").val("");
+            $("#alt_number_1").val("");
+            $("#alt_contact_person_2").val("");
+            $("#alt_number_2").val("");
+            $("#alt_contact_person_3").val("");
+            $("#alt_number_3").val("");
+            $("#fileurl").val("");
+            $("#user_ac").val("");
+            $("#user_ifsc").val("");
+            $("#user_upi").val("");
+        }
+    } catch (error) {
+        // Display error using the displayError function
+        displayError(error.message);
+    }
+}
+
+
+async function updateAdminmeta() {
+    var id = $("#admin_id").val();
+    var username = $("#admin_name").val();
+    var joined_date = $("#joined_date").val();
+    var reporting_time = $("#reporting_time").val();
+    var attendence_status = $("#attendence_status").val();
+    var basicSalary = $("#basic_salary").val();
+    var allowedWeekOff = $("#allowed_week_off").val();
+    var dueWeekOff = $("#due_week_off").val();
+    var allowedLate = $("#allowed_late").val();
+    var dueLate = $("#due_late").val();
+    var numberOfNodes = $("#number_of_nodes").val();
+    var nodesIncentive = $("#nodes_incentive").val();
+    var numberOfDemos = $("#number_of_demos").val();
+    var demosIncentive = $("#demos_incentive").val();
+
+    // New fields
+    var userac = $("#user_ac").val();
+    var userifsc = $("#user_ifsc").val();
+    var userupi = $("#user_upi").val();
+    var userPhoneNumber = $("#user_phone_number").val();
+    var userEmail = $("#user_email").val();
+    var addressPresent = $("#address_present").val();
+    var addressPermanent = $("#address_permanent").val();
+    var altContactPerson1 = $("#alt_contact_person_1").val();
+    var altNumber1 = $("#alt_number_1").val();
+    var altContactPerson2 = $("#alt_contact_person_2").val();
+    var altNumber2 = $("#alt_number_2").val();
+    var altContactPerson3 = $("#alt_contact_person_3").val();
+    var altNumber3 = $("#alt_number_3").val();
+    var fileurl = $("#fileurl").val();
+
+    var selectedLeadtype = [];
+    // Loop through each selected option
+    $("#lt-select option:selected").each(function () {
+        selectedLeadtype.push($(this).val());
+    });
+
+    try {
+        const response = await fetch(api_url, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+                operation: "updateAdminmeta",
+                id: id,
+                username: username,
+                joined_date: joined_date,
+                reporting_time: reporting_time,
+                attendence_status: attendence_status,
+                basicSalary: basicSalary,
+                allowedWeekOff: allowedWeekOff,
+                dueWeekOff: dueWeekOff,
+                allowedLate: allowedLate,
+                dueLate: dueLate,
+                numberOfNodes: numberOfNodes,
+                nodesIncentive: nodesIncentive,
+                numberOfDemos: numberOfDemos,
+                demosIncentive: demosIncentive,
+                // New fields
+                userPhoneNumber: userPhoneNumber,
+                userEmail: userEmail,
+                addressPresent: addressPresent,
+                addressPermanent: addressPermanent,
+                altContactPerson1: altContactPerson1,
+                altNumber1: altNumber1,
+                altContactPerson2: altContactPerson2,
+                altNumber2: altNumber2,
+                altContactPerson3: altContactPerson3,
+                altNumber3: altNumber3,
+                fileurl: fileurl,
+                userac: userac,
+                userifsc: userifsc,
+                userupi: userupi,
+                leadType: JSON.stringify(selectedLeadtype),
+            }),
+        });
+
+        // Check if the response is successful
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const data = await response.json();
+        
+        // Handle the success/failure based on the response
+        alert(data.message);
+        if (data.success === "true") {
+            $(".close").click();
+            // Clear the form fields
+            $("#admin_name").val("");
+            $("#joined_date").val("");
+            $("#reporting_time").val("");
+            $("#attendence_status").val("");
+            // Clear new fields
+            $("#user_phone_number").val("");
+            $("#user_email").val("");
+            $("#address_present").val("");
+            $("#address_permanent").val("");
+            $("#alt_contact_person_1").val("");
+            $("#alt_number_1").val("");
+            $("#alt_contact_person_2").val("");
+            $("#alt_number_2").val("");
+            $("#alt_contact_person_3").val("");
+            $("#alt_number_3").val("");
+            $("#fileurl").val("");
+            $("#user_ac").val("");
+            $("#user_ifsc").val("");
+            $("#user_upi").val("");
+        }
+    } catch (error) {
+        // Display error using the displayError function
+        displayError(error.message);
+    }
+}
+
+async function searchLeads(query, filename) {
+    if (query.length < 3) {
+        // Do not search if the query is less than 3 characters
+        document.getElementById("searchResults").style.display = "none";
+        document.getElementById("selectButtonContainer").innerHTML = ""; // Hide the button
+        return;
+    }
+
+    console.log(query, filename);
+
+    try {
+        const response = await fetch(api_url, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/x-www-form-urlencoded",
+            },
+            body: new URLSearchParams({
+                operation: "leadSearch",
+                query: query,
+            }),
+        });
+
+        if (!response.ok) {
+            throw new Error(`Error fetching results: ${response.statusText}`);
+        }
+
+        const results = await response.json();
+        displayResults(results, filename);
+
+    } catch (error) {
+        console.error("Error:", error);
+        document.getElementById("searchResults").innerHTML = "Error fetching results";
+        document.getElementById("searchResults").style.display = "block";
+        document.getElementById("selectButtonContainer").innerHTML = ""; // Hide the button
+
+        // Call a function to display the error message if you have one
+        displayError(error);
+    }
+}
+
+
+
+async function fetchMissedCalls() {
+    const content =
+        '<table id="missedcallTable" class="table table-bordered table-striped"><thead><tr><th scope="col">Lead ID</th><th scope="col">Name</th><th scope="col">Mobile/<br>Alternate/<br>Whatsapp/<br>Email</th><th scope="col">State/<br>City</th><th scope="col">Interested In</th><th scope="col">Source</th><th scope="col">Status</th><th scope="col">DOR</th><th scope="col">Caller</th><th scope="col">Missed Date</th><th scope="col">Option</th><th scope="col">Missed By</th></tr></thead><tbody></tbody></table>';
+
+    document.getElementById("displayContent").innerHTML =
+        `<h1>Missed Calls</h1><button class='btn btn-primary' onclick='addMissedCall()'>Sync</button><div style='overflow-x:scroll;'>${content}`;
+
+    const user = localStorage.getItem("userID");
+    const type = localStorage.getItem("userType");
+
+    try {
+        const response = await fetch(api_url, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/x-www-form-urlencoded",
+            },
+            body: new URLSearchParams({
+                operation: "fetchMissedCalls",
+                user: user,
+                type: type,
+            }),
+        });
+
+        if (!response.ok) {
+            throw new Error(`Error fetching missed calls: ${response.statusText}`);
+        }
+
+        const data = await response.json();
+        console.log(data);
+
+        $("#missedcallTable").DataTable({
+            data: data.data,
+            order: [[9, "desc"]],
+            columns: [
+                {
+                    data: null,
+                    render: function (data, type, row, meta) {
+                        if (row["status"] === 0) {
+                            return "-";
+                        } else if (row["status"] === 1) {
+                            return row["Lead_ID"];
+                        }
+                    },
+                },
+                {
+                    data: null,
+                    render: function (data, type, row, meta) {
+                        if (row["status"] === 0) {
+                            return "-";
+                        } else if (row["status"] === 1) {
+                            return row["Name"];
+                        }
+                    },
+                },
+                {
+                    data: null,
+                    render: function (data, type, row, meta) {
+                        const index = meta.row;
+
+                        function makeCallLink(number, displayText, name, leadid) {
+                            if (row["status"] === 1) {
+                                if (number === row["number"]) {
+                                    return `<a href="javascript:void(0)" onclick="makeCall('${name}', '${leadid}', '${number}', '${index}')" style="color:red;">${displayText}</a>`;
+                                } else {
+                                    return `<a href="javascript:void(0)" onclick="makeCall('${name}', '${leadid}', '${number}', '${index}')">${displayText}</a>`;
+                                }
+                            } else {
+                                if (number === row["number"]) {
+                                    return `<a href="javascript:void(0)" onclick="makeCall('Missed Call', 'Lead Not Added', '${number}', '${index}')" style="color:red;">${displayText}</a>`;
+                                } else {
+                                    return `<a href="javascript:void(0)" onclick="makeCall('Missed Call', 'Lead Not Added', '${number}', '${index}')">${displayText}</a>`;
+                                }
+                            }
+                        }
+
+                        function makeWhatsAppLink(number, displayText) {
+                            if (number === row["number"]) {
+                                return `<a href="https://api.whatsapp.com/send?phone=91${number}" style="color: red;">${displayText}</a>`;
+                            } else {
+                                return `<a href="https://api.whatsapp.com/send?phone=91${number}">${displayText}</a>`;
+                            }
+                        }
+
+                        if (row["status"] === 1) {
+                            return `${makeCallLink(row["Mobile"], row["Mobile"], row["Name"], row["Lead_ID"])}<br>` +
+                                `${makeCallLink(row["Alternate_Mobile"], row["Alternate_Mobile"], row["Name"], row["Lead_ID"])}<br>` +
+                                `${makeWhatsAppLink(row["Whatsapp"], row["Whatsapp"])}<br>` +
+                                `${row["Email"]}<br>` +
+                                `<button style="display:none" data-toggle="modal" data-target="#exampleModal4" data-whatever="${row["Lead_ID"]}" id="save-id-${index}" onclick="stopRecord('${row["Lead_ID"]}', '${index}')">End Call</button>`;
+                        } else {
+                            return makeCallLink(row["number"], row["number"]);
+                        }
+                    },
+                },
+                {
+                    data: null,
+                    render: function (data, type, row, meta) {
+                        if (row["status"] === 0) {
+                            return "-";
+                        } else if (row["status"] === 1) {
+                            return `${row["State"]}<br>${row["City"]}`;
+                        }
+                    },
+                },
+                {
+                    data: null,
+                    render: function (data, type, row, meta) {
+                        if (row["status"] === 0) {
+                            return "-";
+                        } else if (row["status"] === 1) {
+                            return row["Interested_In"];
+                        }
+                    },
+                },
+                {
+                    data: null,
+                    render: function (data, type, row, meta) {
+                        if (row["status"] === 0) {
+                            return "-";
+                        } else if (row["status"] === 1) {
+                            return row["Source"];
+                        }
+                    },
+                },
+                {
+                    data: null,
+                    render: function (data, type, row, meta) {
+                        if (row["status"] === 0) {
+                            return "-";
+                        } else if (row["status"] === 1) {
+                            return row["status_lead"];
+                        }
+                    },
+                },
+                {
+                    data: null,
+                    render: function (data, type, row, meta) {
+                        if (row["status"] === 0) {
+                            return "-";
+                        } else if (row["status"] === 1) {
+                            return row["DOR"];
+                        }
+                    },
+                },
+                {
+                    data: null,
+                    render: function (data, type, row, meta) {
+                        if (row["status"] === 0) {
+                            return "-";
+                        } else if (row["status"] === 1) {
+                            return row["Caller"];
+                        }
+                    },
+                },
+                { data: "date" },
+                {
+                    data: null,
+                    render: function (data, type, row) {
+                        if (row["status"] === 0) {
+                            return `<button class="btn btn-primary" data-toggle="modal" data-target="#exampleModal" onclick="addmissedlead(${row["number"]})">Add Lead</button>`;
+                        } else if (row["status"] === 1) {
+                            return `<button class="btn btn-primary" data-toggle="modal" data-target="#exampleModal4" data-whatever="${row["Lead_ID"]}" onclick="getAllStatus(${row["Lead_ID"]})">Status</button>`;
+                        } else {
+                            return ""; // Return empty string if status is neither 0 nor 1
+                        }
+                    },
+                },
+                { data: "Admin_ID" },
+            ],
+        });
+    } catch (error) {
+        console.error("Error fetching missed calls:", error);
+        // Optionally, display the error to the user
+        displayError(error); // Assuming displayError is defined elsewhere
+    }
+}
+
+async function getusersnew() {
+    try {
+        const response = await fetch(api_url, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/x-www-form-urlencoded",
+            },
+            body: new URLSearchParams({
+                operation: "getUsers-new-2",
+                id: localStorage.getItem("userID"),
+            }),
+        });
+
+        if (!response.ok) {
+            throw new Error(`Error fetching users: ${response.statusText}`);
+        }
+
+        const data = await response.json();
+        console.log(data);
+
+        // Clear previous options (if needed)
+        $("#team-select").empty();
+
+        // Populate the select options
+        data.forEach(function (option) {
+            $("#team-select").append(
+                $("<option>", {
+                    value: option.Admin_ID,
+                    text: `${option.Name} - ${option.Type}`,
+                })
+            );
+        });
+
+        // Refresh the select picker (if applicable)
+        $("#team-select").selectpicker("refresh");
+
+    } catch (error) {
+        console.error("Error fetching options:", error);
+        // Optionally, display the error to the user
+        displayError(error); // Assuming displayError is defined elsewhere
+    }
+}
+
+async function getAdmins() {
+    try {
+        const response = await fetch(api_url, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/x-www-form-urlencoded",
+            },
+            body: new URLSearchParams({
+                operation: "getMembers",
+            }),
+        });
+
+        if (!response.ok) {
+            throw new Error(`Error fetching admins: ${response.statusText}`);
+        }
+
+        const data = await response.json();
+        console.log(data);
+
+        // Clear existing options (if needed)
+        $("#admin_name").empty();
+
+        // Populate the select options
+        data.members.forEach(function (option) {
+            $("#admin_name").append(
+                $("<option>", {
+                    value: option.Admin_ID,
+                    text: option.Name,
+                })
+            );
+        });
+
+    } catch (error) {
+        console.error("Error fetching options:", error);
+        // Optionally, display the error to the user
+        displayError(error); // Assuming displayError is defined elsewhere
+    }
+}
+
+
+
+
+
+
+//<====================================================================================================================> 
+
+
+
 document.addEventListener("DOMContentLoaded", function () {
     var leadButton = document.getElementById("leadButton");
     var leadButton2 = document.getElementById("leadButton2");
@@ -94,31 +791,31 @@ document.addEventListener("DOMContentLoaded", function () {
 });
 
 
-function getusersnew() {
-    $.ajax({
-        url: api_url,
-        method: "POST",
-        data: { operation: "getUsers-new-2", id: localStorage.getItem("userID") },
-        success: function (response) {
-            const data = JSON.parse(response);
-            console.log(data);
-            data.forEach(function (option) {
-                $("#team-select").append(
-                    $("<option>", {
-                        value: option.Admin_ID,
-                        text: option.Name + " - " + option.Type,
-                    })
-                );
-            });
+// function getusersnew() {
+//     $.ajax({
+//         url: api_url,
+//         method: "POST",
+//         data: { operation: "getUsers-new-2", id: localStorage.getItem("userID") },
+//         success: function (response) {
+//             const data = JSON.parse(response);
+//             console.log(data);
+//             data.forEach(function (option) {
+//                 $("#team-select").append(
+//                     $("<option>", {
+//                         value: option.Admin_ID,
+//                         text: option.Name + " - " + option.Type,
+//                     })
+//                 );
+//             });
 
-            // Refresh the select picker (if applicable)
-            $("#team-select").selectpicker("refresh");
-        },
-        error: function (xhr, status, error) {
-            console.error("Error fetching options:", error);
-        },
-    });
-}
+//             // Refresh the select picker (if applicable)
+//             $("#team-select").selectpicker("refresh");
+//         },
+//         error: function (xhr, status, error) {
+//             console.error("Error fetching options:", error);
+//         },
+//     });
+// }
 
 
 
@@ -131,64 +828,64 @@ function redirectcal() {
     }
 }
 
-function getAdmins() {
-    $.ajax({
-        url: api_url,
-        method: "POST",
-        data: { operation: "getMembers" },
-        success: function (response) {
-            data = JSON.parse(response);
+// function getAdmins() {
+//     $.ajax({
+//         url: api_url,
+//         method: "POST",
+//         data: { operation: "getMembers" },
+//         success: function (response) {
+//             data = JSON.parse(response);
 
-            data.members.forEach(function (option) {
-                $("#admin_name").append(
-                    $("<option>", {
-                        value: option.Admin_ID,
-                        text: option.Name,
-                    })
-                );
-            });
-        },
-        error: function (xhr, status, error) {
-            console.error("Error fetching options:", error);
-        },
-    });
-}
+//             data.members.forEach(function (option) {
+//                 $("#admin_name").append(
+//                     $("<option>", {
+//                         value: option.Admin_ID,
+//                         text: option.Name,
+//                     })
+//                 );
+//             });
+//         },
+//         error: function (xhr, status, error) {
+//             console.error("Error fetching options:", error);
+//         },
+//     });
+// }
 
-function checkAbsent(id) {
-    $.ajax({
-        url: api_url,
-        method: "POST",
-        data: { operation: "checkAbsent", id: id },
-        success: function (response) {
-            var data = JSON.parse(response);
+// function checkAbsent(id) {
+//     $.ajax({
+//         url: api_url,
+//         method: "POST",
+//         data: { operation: "checkAbsent", id: id },
+//         success: function (response) {
+//             var data = JSON.parse(response);
 
-            if (data.success === true) {
-                sendMailNew(data.data);
-            }
-        },
-        error: function (xhr, status, error) {
-            console.error("Error fetching options:", error);
-        },
-    });
-}
+//             if (data.success === true) {
+//                 sendMailNew(data.data);
+//             }
+//         },
+//         error: function (xhr, status, error) {
+//             console.error("Error fetching options:", error);
+//         },
+//     });
+// }
 
-function checkLate(id) {
-    $.ajax({
-        url: api_url,
-        method: "POST",
-        data: { operation: "checkLate", id: id },
-        success: function (response) {
-            var data = JSON.parse(response);
+// function checkLate(id) {
+//     $.ajax({
+//         url: api_url,
+//         method: "POST",
+//         data: { operation: "checkLate", id: id },
+//         success: function (response) {
+//             var data = JSON.parse(response);
 
-            if (data.success === true) {
-                sendMailNew(data.data);
-            }
-        },
-        error: function (xhr, status, error) {
-            console.error("Error fetching options:", error);
-        },
-    });
-}
+//             if (data.success === true) {
+//                 sendMailNew(data.data);
+//             }
+//         },
+//         error: function (xhr, status, error) {
+//             console.error("Error fetching options:", error);
+//         },
+//     });
+// }
 
 function confirmDelete(){
 
@@ -213,447 +910,447 @@ function confirmDelete(){
 
 }
 
-function addAdminmeta() {
-    var id = $("#admin_id").val();
-    var emp_id = $("#adminEMP_id").val();
-    var username = $("#admin_name").val();
-    var joined_date = $("#joined_date").val();
-    var reporting_time = $("#reporting_time").val();
-    var attendence_status = $("#attendence_status").val();
-    var basicSalary = $("#basic_salary").val();
-    var allowedWeekOff = $("#allowed_week_off").val();
-    var dueWeekOff = $("#due_week_off").val();
-    var allowedLate = $("#allowed_late").val();
-    var dueLate = $("#due_late").val();
-    var numberOfNodes = $("#number_of_nodes").val();
-    var nodesIncentive = $("#nodes_incentive").val();
-    var numberOfDemos = $("#number_of_demos").val();
-    var demosIncentive = $("#demos_incentive").val();
+// function addAdminmeta() {
+//     var id = $("#admin_id").val();
+//     var emp_id = $("#adminEMP_id").val();
+//     var username = $("#admin_name").val();
+//     var joined_date = $("#joined_date").val();
+//     var reporting_time = $("#reporting_time").val();
+//     var attendence_status = $("#attendence_status").val();
+//     var basicSalary = $("#basic_salary").val();
+//     var allowedWeekOff = $("#allowed_week_off").val();
+//     var dueWeekOff = $("#due_week_off").val();
+//     var allowedLate = $("#allowed_late").val();
+//     var dueLate = $("#due_late").val();
+//     var numberOfNodes = $("#number_of_nodes").val();
+//     var nodesIncentive = $("#nodes_incentive").val();
+//     var numberOfDemos = $("#number_of_demos").val();
+//     var demosIncentive = $("#demos_incentive").val();
 
-    // New fields
-    var userac = $("#user_ac").val();
-    var userifsc = $("#user_ifsc").val();
-    var userupi = $("#user_upi").val();
-    var userPhoneNumber = $("#user_phone_number").val();
-    var userEmail = $("#user_email").val();
-    var addressPresent = $("#address_present").val();
-    var addressPermanent = $("#address_permanent").val();
-    var altContactPerson1 = $("#alt_contact_person_1").val();
-    var altNumber1 = $("#alt_number_1").val();
-    var altContactPerson2 = $("#alt_contact_person_2").val();
-    var altNumber2 = $("#alt_number_2").val();
-    var altContactPerson3 = $("#alt_contact_person_3").val();
-    var altNumber3 = $("#alt_number_3").val();
-    var fileurl = $("#fileurl").val();
+//     // New fields
+//     var userac = $("#user_ac").val();
+//     var userifsc = $("#user_ifsc").val();
+//     var userupi = $("#user_upi").val();
+//     var userPhoneNumber = $("#user_phone_number").val();
+//     var userEmail = $("#user_email").val();
+//     var addressPresent = $("#address_present").val();
+//     var addressPermanent = $("#address_permanent").val();
+//     var altContactPerson1 = $("#alt_contact_person_1").val();
+//     var altNumber1 = $("#alt_number_1").val();
+//     var altContactPerson2 = $("#alt_contact_person_2").val();
+//     var altNumber2 = $("#alt_number_2").val();
+//     var altContactPerson3 = $("#alt_contact_person_3").val();
+//     var altNumber3 = $("#alt_number_3").val();
+//     var fileurl = $("#fileurl").val();
 
-    $.ajax({
-        url: api_url,
-        method: "POST",
-        data: {
-            operation: "addAdminmeta",
-            id: emp_id,
-            username: username,
-            joined_date: joined_date,
-            reporting_time: reporting_time,
-            attendence_status: attendence_status,
-            basicSalary: basicSalary,
-            allowedWeekOff: allowedWeekOff,
-            dueWeekOff: dueWeekOff,
-            allowedLate: allowedLate,
-            dueLate: dueLate,
-            numberOfNodes: numberOfNodes,
-            nodesIncentive: nodesIncentive,
-            numberOfDemos: numberOfDemos,
-            demosIncentive: demosIncentive,
+//     $.ajax({
+//         url: api_url,
+//         method: "POST",
+//         data: {
+//             operation: "addAdminmeta",
+//             id: emp_id,
+//             username: username,
+//             joined_date: joined_date,
+//             reporting_time: reporting_time,
+//             attendence_status: attendence_status,
+//             basicSalary: basicSalary,
+//             allowedWeekOff: allowedWeekOff,
+//             dueWeekOff: dueWeekOff,
+//             allowedLate: allowedLate,
+//             dueLate: dueLate,
+//             numberOfNodes: numberOfNodes,
+//             nodesIncentive: nodesIncentive,
+//             numberOfDemos: numberOfDemos,
+//             demosIncentive: demosIncentive,
 
-            // New fields
-            userPhoneNumber: userPhoneNumber,
-            userEmail: userEmail,
-            addressPresent: addressPresent,
-            addressPermanent: addressPermanent,
-            altContactPerson1: altContactPerson1,
-            altNumber1: altNumber1,
-            altContactPerson2: altContactPerson2,
-            altNumber2: altNumber2,
-            altContactPerson3: altContactPerson3,
-            altNumber3: altNumber3,
-            fileurl: fileurl,
-            userac: userac,
-            userifsc: userifsc,
-            userupi: userupi,
-        },
-        success: function (data) {
-            data = JSON.parse(data);
-            alert(data.message);
-            if (data.success == "true") {
-                $(".close").click();
-                $("#admin_name").val("");
-                $("#joined_date").val("");
-                $("#reporting_time").val("");
-                $("#attendence_status").val("");
-                // Clear new fields
-                $("#user_phone_number").val("");
-                $("#user_email").val("");
-                $("#address_present").val("");
-                $("#address_permanent").val("");
-                $("#alt_contact_person_1").val("");
-                $("#alt_number_1").val("");
-                $("#alt_contact_person_2").val("");
-                $("#alt_number_2").val("");
-                $("#alt_contact_person_3").val("");
-                $("#alt_number_3").val("");
-                $("#fileurl").val("");
-                $("#user_ac").val("");
-                $("#user_ifsc").val("");
-                $("#user_upi").val("");
-            }
-        },
-        error: function (error) {
-            console.error("Error fetching data:", error);
-        },
-    });
-}
+//             // New fields
+//             userPhoneNumber: userPhoneNumber,
+//             userEmail: userEmail,
+//             addressPresent: addressPresent,
+//             addressPermanent: addressPermanent,
+//             altContactPerson1: altContactPerson1,
+//             altNumber1: altNumber1,
+//             altContactPerson2: altContactPerson2,
+//             altNumber2: altNumber2,
+//             altContactPerson3: altContactPerson3,
+//             altNumber3: altNumber3,
+//             fileurl: fileurl,
+//             userac: userac,
+//             userifsc: userifsc,
+//             userupi: userupi,
+//         },
+//         success: function (data) {
+//             data = JSON.parse(data);
+//             alert(data.message);
+//             if (data.success == "true") {
+//                 $(".close").click();
+//                 $("#admin_name").val("");
+//                 $("#joined_date").val("");
+//                 $("#reporting_time").val("");
+//                 $("#attendence_status").val("");
+//                 // Clear new fields
+//                 $("#user_phone_number").val("");
+//                 $("#user_email").val("");
+//                 $("#address_present").val("");
+//                 $("#address_permanent").val("");
+//                 $("#alt_contact_person_1").val("");
+//                 $("#alt_number_1").val("");
+//                 $("#alt_contact_person_2").val("");
+//                 $("#alt_number_2").val("");
+//                 $("#alt_contact_person_3").val("");
+//                 $("#alt_number_3").val("");
+//                 $("#fileurl").val("");
+//                 $("#user_ac").val("");
+//                 $("#user_ifsc").val("");
+//                 $("#user_upi").val("");
+//             }
+//         },
+//         error: function (error) {
+//             console.error("Error fetching data:", error);
+//         },
+//     });
+// }
 
-function updateAdminmeta() {
-    var id = $("#admin_id").val();
-    var username = $("#admin_name").val();
-    var joined_date = $("#joined_date").val();
-    var reporting_time = $("#reporting_time").val();
-    var attendence_status = $("#attendence_status").val();
-    var basicSalary = $("#basic_salary").val();
-    var allowedWeekOff = $("#allowed_week_off").val();
-    var dueWeekOff = $("#due_week_off").val();
-    var allowedLate = $("#allowed_late").val();
-    var dueLate = $("#due_late").val();
-    var numberOfNodes = $("#number_of_nodes").val();
-    var nodesIncentive = $("#nodes_incentive").val();
-    var numberOfDemos = $("#number_of_demos").val();
-    var demosIncentive = $("#demos_incentive").val();
+// function updateAdminmeta() {
+//     var id = $("#admin_id").val();
+//     var username = $("#admin_name").val();
+//     var joined_date = $("#joined_date").val();
+//     var reporting_time = $("#reporting_time").val();
+//     var attendence_status = $("#attendence_status").val();
+//     var basicSalary = $("#basic_salary").val();
+//     var allowedWeekOff = $("#allowed_week_off").val();
+//     var dueWeekOff = $("#due_week_off").val();
+//     var allowedLate = $("#allowed_late").val();
+//     var dueLate = $("#due_late").val();
+//     var numberOfNodes = $("#number_of_nodes").val();
+//     var nodesIncentive = $("#nodes_incentive").val();
+//     var numberOfDemos = $("#number_of_demos").val();
+//     var demosIncentive = $("#demos_incentive").val();
 
-    // New fields
-    var userac = $("#user_ac").val();
-    var userifsc = $("#user_ifsc").val();
-    var userupi = $("#user_upi").val();
-    var userPhoneNumber = $("#user_phone_number").val();
-    var userEmail = $("#user_email").val();
-    var addressPresent = $("#address_present").val();
-    var addressPermanent = $("#address_permanent").val();
-    var altContactPerson1 = $("#alt_contact_person_1").val();
-    var altNumber1 = $("#alt_number_1").val();
-    var altContactPerson2 = $("#alt_contact_person_2").val();
-    var altNumber2 = $("#alt_number_2").val();
-    var altContactPerson3 = $("#alt_contact_person_3").val();
-    var altNumber3 = $("#alt_number_3").val();
-    var fileurl = $("#fileurl").val();
+//     // New fields
+//     var userac = $("#user_ac").val();
+//     var userifsc = $("#user_ifsc").val();
+//     var userupi = $("#user_upi").val();
+//     var userPhoneNumber = $("#user_phone_number").val();
+//     var userEmail = $("#user_email").val();
+//     var addressPresent = $("#address_present").val();
+//     var addressPermanent = $("#address_permanent").val();
+//     var altContactPerson1 = $("#alt_contact_person_1").val();
+//     var altNumber1 = $("#alt_number_1").val();
+//     var altContactPerson2 = $("#alt_contact_person_2").val();
+//     var altNumber2 = $("#alt_number_2").val();
+//     var altContactPerson3 = $("#alt_contact_person_3").val();
+//     var altNumber3 = $("#alt_number_3").val();
+//     var fileurl = $("#fileurl").val();
 
-    var selectedLeadtype = [];
-    // Loop through each selected option
-    $("#lt-select option:selected").each(function () {
-        selectedLeadtype.push($(this).val());
-    });
+//     var selectedLeadtype = [];
+//     // Loop through each selected option
+//     $("#lt-select option:selected").each(function () {
+//         selectedLeadtype.push($(this).val());
+//     });
 
-    $.ajax({
-        url: api_url,
-        method: "POST",
-        data: {
-            operation: "updateAdminmeta",
-            id: id,
-            username: username,
-            joined_date: joined_date,
-            reporting_time: reporting_time,
-            attendence_status: attendence_status,
-            basicSalary: basicSalary,
-            allowedWeekOff: allowedWeekOff,
-            dueWeekOff: dueWeekOff,
-            allowedLate: allowedLate,
-            dueLate: dueLate,
-            numberOfNodes: numberOfNodes,
-            nodesIncentive: nodesIncentive,
-            numberOfDemos: numberOfDemos,
-            demosIncentive: demosIncentive,
+//     $.ajax({
+//         url: api_url,
+//         method: "POST",
+//         data: {
+//             operation: "updateAdminmeta",
+//             id: id,
+//             username: username,
+//             joined_date: joined_date,
+//             reporting_time: reporting_time,
+//             attendence_status: attendence_status,
+//             basicSalary: basicSalary,
+//             allowedWeekOff: allowedWeekOff,
+//             dueWeekOff: dueWeekOff,
+//             allowedLate: allowedLate,
+//             dueLate: dueLate,
+//             numberOfNodes: numberOfNodes,
+//             nodesIncentive: nodesIncentive,
+//             numberOfDemos: numberOfDemos,
+//             demosIncentive: demosIncentive,
 
-            // New fields
-            userPhoneNumber: userPhoneNumber,
-            userEmail: userEmail,
-            addressPresent: addressPresent,
-            addressPermanent: addressPermanent,
-            altContactPerson1: altContactPerson1,
-            altNumber1: altNumber1,
-            altContactPerson2: altContactPerson2,
-            altNumber2: altNumber2,
-            altContactPerson3: altContactPerson3,
-            altNumber3: altNumber3,
-            fileurl: fileurl,
-            userac: userac,
-            userifsc: userifsc,
-            userupi: userupi,
-            leadType: JSON.stringify(selectedLeadtype),
-        },
-        success: function (data) {
-            data = JSON.parse(data);
-            alert(data.message);
-            if (data.success == "true") {
-                $(".close").click();
-                $("#admin_name").val("");
-                $("#joined_date").val("");
-                $("#reporting_time").val("");
-                $("#attendence_status").val("");
-                // Clear new fields
-                $("#user_phone_number").val("");
-                $("#user_email").val("");
-                $("#address_present").val("");
-                $("#address_permanent").val("");
-                $("#alt_contact_person_1").val("");
-                $("#alt_number_1").val("");
-                $("#alt_contact_person_2").val("");
-                $("#alt_number_2").val("");
-                $("#alt_contact_person_3").val("");
-                $("#alt_number_3").val("");
-                $("#fileurl").val("");
-                $("#user_ac").val("");
-                $("#user_ifsc").val("");
-                $("#user_upi").val("");
-            }
-        },
-        error: function (error) {
-            console.error("Error fetching data:", error);
-        },
-    });
-}
+//             // New fields
+//             userPhoneNumber: userPhoneNumber,
+//             userEmail: userEmail,
+//             addressPresent: addressPresent,
+//             addressPermanent: addressPermanent,
+//             altContactPerson1: altContactPerson1,
+//             altNumber1: altNumber1,
+//             altContactPerson2: altContactPerson2,
+//             altNumber2: altNumber2,
+//             altContactPerson3: altContactPerson3,
+//             altNumber3: altNumber3,
+//             fileurl: fileurl,
+//             userac: userac,
+//             userifsc: userifsc,
+//             userupi: userupi,
+//             leadType: JSON.stringify(selectedLeadtype),
+//         },
+//         success: function (data) {
+//             data = JSON.parse(data);
+//             alert(data.message);
+//             if (data.success == "true") {
+//                 $(".close").click();
+//                 $("#admin_name").val("");
+//                 $("#joined_date").val("");
+//                 $("#reporting_time").val("");
+//                 $("#attendence_status").val("");
+//                 // Clear new fields
+//                 $("#user_phone_number").val("");
+//                 $("#user_email").val("");
+//                 $("#address_present").val("");
+//                 $("#address_permanent").val("");
+//                 $("#alt_contact_person_1").val("");
+//                 $("#alt_number_1").val("");
+//                 $("#alt_contact_person_2").val("");
+//                 $("#alt_number_2").val("");
+//                 $("#alt_contact_person_3").val("");
+//                 $("#alt_number_3").val("");
+//                 $("#fileurl").val("");
+//                 $("#user_ac").val("");
+//                 $("#user_ifsc").val("");
+//                 $("#user_upi").val("");
+//             }
+//         },
+//         error: function (error) {
+//             console.error("Error fetching data:", error);
+//         },
+//     });
+// }
 
-function fetchMissedCalls() {
-    var content =
-        '<table id="missedcallTable"  class="table table-bordered table-striped"><thead><tr><th scope="col">Lead ID</th><th scope="col">Name</th><th scope="col">Mobile/<br>Alternate/<br>Whatsapp/<br>Email</th><th scope="col">State/<br>City</th><th scope="col">Interested In</th><th scope="col">Source</th><th scope="col">Status</th><th scope="col">DOR</th><th scope="col">Caller</th><th scope="col">Missed Date</th><th scope="col">Option</th><th scope="col">Missed By</th></tr></thead><tbody></tbody> </table>';
+// function fetchMissedCalls() {
+//     var content =
+//         '<table id="missedcallTable"  class="table table-bordered table-striped"><thead><tr><th scope="col">Lead ID</th><th scope="col">Name</th><th scope="col">Mobile/<br>Alternate/<br>Whatsapp/<br>Email</th><th scope="col">State/<br>City</th><th scope="col">Interested In</th><th scope="col">Source</th><th scope="col">Status</th><th scope="col">DOR</th><th scope="col">Caller</th><th scope="col">Missed Date</th><th scope="col">Option</th><th scope="col">Missed By</th></tr></thead><tbody></tbody> </table>';
 
-    document.getElementById("displayContent").innerHTML =
-        "<h1>Missed Calls</h1><button class='btn btn-primary' onclick=' addMissedCall()'>Sync</button><div style='overflow-x:scroll;'>" + content;
+//     document.getElementById("displayContent").innerHTML =
+//         "<h1>Missed Calls</h1><button class='btn btn-primary' onclick=' addMissedCall()'>Sync</button><div style='overflow-x:scroll;'>" + content;
 
-    var user = localStorage.getItem("userID");
-    var type = localStorage.getItem("userType");
+//     var user = localStorage.getItem("userID");
+//     var type = localStorage.getItem("userType");
 
-    $.ajax({
-        url: api_url,
-        method: "POST",
-        data: { operation: "fetchMissedCalls", user: user, type: type },
-        success: function (data) {
-            console.log(data);
+//     $.ajax({
+//         url: api_url,
+//         method: "POST",
+//         data: { operation: "fetchMissedCalls", user: user, type: type },
+//         success: function (data) {
+//             console.log(data);
 
-            data = JSON.parse(data);
-            console.log(data);
+//             data = JSON.parse(data);
+//             console.log(data);
 
-            $("#missedcallTable").DataTable({
-                data: data.data,
-                order: [[9, "desc"]],
-                columns: [
-                    {
-                        data: null,
-                        render: function (data, type, row, meta) {
-                            if (row["status"] == 0) {
-                                return "-";
-                            } else if (row["status"] == 1) {
-                                return row["Lead_ID"];
-                            }
-                        },
-                    },
-                    {
-                        data: null,
-                        render: function (data, type, row, meta) {
-                            if (row["status"] == 0) {
-                                return "-";
-                            } else if (row["status"] == 1) {
-                                return row["Name"];
-                            }
-                        },
-                    },
+//             $("#missedcallTable").DataTable({
+//                 data: data.data,
+//                 order: [[9, "desc"]],
+//                 columns: [
+//                     {
+//                         data: null,
+//                         render: function (data, type, row, meta) {
+//                             if (row["status"] == 0) {
+//                                 return "-";
+//                             } else if (row["status"] == 1) {
+//                                 return row["Lead_ID"];
+//                             }
+//                         },
+//                     },
+//                     {
+//                         data: null,
+//                         render: function (data, type, row, meta) {
+//                             if (row["status"] == 0) {
+//                                 return "-";
+//                             } else if (row["status"] == 1) {
+//                                 return row["Name"];
+//                             }
+//                         },
+//                     },
 
-                    {
-                        data: null,
-                        render: function (data, type, row, meta) {
-                            var index = meta.row;
+//                     {
+//                         data: null,
+//                         render: function (data, type, row, meta) {
+//                             var index = meta.row;
 
-                            // Function to create a call link and apply red color if the number matches row['number']
-                            var makeCallLink = function (number, displayText, name, leadid) {
-                                if (row["status"] == 1) {
-                                    if (number === row["number"]) {
-                                        return `<a href="javascript:void(0)" onclick="makeCall('${name}', '${leadid}', '${number}', '${index}')" style="color:red;">${displayText}</a>`;
-                                    } else {
-                                        return `<a href="javascript:void(0)" onclick="makeCall('${name}', '${leadid}', '${number}', '${index}')" >${displayText}</a>`;
-                                    }
-                                } else {
-                                    if (number === row["number"]) {
-                                        return `<a href="javascript:void(0)" onclick="makeCall('Missed Call', 'Lead Not Added', '${number}', '${index}')" style="color:red;">${displayText}</a>`;
-                                    } else {
-                                        return `<a href="javascript:void(0)" onclick="makeCall('Missed Call', 'Lead Not Added', '${number}', '${index}')" >${displayText}</a>`;
-                                    }
-                                }
-                            };
+//                             // Function to create a call link and apply red color if the number matches row['number']
+//                             var makeCallLink = function (number, displayText, name, leadid) {
+//                                 if (row["status"] == 1) {
+//                                     if (number === row["number"]) {
+//                                         return `<a href="javascript:void(0)" onclick="makeCall('${name}', '${leadid}', '${number}', '${index}')" style="color:red;">${displayText}</a>`;
+//                                     } else {
+//                                         return `<a href="javascript:void(0)" onclick="makeCall('${name}', '${leadid}', '${number}', '${index}')" >${displayText}</a>`;
+//                                     }
+//                                 } else {
+//                                     if (number === row["number"]) {
+//                                         return `<a href="javascript:void(0)" onclick="makeCall('Missed Call', 'Lead Not Added', '${number}', '${index}')" style="color:red;">${displayText}</a>`;
+//                                     } else {
+//                                         return `<a href="javascript:void(0)" onclick="makeCall('Missed Call', 'Lead Not Added', '${number}', '${index}')" >${displayText}</a>`;
+//                                     }
+//                                 }
+//                             };
 
-                            // Function to create a WhatsApp link and apply red color if the number matches row['number']
-                            var makeWhatsAppLink = function (number, displayText) {
-                                if (number === row["number"]) {
-                                    return '<a href="https://api.whatsapp.com/send?phone=91' + number + '" style="color: red;">' + displayText + "</a>";
-                                } else {
-                                    return '<a href="https://api.whatsapp.com/send?phone=91' + number + '">' + displayText + "</a>";
-                                }
-                            };
+//                             // Function to create a WhatsApp link and apply red color if the number matches row['number']
+//                             var makeWhatsAppLink = function (number, displayText) {
+//                                 if (number === row["number"]) {
+//                                     return '<a href="https://api.whatsapp.com/send?phone=91' + number + '" style="color: red;">' + displayText + "</a>";
+//                                 } else {
+//                                     return '<a href="https://api.whatsapp.com/send?phone=91' + number + '">' + displayText + "</a>";
+//                                 }
+//                             };
 
-                            if (row["status"] == 1) {
-                                data =
-                                    makeCallLink(row["Mobile"], row["Mobile"], row["Name"], row["Lead_ID"]) +
-                                    "<br>" +
-                                    makeCallLink(row["Alternate_Mobile"], row["Alternate_Mobile"], row["Name"], row["Lead_ID"]) +
-                                    "<br>" +
-                                    makeWhatsAppLink(row["Whatsapp"], row["Whatsapp"]) +
-                                    "<br>" +
-                                    row["Email"] +
-                                    "<br>" +
-                                    '<button style="display:none" data-toggle="modal" data-target="#exampleModal4" data-whatever="' +
-                                    row["Lead_ID"] +
-                                    '" id="save-id-' +
-                                    index +
-                                    '" onclick="stopRecord(\'' +
-                                    row["Lead_ID"] +
-                                    "', '" +
-                                    index +
-                                    "')\">End Call</button>";
-                            } else {
-                                data = makeCallLink(row["number"], row["number"]);
-                            }
-                            return data;
-                        },
-                    },
-                    {
-                        data: null,
-                        render: function (data, type, row, meta) {
-                            if (row["status"] == 0) {
-                                return "-";
-                            } else if (row["status"] == 1) {
-                                return row["State"] + "<br>" + row["City"];
-                            }
-                        },
-                    },
-                    {
-                        data: null,
-                        render: function (data, type, row, meta) {
-                            if (row["status"] == 0) {
-                                return "-";
-                            } else if (row["status"] == 1) {
-                                return row["Interested_In"];
-                            }
-                        },
-                    },
-                    {
-                        data: null,
-                        render: function (data, type, row, meta) {
-                            if (row["status"] == 0) {
-                                return "-";
-                            } else if (row["status"] == 1) {
-                                return row["Source"];
-                            }
-                        },
-                    },
-                    {
-                        data: null,
-                        render: function (data, type, row, meta) {
-                            if (row["status"] == 0) {
-                                return "-";
-                            } else if (row["status"] == 1) {
-                                return row["status_lead"];
-                            }
-                        },
-                    },
-                    {
-                        data: null,
-                        render: function (data, type, row, meta) {
-                            if (row["status"] == 0) {
-                                return "-";
-                            } else if (row["status"] == 1) {
-                                return row["DOR"];
-                            }
-                        },
-                    },
-                    {
-                        data: null,
-                        render: function (data, type, row, meta) {
-                            if (row["status"] == 0) {
-                                return "-";
-                            } else if (row["status"] == 1) {
-                                return row["Caller"];
-                            }
-                        },
-                    },
-                    { data: "date" },
-                    {
-                        data: null,
-                        render: function (data, type, row) {
-                            console.log(row);
-                            if (row["status"] == 0) {
-                                return (
-                                    '<button class="btn btn-primary" data-toggle="modal" data-target="#exampleModal" onclick="addmissedlead(' +
-                                    row["number"] +
-                                    ')">Add Lead</button>'
-                                );
-                            } else if (row["status"] == 1) {
-                                return (
-                                    '<button class="btn btn-primary" data-toggle="modal" data-target="#exampleModal4" data-whatever="' +
-                                    row["Lead_ID"] +
-                                    '" onclick="getAllStatus(' +
-                                    row["Lead_ID"] +
-                                    ')">Status</button>'
-                                );
-                            } else {
-                                return ""; // Return empty string if status is neither 0 nor 1
-                            }
-                        },
-                    },
-                    { data: "Admin_ID" },
-                ],
-            });
-        },
-        error: function (error) {
-            console.error("Error fetching data:", error);
-        },
-    });
-}
+//                             if (row["status"] == 1) {
+//                                 data =
+//                                     makeCallLink(row["Mobile"], row["Mobile"], row["Name"], row["Lead_ID"]) +
+//                                     "<br>" +
+//                                     makeCallLink(row["Alternate_Mobile"], row["Alternate_Mobile"], row["Name"], row["Lead_ID"]) +
+//                                     "<br>" +
+//                                     makeWhatsAppLink(row["Whatsapp"], row["Whatsapp"]) +
+//                                     "<br>" +
+//                                     row["Email"] +
+//                                     "<br>" +
+//                                     '<button style="display:none" data-toggle="modal" data-target="#exampleModal4" data-whatever="' +
+//                                     row["Lead_ID"] +
+//                                     '" id="save-id-' +
+//                                     index +
+//                                     '" onclick="stopRecord(\'' +
+//                                     row["Lead_ID"] +
+//                                     "', '" +
+//                                     index +
+//                                     "')\">End Call</button>";
+//                             } else {
+//                                 data = makeCallLink(row["number"], row["number"]);
+//                             }
+//                             return data;
+//                         },
+//                     },
+//                     {
+//                         data: null,
+//                         render: function (data, type, row, meta) {
+//                             if (row["status"] == 0) {
+//                                 return "-";
+//                             } else if (row["status"] == 1) {
+//                                 return row["State"] + "<br>" + row["City"];
+//                             }
+//                         },
+//                     },
+//                     {
+//                         data: null,
+//                         render: function (data, type, row, meta) {
+//                             if (row["status"] == 0) {
+//                                 return "-";
+//                             } else if (row["status"] == 1) {
+//                                 return row["Interested_In"];
+//                             }
+//                         },
+//                     },
+//                     {
+//                         data: null,
+//                         render: function (data, type, row, meta) {
+//                             if (row["status"] == 0) {
+//                                 return "-";
+//                             } else if (row["status"] == 1) {
+//                                 return row["Source"];
+//                             }
+//                         },
+//                     },
+//                     {
+//                         data: null,
+//                         render: function (data, type, row, meta) {
+//                             if (row["status"] == 0) {
+//                                 return "-";
+//                             } else if (row["status"] == 1) {
+//                                 return row["status_lead"];
+//                             }
+//                         },
+//                     },
+//                     {
+//                         data: null,
+//                         render: function (data, type, row, meta) {
+//                             if (row["status"] == 0) {
+//                                 return "-";
+//                             } else if (row["status"] == 1) {
+//                                 return row["DOR"];
+//                             }
+//                         },
+//                     },
+//                     {
+//                         data: null,
+//                         render: function (data, type, row, meta) {
+//                             if (row["status"] == 0) {
+//                                 return "-";
+//                             } else if (row["status"] == 1) {
+//                                 return row["Caller"];
+//                             }
+//                         },
+//                     },
+//                     { data: "date" },
+//                     {
+//                         data: null,
+//                         render: function (data, type, row) {
+//                             console.log(row);
+//                             if (row["status"] == 0) {
+//                                 return (
+//                                     '<button class="btn btn-primary" data-toggle="modal" data-target="#exampleModal" onclick="addmissedlead(' +
+//                                     row["number"] +
+//                                     ')">Add Lead</button>'
+//                                 );
+//                             } else if (row["status"] == 1) {
+//                                 return (
+//                                     '<button class="btn btn-primary" data-toggle="modal" data-target="#exampleModal4" data-whatever="' +
+//                                     row["Lead_ID"] +
+//                                     '" onclick="getAllStatus(' +
+//                                     row["Lead_ID"] +
+//                                     ')">Status</button>'
+//                                 );
+//                             } else {
+//                                 return ""; // Return empty string if status is neither 0 nor 1
+//                             }
+//                         },
+//                     },
+//                     { data: "Admin_ID" },
+//                 ],
+//             });
+//         },
+//         error: function (error) {
+//             console.error("Error fetching data:", error);
+//         },
+//     });
+// }
 
 function addmissedlead(mobile) {
     $("#mobile").val(mobile);
 }
 
-function searchLeads(query, filename) {
-    if (query.length < 3) {
-        // Do not search if the query is less than 3 characters
-        document.getElementById("searchResults").style.display = "none";
-        document.getElementById("selectButtonContainer").innerHTML = ""; // Hide the button
-        return;
-    }
-    console.log(query, filename);
-    $.ajax({
-        url: api_url, // Your PHP endpoint
-        method: "POST",
-        data: {
-            operation: "leadSearch",
-            query: query,
-        },
-        success: function (response) {
-            try {
-                const results = JSON.parse(response);
-                displayResults(results, filename);
-            } catch (error) {
-                console.error("Error parsing response:", error);
-                document.getElementById("searchResults").innerHTML = "Error fetching results";
-                document.getElementById("searchResults").style.display = "block";
-                document.getElementById("selectButtonContainer").innerHTML = ""; // Hide the button
-            }
-        },
-        error: function (error) {
-            console.error("Error fetching results:", error);
-            document.getElementById("searchResults").innerHTML = "Error fetching results";
-            document.getElementById("searchResults").style.display = "block";
-            document.getElementById("selectButtonContainer").innerHTML = ""; // Hide the button
-        },
-    });
-}
+// function searchLeads(query, filename) {
+//     if (query.length < 3) {
+//         // Do not search if the query is less than 3 characters
+//         document.getElementById("searchResults").style.display = "none";
+//         document.getElementById("selectButtonContainer").innerHTML = ""; // Hide the button
+//         return;
+//     }
+//     console.log(query, filename);
+//     $.ajax({
+//         url: api_url, // Your PHP endpoint
+//         method: "POST",
+//         data: {
+//             operation: "leadSearch",
+//             query: query,
+//         },
+//         success: function (response) {
+//             try {
+//                 const results = JSON.parse(response);
+//                 displayResults(results, filename);
+//             } catch (error) {
+//                 console.error("Error parsing response:", error);
+//                 document.getElementById("searchResults").innerHTML = "Error fetching results";
+//                 document.getElementById("searchResults").style.display = "block";
+//                 document.getElementById("selectButtonContainer").innerHTML = ""; // Hide the button
+//             }
+//         },
+//         error: function (error) {
+//             console.error("Error fetching results:", error);
+//             document.getElementById("searchResults").innerHTML = "Error fetching results";
+//             document.getElementById("searchResults").style.display = "block";
+//             document.getElementById("selectButtonContainer").innerHTML = ""; // Hide the button
+//         },
+//     });
+// }
 
 function displayResults(results, filename) {
     const resultsContainer = document.getElementById("searchResults");
@@ -2316,88 +3013,88 @@ function displayerror(jqXHR, exception) {
     return msg;
 }
 
-function login() {
-    $(".loader").show();
-    var mobileNo = document.getElementById("mobileNo").value;
-    var password = document.getElementById("password").value;
+// function login() {
+//     $(".loader").show();
+//     var mobileNo = document.getElementById("mobileNo").value;
+//     var password = document.getElementById("password").value;
 
-    $.ajax({
-        url: api_url,
-        data: {
-            operation: "001",
-            mobileNo: mobileNo,
-            password: password,
-        },
-        success: function (response) {
-            $(".loader").hide();
-            data = response.split("<-->"); 
-            console.log("data", data); 
-            id = parseInt(data[3]);
-            checkAbsent(id);
-              checkLate(id);
-            // Common actions for successful responses
-            function handleSuccess(userType, dashboardURL) {
-                warn_mobileNo = document.getElementById("warn_mobileNo");
-                warn_password = document.getElementById("warn_password");
-                localStorage.setItem("MobileNo", mobileNo);
-                localStorage.setItem("userID", parseInt(data[3]));
-                localStorage.setItem("userName", data[2]);
-                localStorage.setItem("userType", userType);
-                warn_mobileNo.innerHTML = "";
-                warn_password.innerHTML = "";
-                window.location.href = dashboardURL;
-                console.log("data  handel success", dashboardURL);
-            }
+//     $.ajax({
+//         url: api_url,
+//         data: {
+//             operation: "001",
+//             mobileNo: mobileNo,
+//             password: password,
+//         },
+//         success: function (response) {
+//             $(".loader").hide();
+//             data = response.split("<-->"); 
+//             console.log("data", data); 
+//             id = parseInt(data[3]);
+//             checkAbsent(id);
+//               checkLate(id);
+//             // Common actions for successful responses
+//             function handleSuccess(userType, dashboardURL) {
+//                 warn_mobileNo = document.getElementById("warn_mobileNo");
+//                 warn_password = document.getElementById("warn_password");
+//                 localStorage.setItem("MobileNo", mobileNo);
+//                 localStorage.setItem("userID", parseInt(data[3]));
+//                 localStorage.setItem("userName", data[2]);
+//                 localStorage.setItem("userType", userType);
+//                 warn_mobileNo.innerHTML = "";
+//                 warn_password.innerHTML = "";
+//                 window.location.href = dashboardURL;
+//                 console.log("data  handel success", dashboardURL);
+//             }
 
-            if (data[0] == " 1" || data[0] == "1") {
-                handleSuccess(data[1], "./dashboardNEW.html");
-            } else if (data[0] == " 2" || data[0] == "2") {
-                handleSuccess(data[1], "./callerDashboardNEW.html");
-            } else if (data[0] == " 3" || data[0] == "3") {
-                handleSuccess(data[1], "./developerDashboardNEW.html");
-            } else if (data[0] == " 4" || data[0] == "4") {
-                warn_password.innerHTML = "<b>Password doesn't match</b>";
-            } else if (data[0] == " 5" || data[0] == "5") {
-                warn_mobileNo.innerHTML = "<b>Mobile number not found</b>";
-            } else if (data[0] == " 6" || data[0] == "6") {
-                handleSuccess(data[1], "./supportExecutiveNEW.html");
-            } else if (data[0] == " 7" || data[0] == "7") {
-                handleSuccess(data[1], "./dashboardTL.html");
-            } else if (data[0] == " 8" || data[0] == "8") {
-                handleSuccess(data[1], "./TechHead.html");
-            }
-        },
-        error: function (jqXHR, exception) {
-            var msg = displayerror(jqXHR, exception);
-            alert(msg);
-        },
-    });
-}
+//             if (data[0] == " 1" || data[0] == "1") {
+//                 handleSuccess(data[1], "./dashboardNEW.html");
+//             } else if (data[0] == " 2" || data[0] == "2") {
+//                 handleSuccess(data[1], "./callerDashboardNEW.html");
+//             } else if (data[0] == " 3" || data[0] == "3") {
+//                 handleSuccess(data[1], "./developerDashboardNEW.html");
+//             } else if (data[0] == " 4" || data[0] == "4") {
+//                 warn_password.innerHTML = "<b>Password doesn't match</b>";
+//             } else if (data[0] == " 5" || data[0] == "5") {
+//                 warn_mobileNo.innerHTML = "<b>Mobile number not found</b>";
+//             } else if (data[0] == " 6" || data[0] == "6") {
+//                 handleSuccess(data[1], "./supportExecutiveNEW.html");
+//             } else if (data[0] == " 7" || data[0] == "7") {
+//                 handleSuccess(data[1], "./dashboardTL.html");
+//             } else if (data[0] == " 8" || data[0] == "8") {
+//                 handleSuccess(data[1], "./TechHead.html");
+//             }
+//         },
+//         error: function (jqXHR, exception) {
+//             var msg = displayerror(jqXHR, exception);
+//             alert(msg);
+//         },
+//     });
+// }
 
-// Logout
-function Logout() {
-    var user_id = localStorage.getItem("userID");
-    $.ajax({
-        url: api_url,
-        data: {
-            operation: "001-1",
-            user_id: user_id,
-        },
-        success: function (response) {
-            //localStorage.clear();
-            // localStorage.removeItem("MobileNo");
-            localStorage.removeItem("userID");
-            localStorage.removeItem("userName");
-            localStorage.removeItem("userType");
-            localStorage.removeItem("lead_id");
-            window.location.href = "./index.html";
-        },
-        error: function (jqXHR, exception) {
-            var msg = displayerror(jqXHR, exception);
-            alert(msg);
-        },
-    });
-}
+// // Logout
+// function Logout() {
+//     var user_id = localStorage.getItem("userID");
+//     $.ajax({
+//         url: api_url,
+//         data: {
+//             operation: "001-1",
+//             user_id: user_id,
+//         },
+//         success: function (response) {
+//             //localStorage.clear();
+//             // localStorage.removeItem("MobileNo");
+//             localStorage.removeItem("userID");
+//             localStorage.removeItem("userName");
+//             localStorage.removeItem("userType");
+//             localStorage.removeItem("lead_id");
+//             window.location.href = "./index.html";
+//         },
+//         error: function (jqXHR, exception) {
+//             var msg = displayerror(jqXHR, exception);
+//             alert(msg);
+//         },
+//     });
+// }
 
 function getDevices() {
     $(".loader").show();

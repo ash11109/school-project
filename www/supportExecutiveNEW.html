@@ -5,25 +5,8 @@
 <head>
     
     <script src="./js/myscript.js"></script>
-    <script>
-        
-              // check Logged in status
-        if(localStorage.getItem("MobileNo")== null){
-            alert("Not Logged In"); 
-            window.location.href="./index.html";
-           // alert(2)
-        }
-        if(localStorage.getItem("userType")== "Support"){
-         //alert(1);
-        }else{
-            //alert(0);
-            alert("Not Logged In"); 
-            window.location.href="./index.html";
-        }
-    </script>
-     <!-- <script src="//ajax.googleapis.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
-    <script src="./jsonData/jquery-2.2.4.min.js"></script> -->
-    
+    <script>checkUserStatus(["Support"]);</script>
+   
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
