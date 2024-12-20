@@ -432,18 +432,18 @@
                             <div><i class="fa fa-user iconsize"></i></div>
                             <div>All Leads</div>
                         </button>
-                        <button class="color-3" onclick="syncSheet()">
+                        <!-- <button class="color-3" onclick="syncSheet()">
                             <div><i class="fa fa-user iconsize"></i></div>
                             <div>Sync Leads</div>
-                        </button>
+                        </button> -->
                         <button class="color-3" onclick="window.open('https://teamka.in/crm1/APIs/ash_auto_lead_assign.php', '_blank')">
                             <div><i class="fa fa-user iconsize"></i></div>
                             <div>Assign Leads</div>
                         </button>
-                        <button class="color-2" data-toggle="modal" data-target="#exampleModal2">
+                        <!-- <button class="color-2" data-toggle="modal" data-target="#exampleModal2">
                             <div><i class="fa fa-user iconsize"></i></div>
                             <div>Add Member</div>
-                        </button>
+                        </button> -->
                         <button class="color-5" data-toggle="modal" data-target="#modalmembers" onclick="getMembers()">
                             <div><i class="fa fa-database iconsize"></i></div>
                             <div>Manage Team</div>
@@ -896,7 +896,7 @@
                 </div>
 
                 <!-- Edit Member -->
-                <div class="modal fade" id="exampleModalEditMember" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                <!-- <div class="modal fade" id="exampleModalEditMember" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
                     <div class="modal-dialog" role="document">
                         <div class="modal-content">
                             <div class="modal-header">
@@ -961,14 +961,14 @@
                             <p id="errorDetailsCallerFormEdit" style="text-align: right; color: crimson"></p>
                         </div>
                     </div>
-                </div>
+                </div> -->
 
                 <!--Add Attendence-->
                 <div class="modal fade" id="ModalAttendence" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
                     <div class="modal-dialog" role="document">
                         <div class="modal-content">
                             <div class="modal-header">
-                                <h3 class="modal-title" id="exampleModalLabel">ADD Attendance</h3>
+                                <h3 class="modal-title" id="reuableModalLabel">Update Employee</h3>
                                 <button type="button" class="btn-close" data-dismiss="modal" aria-label="Close">
                                     <span aria-hidden="true">&times;</span>
                                 </button>
@@ -977,10 +977,56 @@
                                 <form>
                                     <input type="hidden" id="admin_id" />
                                     <input type="hidden" id="adminEMP_id" />
+                                    <input type="hidden" id="selectBoxStatus" />
+                                    <div class="form-group">
+                                        <label for="edit_type" class="col-form-label">Numbers</label>
+                                        <select class="form-control" id="edit_number">
+                                            <option selected >Select Number</option>
+                                            
+                                        </select>
+                                    </div>
                                     <div class="form-group">
                                         <label for="fullName" class="col-form-label">Full Name</label>
-                                        <input type="text" disabled class="form-control" id="admin_name" />
+                                        <input type="text"  class="form-control" id="admin_name" />
                                     </div>
+                                    <div class="form-group">
+                                        <label for="edit_mobileCaller" class="col-form-label">Mobile:</label>
+                                        <input type="text" class="form-control" disabled id="edit_mobileCaller" />
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="edit_passwordCaller" class="col-form-label">Password:</label>
+                                        <div class="input-group">
+                                            <input type="password" class="form-control" id="edit_passwordCaller" />
+                                            <div class="input-group-append">
+                                                <button class="btn btn-outline-secondary" type="button" id="togglePassword"> Show </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <script>
+                                        document.getElementById("togglePassword").addEventListener("click", function () {
+                                            const passwordField = document.getElementById("edit_passwordCaller");
+                                            const toggleButton = document.getElementById("togglePassword");
+                                            if (passwordField.type === "password") {
+                                                passwordField.type = "text";
+                                                toggleButton.textContent = "Hide";
+                                            } else {
+                                                passwordField.type = "password";
+                                                toggleButton.textContent = "Show";
+                                            }
+                                        });
+                                    </script>
+                                    <div class="form-group">
+                                        <label for="edit_type" class="col-form-label">Type:</label>
+                                        <select class="form-control" id="edit_type">
+                                            <option>Admin</option>
+                                            <option>Caller</option>
+                                            <option>TL</option>
+                                            <option>Developer</option>
+                                            <option>Support</option>
+                                            <option>TH</option>
+                                        </select>
+                                    </div>
+                                    
                                     <div class="form-group">
                                         <label for="mobileCaller" class="col-form-label">Joined Date</label>
                                         <input type="date" class="form-control" id="joined_date" />
@@ -998,6 +1044,10 @@
                                             <option>Suspended</option>
                                             <option>Absconded</option>
                                         </select>
+                                    </div>
+                                    <div class="form-group ">
+                                        <label for="mobileCaller" class="col-form-label">Relieving Date</label>
+                                        <input type="date" class="form-control" id="relieving_date" />
                                     </div>
                                     <div class="form-group">
                                         <label for="lt-select" class="col-form-label">Lead Type</label>
@@ -1147,10 +1197,9 @@
                                 </form>
                             </div>
 
-                            <div class="modal-footer">
+                            <div id="resuableModalFooter" class="modal-footer">
                                 <button type="button" class="btn btn-secondary close" data-dismiss="modal">Close</button>
                                 <button type="button" class="btn btn-primary" onclick="updateAdminmeta()">Update</button>
-                                <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#confirmationModal">Add New</button>
                             </div>
                             <p id="errorDetailsAttendenceForm" style="text-align: right; color: crimson"></p>
                         </div>

@@ -436,6 +436,7 @@
                                             <th>NAME</th>
                                             <th>Status</th>
                                             <th>ROLE</th>
+                                            <th>Number</th>
                                             <th>WORKING</th>
                                             <th>Present</th>
                                             <th>Absent</th>
@@ -796,7 +797,7 @@
                         reportingTimesData.forEach((item) => {
                             reportingTimes[item.EMP_ID] = {
                                 Reporting_Time: item.Reporting_Time,
-                                Name: item.Name,
+                                Name: item.UserName,
                                 Role: item.Type,
                                 Allowed_Week_Off: item.Allowed_Week_Off,
                                 Due_Week_Off: item.Due_Week_Off,
@@ -809,7 +810,9 @@
                                 Bank: item.Bank,
                                 Location: item.Location,
                                 Email: item.Email,
-                                Joining_Date: item.Joining_Date
+                                Joining_Date: item.Joining_Date,
+                                Relieving_Date: item.Relieving_Date,
+                                Mobile : item.Mobile
                             }; // Map Admin_ID to an object containing both Reporting_Time and Name
                         });
                         // console.log(reportingTimes);
@@ -890,6 +893,7 @@
                         totalPresent: 0,
                         totalAbsent: 0,
                         Name: adminData.Name,
+                        Phone : adminData.Mobile,
                         Role: adminData.Role,
                         Allowed_Week_Off: adminData.Allowed_Week_Off,
                         Due_Week_Off: adminData.Due_Week_Off,
@@ -902,7 +906,8 @@
                         Location: adminData.Location,
                         Email: adminData.Email,
                         Status: adminData.Status,
-                        Joining_Date: adminData.Joining_Date
+                        Joining_Date: adminData.Joining_Date,
+                        Relieving_Date : adminData.Relieving_Date
                     };
                 }
 
@@ -933,6 +938,7 @@
                         totalPresent: 0,
                         totalAbsent: 0, // Assume all days are absent
                         Name: adminData.Name,
+                        Phone : adminData.Mobile,
                         Role: adminData.Role,
                         Allowed_Week_Off: adminData.Allowed_Week_Off || 0,
                         Due_Week_Off: adminData.Due_Week_Off || 0,
@@ -945,7 +951,8 @@
                         Location: adminData.Location || "Unknown",
                         Email: adminData.Email || "Unknown",
                         Status: adminData.Status || "Unknown",
-                        Joining_Date: adminData.Joining_Date
+                        Joining_Date: adminData.Joining_Date,
+                        Relieving_Date : adminData.Relieving_Date
                     };
                 }
             });
@@ -1248,6 +1255,7 @@
                     const jsonData = JSON.parse(response);
                     if (jsonData.success == true) {
                         const reportingTimes = await fetchReportingTimes();
+                        console.log(reportingTimes);
                         const adminStats = getAttendanceStatsForAdmins(year, month, jsonData.data, reportingTimes);
                         //console.log(adminStats);
 
@@ -1259,10 +1267,7 @@
                         const duesData = await noDues(startDate, endDate);
                         const paymentStatus = await getPaymentStatus(month, year);
 
-                        // const duesMap = {};
-                        // duesData.forEach((item) => {
-                        //     duesMap[item.Admin_ID] = item.Dues_count; // Assuming the item contains Admin_ID and Dues_count
-                        // });
+                        
 
                         const statusMap = {};
                         paymentStatus.forEach((item) => {
@@ -1278,11 +1283,55 @@
                         for (const adminId in adminStats) {
                             const stat = adminStats[adminId];
 
-                            // Now you can safely access duesMap[adminId]
-                            //const incentive = duesMap[adminId] ? duesMap[adminId] : 0; // Get the Dues_count for this admin, or 0 if not found
-                            //console.log("Incentive " + adminId, incentive, stat.Number_of_dues, stat.No_dues_Incentive);
+                            // Parse the joining date and extract the month
+                            const joiningDate = new Date(stat.Joining_Date); // Assuming stat.Joining_Date is in YYYY-MM-DD format
+                            const joiningYear = joiningDate.getFullYear();
+                            const joiningMonth = joiningDate.getMonth() + 1; // JS months are zero-based, so +1 to match human format
+                            
+                            // Skip the row if the joining year is greater than the passed year 
+                            // OR if the joining year is the same but the joining month is greater than the passed month
+                            if (
+                                joiningYear > parseInt(year, 10) || 
+                                (joiningYear === parseInt(year, 10) && joiningMonth > parseInt(month, 10))
+                            ) {
+                                console.log(`Skipping Admin ID: ${adminId}, Name: ${stat.Name}, Joining Date: ${stat.Joining_Date}`);
+                                continue; // Skip this iteration and move to the next admin
+                            }
+
+                              
+                            if (stat.Relieving_Date != 'No Relieving Date Found') {
+                                const relievingDate = new Date(stat.Relieving_Date);
+                                const relievingMonth = relievingDate.getMonth() + 1; // Month (1-based)
+                                const relievingYear = relievingDate.getFullYear();
+                                console.log(relievingMonth,relievingYear);
+                                if (
+                                    relievingYear > parseInt(year, 10) || 
+                                    (relievingYear === parseInt(year, 10) && relievingMonth < parseInt(month, 10))
+                                ) {
+                                    console.log(`Updating Admin ID: ${adminId}, Relieving Date: ${stat.Relieving_Date}`);
+                                    
+                                    // Add a row with "-" for all columns except ID, Name, Status, and Role
+                                    tableData.push({
+                                        Admin_ID: adminId,
+                                        Name: stat.Name,
+                                        Status: stat.Status || "No Status",
+                                        Role: stat.Role || "N/A",
+                                        Working_Days: "-",
+                                        Total_Present: "-",
+                                        Total_Absent: "-",
+                                        Late_Count: "-",
+                                        Incentive: "-",
+                                        Total: "-",
+                                        paymentStatus: "-",
+                                        paidAmount: "-",
+                                    });
+                                    continue; // Skip the rest of the logic for this row
+                                }
+                            }
+                            
+
                             const paymentStatus = statusMap[adminId] || 0;
-                            //console.log(adminStats);
+                            
                             incentive = parseInt(paymentStatus.Incentive || 0, 10);
                             stat.paymentStatus = paymentStatus.Status;
                             stat.paidAmount = paymentStatus.Amount;
@@ -1314,12 +1363,13 @@
 
                                 //console.log( intTotalsalary,adjustedValue,(stat.lateCount * stat.Due_Late));
                             }
-                           // console.log(adminId, stat);
+                             console.log(stat);
                             tableData.push({
                                 Admin_ID: adminId,
                                 Status: stat.Status || "No Status",
                                 Month: month,
                                 Name: stat.Name,
+                                Phone : stat.Phone,
                                 Role: stat.Role || "N/A",
                                 Working_Days: stat.workingDays,
                                 Total_Present: stat.totalPresent,
@@ -1340,16 +1390,40 @@
                             const table = $("#adminStatsTable").DataTable();
                             table.clear().rows.add(tableData).draw();
                         } else {
+                            // Define a custom sorting plugin for DataTables
+                            $.fn.dataTable.ext.order['status-precedence'] = function (a, b) {
+    const order = {
+        "Active": 1,
+        "Absconded": 2,
+        "Suspended": 3
+    };
+    
+    // If a status is not found in the order, assign a large number to push it to the bottom
+    return (order[a] || 99) - (order[b] || 99);
+};
                             // Initialize the DataTable with new data
                             $("#adminStatsTable").DataTable({
                                 responsive: true,
                                 autoWidth: false,
                                 data: tableData,
+                                order: [[2, 'asc']],
                                 columns: [
                                     { data: "Admin_ID" },
                                     { data: "Name" },
-                                    { data: "Status" },
+                                    { 
+                                        data: "Status", 
+                                        type: "status-precedence" // Apply the custom sorting type here
+                                    },
                                     { data: "Role" },
+                                    { data: null,
+                                        render: function (data, type, row) {
+                                            if (row["Phone"]) {
+                                                return row["Phone"];
+                                            } else {
+                                                return "-";
+                                            }
+                                        }
+                                    },
                                     { data: "Working_Days" },
                                     { data: "Total_Present" },
                                     { data: "Total_Absent" },
@@ -1368,12 +1442,6 @@
                                     {
                                         data: null,
                                         render: function (data, type, row) {
-                                            // Get the current date formatted based on the specific month you're using in getPaymentStatus
-
-                                            // Capture the month explicitly from your current logic (ensure it is passed correctly from the calling function)
-                                            // Ensure 'month' is the correct value being passed
-
-                                            //console.log(passedMonth);
                                             // Use template literals to pass the correct values for Admin_ID, Total, month, year, and formattedDate
                                             const pay = `<button class="btn m-2 btn-primary" data-toggle="modal" data-target="#paymentModal"
                                                                       onclick="getPaymentInfo(${data.Admin_ID}, ${data.Total}, '${data["Month"]}', '${year}')">Pay</button>`;
@@ -1384,9 +1452,12 @@
                                             // Conditionally render the pay button based on status
                                             if (row["paymentStatus"] === "Not Paid") {
                                                 return pay + slip;
+                                            } else if (row["paymentStatus"] === "-") {
+                                                return "-";
                                             } else {
                                                 return slip;
                                             }
+
                                         },
                                     },
                                 ],

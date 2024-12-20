@@ -1,8 +1,1482 @@
 var api_url = "https://teamka.in/crm1/APIs/api.php";
+
 //var api_url = "https://teamka.in/crm1/APIs/api_development.php";
 
 //new code starts Here 
 
+function changeModalName(name){
+
+    if(name == "Add"){
+
+    $("#admin_name").val("");
+    $("#joined_date").val("");
+    $("#reporting_time").val("");
+    $("#attendence_status").val("");
+    $("#basic_salary").val("");
+    $("#allowed_week_off").val("");
+    $("#due_week_off").val("");
+    $("#allowed_late").val("");
+    $("#due_late").val("");
+    $("#relieving_date").val("");
+    $("#number_of_nodes").val("");
+    $("#nodes_incentive").val("");
+    $("#number_of_demos").val("");
+    $("#demos_incentive").val("");
+    $("#user_phone_number").val("");
+    $("#user_email").val("");
+    $("#address_present").val("");
+    $("#address_permanent").val("");
+    $("#alt_contact_person_1").val("");
+    $("#alt_number_1").val("");
+    $("#alt_contact_person_2").val("");
+    $("#alt_number_2").val("");
+    $("#alt_contact_person_3").val("");
+    $("#alt_number_3").val("");
+    $("#fileurl").val("");
+    $("#user_ac").val("");
+    $("#user_ifsc").val("");
+    $("#user_upi").val("");
+    clearFileInput();
+    $("#lt-select option").prop("selected", false);
+    $("#lt-select").selectpicker("refresh");
+
+
+        document.getElementById("reuableModalLabel").innerHTML = "Add Employee";
+        document.getElementById("resuableModalFooter").innerHTML = ` <button type="button" class="btn btn-secondary close" data-dismiss="modal">Close</button>
+                                <button type="button" class="btn btn-primary" onclick="addAdminmeta()">Add</button>`;
+    }else{
+    document.getElementById("reuableModalLabel").innerHTML = "Update Employee";
+    document.getElementById("resuableModalFooter").innerHTML = ` <button type="button" class="btn btn-secondary close" data-dismiss="modal">Close</button>
+                                                          <button type="button" class="btn btn-primary" onclick="updateAdminmeta()">Update</button>`;
+    }
+}
+async function checkinactivenumbers(id) {
+    // Reset input fields
+    
+
+    // Prepare the data for the request
+    const data = new URLSearchParams();
+    data.append('operation', 'checkinactivenumbers');
+    data.append('id', id);
+    
+
+    try {
+        // Use fetch API with await
+        const response = await fetch(api_url, {
+            method: 'POST',
+            body: data
+        });
+
+        // Check if the response is ok (status 200-299)
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        // Parse the JSON response
+        const responseData = await response.json();
+        
+        populateAdminSelect(responseData)
+    
+    } catch (error) {
+        // Handle errors using displayerror function
+         displayerror(error);
+        
+    }
+}
+
+// Function to populate the select box
+function populateAdminSelect(response) {
+    const selectBox = document.getElementById("edit_number");
+    selectBox.innerHTML = "";
+    console.log(response);
+    // Check if the response is successful
+    if (response.success === "true") {
+        response.admins.forEach(admin => {
+            const option = document.createElement("option");
+            option.value = admin.Admin_ID;
+            option.textContent = `${admin.Name} (${admin.Mobile}) ${admin.Type}`;
+
+            // Select the option if it matches the selected Admin_ID
+            if (admin.Admin_ID === response.selected) {
+                option.selected = true;
+            }
+
+            selectBox.appendChild(option);
+        });
+        selectBox.addEventListener("change", function() {
+            const selectedId = this.value;
+            getAdminDetails(selectedId);  // Call getAdminDetails with the selected Admin_ID
+            console.log("Changed");
+            $("#selectBoxStatus").val(1);
+        });
+    } else {
+        console.error("Failed to fetch admin data:", response.message);
+    }
+}
+async function getAdminMeta(id, emp_id) {
+    $("#selectBoxStatus").val(0);
+    $("#admin_name").val("");
+    $("#joined_date").val("");
+    $("#reporting_time").val("");
+    $("#relieving_date").val("");
+    $("#attendence_status").val("");
+    $("#basic_salary").val("");
+    $("#allowed_week_off").val("");
+    $("#due_week_off").val("");
+    $("#allowed_late").val("");
+    $("#due_late").val("");
+    $("#number_of_nodes").val("");
+    $("#nodes_incentive").val("");
+    $("#number_of_demos").val("");
+    $("#demos_incentive").val("");
+    $("#user_phone_number").val("");
+    $("#user_email").val("");
+    $("#address_present").val("");
+    $("#address_permanent").val("");
+    $("#alt_contact_person_1").val("");
+    $("#alt_number_1").val("");
+    $("#alt_contact_person_2").val("");
+    $("#alt_number_2").val("");
+    $("#alt_contact_person_3").val("");
+    $("#alt_number_3").val("");
+    $("#fileurl").val("");
+    $("#user_ac").val("");
+    $("#user_ifsc").val("");
+    $("#user_upi").val("");
+    clearFileInput();
+    $("#lt-select option").prop("selected", false);
+    $("#lt-select").selectpicker("refresh");
+
+    try {
+        const response = await fetch(api_url, {
+            method: "POST",
+            body: new URLSearchParams({
+                operation: "getAdminMeta",
+                id: emp_id,
+            }),
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+            throw new Error(data.message || "Error fetching data");
+        }
+
+        console.log(data);
+
+        if (data.success) {
+            $("#adminEMP_id").val(emp_id);
+            $("#admin_id").val(id);
+            $("#admin_name").val(data.meta.username);
+            $("#joined_date").val(data.data.Joining_Date);
+            $("#relieving_date").val(data.data.Relieving_Date);
+            $("#reporting_time").val(data.data.Reporting_Time);
+            $("#attendence_status").val(data.data.Status);
+            $("#basic_salary").val(data.meta.basicSalary);
+            $("#allowed_week_off").val(data.meta.allowedWeekOff);
+            $("#due_week_off").val(data.meta.dueWeekOff);
+            $("#allowed_late").val(data.meta.allowedLate);
+            $("#due_late").val(data.meta.dueLate);
+            $("#number_of_nodes").val(data.meta.numberOfNodes);
+            $("#nodes_incentive").val(data.meta.nodesIncentive);
+            $("#number_of_demos").val(data.meta.numberOfDemos);
+            $("#demos_incentive").val(data.meta.demosIncentive);
+            $("#user_ac").val(data.meta.userac);
+            $("#user_ifsc").val(data.meta.userifsc);
+            $("#user_upi").val(data.meta.userupi);
+            $("#user_phone_number").val(data.meta.userPhoneNumber);
+            $("#user_email").val(data.meta.userEmail);
+            $("#address_present").val(data.meta.addressPresent);
+            $("#address_permanent").val(data.meta.addressPermanent);
+            $("#alt_contact_person_1").val(data.meta.altContactPerson1);
+            $("#alt_number_1").val(data.meta.altNumber1);
+            $("#alt_contact_person_2").val(data.meta.altContactPerson2);
+            $("#alt_number_2").val(data.meta.altNumber2);
+            $("#alt_contact_person_3").val(data.meta.altContactPerson3);
+            $("#alt_number_3").val(data.meta.altNumber3);
+            $("#fileurl").val(data.meta.fileurl);
+
+            if (data.meta.leadType) {
+                data.meta.leadType.forEach(function (selectedOption) {
+                    $("#lt-select option").each(function () {
+                        if ($(this).val() === selectedOption.trim()) {
+                            $(this).prop("selected", true);
+                        }
+                    });
+                });
+            }
+
+            $("#lt-select").selectpicker("refresh");
+
+            const urls = data.meta.fileurl.split(",");
+
+            // Generate image previews
+            generateImagePreviews(urls);
+        } else {
+            $("#admin_id").val(id);
+            $("#admin_name").val(name);
+        }
+    } catch (error) {
+        const msg = displayerror(error);
+        alert(msg);
+    }
+
+    function generateImagePreviews(urls) {
+        $("#image-preview-container").empty(); // Clear existing previews
+        if (urls.length === 0) {
+            $("#image-preview-container").html("<p>No images</p>");
+        } else {
+            urls.forEach(function (url, index) {
+                const imagePreview = `
+                    <div class="image-preview" style="display:inline-block; position:relative; margin:5px;">
+                        <img src="${url}" alt="Image" style="width: 100px; height: 100px; object-fit: cover;">
+                        <button class="remove-image" type="button" style="position: absolute; top: 0; right: 0; background: red; color: white; border: none; cursor: pointer;" data-index="${index}">&times;</button>
+                    </div>
+                `;
+                $("#image-preview-container").append(imagePreview);
+            });
+        }
+    }
+
+    // Delegate the event to handle dynamically generated remove buttons
+    $(document).on("click", ".remove-image", function (event) {
+        event.preventDefault(); // Prevent the default action
+
+        const indexToRemove = $(this).data("index");
+
+        // Remove the corresponding URL from the array
+        urls.splice(indexToRemove, 1);
+
+        // Update the textarea value
+        $("#fileurl").val(urls.join(","));
+
+        // Regenerate the image previews
+        generateImagePreviews(urls);
+    });
+}
+
+async function allCaller() {
+    // Create the table structure
+    $(".loader").show();
+    const content = `
+        <h1>All Members</h1>
+        
+        <div class='container' style='overflow-x:scroll;'>
+        <div class="d-flex justify-content-center">
+            <div class="btn-item active" id="All">All <span id="noti1">0</span></div>
+            <div class="btn-item" id="Active">Active <span id="noti2">0</span></div>
+            <div class="btn-item" id="Fired">Fired <span id="noti3">0</span></div>
+            <div class="btn-item" id="Suspended">Suspended <span id="noti4">0</span></div>
+            <div class="btn-item" id="Absconded">Absconded <span id="noti5">0</span></div>
+            <div class="btn-item" id="Resigned">Resigned <span id="noti6">0</span></div>
+        </div>
+        <div class="d-flex justify-content-between">
+        <button class="btn btn-primary" id="add-user" data-toggle="modal" data-target="#exampleModal2">Add User</button>
+        <button class="btn btn-primary" id="add-member" data-toggle="modal" data-target="#ModalAttendence" onclick="changeModalName('Add');checkinactivenumbers(0)">Add New Employee</button>
+        </div>
+        <table id="table2" class="table table-bordered table-striped">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Name</th>
+                    <th>Mobile No</th>
+                    <th>Type</th>
+                    <th>DOR</th>
+                    <th>Status</th>
+                    <th>Lead Type</th>
+                    <th>Lead Status</th>
+                    <th>Employee</th>
+                    <th>Show Attend..</th>
+                </tr>
+            </thead>
+        </table>
+        </div>`;
+
+    document.getElementById("displayContent").innerHTML = content;
+
+    // Function to initialize/reload DataTable
+    async function loadtable2(option) {
+        if ($.fn.DataTable.isDataTable("#table2")) {
+            // Destroy existing DataTable
+            $("#table2").DataTable().destroy();
+        }
+        await getempStatuscount();
+        
+        try {
+            const response = await fetch(api_url, {
+                method: "POST",
+                body: new URLSearchParams({
+                    operation: "005",
+                    option: option // Pass the dynamic option value
+                }),
+            });
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(data.message || 'Error fetching data');
+            }
+            $(".loader").hide();
+            $("#table2").DataTable({
+                data: data.data,
+                columns: [
+                    { data: "Admin_ID" },
+                    { data: "Name" },
+                    { data: "Mobile" },
+                    { data: "Type" },
+                    {
+                        data: "Joining Date",
+                        render: function (data, type, row) {
+                            return row.Joining_Date;
+                        },
+                    },
+                    { data: "Status" },
+                    {
+                        data: "Types",
+                        render: function (data, type, row) {
+                            return row.Types;
+                        },
+                    },
+                    {
+                        data: "leadStatus",
+                        render: function (data, type, row) {
+                            return data == 1
+                                ? `<button class="btn btn-danger" onclick="disableLead(${row.Admin_ID})">Disable</button>`
+                                : `<button class="btn btn-success" onclick="enableLead(${row.Admin_ID})">Enable</button>`;
+                        },
+                    },
+                    {
+                        data: "metaStatus",
+                        render: function (data, type, row) {
+                            return data == 1
+                                ? `<button class="btn btn-success" data-toggle="modal" data-target="#ModalAttendence" onclick="changeModalName('update'); getAdminDetails(${row.Admin_ID});checkinactivenumbers(${row.Admin_ID});getAdminMeta(${row.Admin_ID},${row.EMP_ID})">Edit</button>`
+                                : `<button class="btn btn-danger" data-toggle="modal" data-target="#ModalAttendence" onclick="getAdminMeta(${row.EMP_ID}, '${row.Name}')">Add</button>`;
+                        },
+                    },
+                    {
+                        data: "metaStatus",
+                        render: function (data, type, row) {
+                            return `<button class="btn btn-success" onclick="showAttendence(${row.Admin_ID})">Show</button>`;
+                        },
+                    },
+                ],
+                createdRow: function (row, data, index) {
+                    if (data["Status"] === "Suspended") {
+                        $("td:eq(5)", row).css({ "background-color": "red", color: "white" });
+                    } else if (data["Status"] === "Active") {
+                        $("td:eq(5)", row).css({ "background-color": "green", color: "white" });
+                    }
+                },
+                stateSave: true,
+            });
+        } catch (error) {
+            // Handle errors using displayerror function
+            $(".loader").hide();
+             displayerror(error);
+            
+        }
+    }
+
+    // Initial table load with "All"
+    loadtable2("All");
+
+    // Event listener for buttons
+    $(".btn-item").on("click", function () {
+        // Highlight the active button
+        $(".btn-item").removeClass("active");
+        $(this).addClass("active");
+
+        // Get the selected option
+        const option = $(this).attr("id");
+
+        // Reload the table with the selected option
+        loadtable2(option);
+    });
+}
+
+async function getAdminDetails(id) {
+    // Reset input fields
+    document.getElementById("edit_mobileCaller").value = "";
+    document.getElementById("edit_passwordCaller").value = "";
+    document.getElementById("edit_type").value = "";
+    document.getElementById("admin_name").value = "";
+
+    // Prepare the data for the request
+    const data = new URLSearchParams();
+    data.append('operation', 'getAdminDetails');
+    data.append('id', id);
+
+    try {
+        // Use fetch API with await
+        const response = await fetch(api_url, {
+            method: 'POST',
+            body: data
+        });
+
+        // Check if the response is ok (status 200-299)
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        // Parse the JSON response
+        const responseData = await response.json();
+        console.log(responseData);
+
+        if (responseData.success === true) {
+            // Populate fields with response data
+            document.getElementById("edit_mobileCaller").value = responseData.data.Mobile;
+            document.getElementById("edit_passwordCaller").value = responseData.data.Password;
+            document.getElementById("edit_type").value = responseData.data.Type;
+            document.getElementById("admin_name").value = responseData.data.Name;
+        }
+    } catch (error) {
+        // Handle errors using displayerror function
+         displayerror(error);
+        
+    }
+}
+
+async function getTHStats() {
+    const startDate = document.getElementById("sDate").value;
+    const endDate = document.getElementById("eDate").value;
+
+    const content = `
+        <table id="statsTable" class="table table-bordered table-striped">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Total Tasks</th>
+                    <th>Total Delayed Tasks</th>
+                    <th>Total Completed on Time</th>
+                    <th>Total Completed Before Time</th>
+                    <th>Total Open Tasks</th>
+                    <th>Total Delayed Not Completed</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+        <div id="plotContainer" class="plotContainer mt-3" style="width: 100%; height: 400px;"></div>
+    `;
+    document.getElementById("displayContent").innerHTML = content;
+
+    try {
+        const response = await fetch(api_url, {
+            method: "POST",
+            body: new URLSearchParams({ operation: "008-3", startDate, endDate }),
+        });
+
+        if (!response.ok) {
+            throw new Error('Error fetching data');
+        }
+
+        const data = await response.json();
+        console.log(data);
+
+        $("#statsTable").DataTable({
+            data: data.data,
+            order: [[1, "desc"]],
+            columns: [
+                { data: "Name" },
+                { data: "total_tasks" },
+                { data: "total_delayed_tasks" },
+                { data: "total_completed_on_time" },
+                { data: "total_completed_before_time" },
+                { data: "total_open_tasks" },
+                { data: "total_delayed_not_completed" },
+            ],
+        });
+    } catch (error) {
+        displayerror(error);
+    }
+}
+
+async function getSupportStats() {
+    function formatDate(date) {
+        const year = date.getFullYear();
+        const month = (date.getMonth() + 1).toString().padStart(2, "0");
+        const day = date.getDate().toString().padStart(2, "0");
+        return `${year}-${month}-${day}`;
+    }
+
+    const currentDate = new Date();
+    const startDate = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
+    const endDate = currentDate;
+
+    // Format the dates as YYYY-MM-DD
+    const formattedStartDate = formatDate(startDate);
+    const formattedEndDate = formatDate(endDate);
+    console.log(formattedStartDate, formattedEndDate);
+
+    const id = localStorage.getItem("userID");
+
+    try {
+        const response = await fetch(api_url, {
+            method: "POST",
+            body: new URLSearchParams({
+                operation: "008-2",
+                startDate: formattedStartDate,
+                endDate: formattedEndDate,
+                id,
+            }),
+        });
+
+        if (!response.ok) {
+            throw new Error('Error fetching data');
+        }
+
+        const data = await response.json();
+        const stats = data[0];
+        console.log(stats);
+
+        document.getElementById("total-task").textContent = stats.total_tasks;
+        document.getElementById("delayed-task").textContent = stats.total_delayed_tasks;
+        document.getElementById("delayed-not-completed").textContent = stats.total_delayed_not_completed;
+        document.getElementById("completed-before-time").textContent = `${stats.total_completed_on_time}/${stats.total_completed_before_time}`;
+        document.getElementById("fake-task").textContent = `${stats.total_fake_completion_tasks}/${stats.total_incomplete_task_tasks}`;
+    } catch (error) {
+        displayerror(error);
+    }
+}
+
+async function getSupport() {
+    try {
+        const response = await fetch(api_url, {
+            method: "POST",
+            body: new URLSearchParams({ operation: "008-1" }),
+        });
+
+        if (!response.ok) {
+            throw new Error('Error fetching data');
+        }
+
+        const data = await response.json();
+        const selectElement = document.getElementById("support-agent");
+
+        // Clear existing options
+        selectElement.innerHTML = "";
+
+        // Populate options based on the fetched data
+        data.forEach((item) => {
+            const option = document.createElement("option");
+            option.value = item.ADMIN_ID;
+            option.textContent = item.Name;
+            selectElement.appendChild(option);
+        });
+    } catch (error) {
+        displayerror(error);
+    }
+}
+
+async function addNewProjMail(id) {
+    try {
+        const response = await fetch(api_url, {
+            method: "POST",
+            body: new URLSearchParams({
+                operation: "addNewProjMail",
+                id: id,
+            }),
+        });
+
+        const responseData = await response.json();
+        sendMailNew(responseData);
+        console.log(responseData);
+    } catch (error) {
+        const msg = displayerror(error);
+        alert(msg);
+    }
+}
+
+async function projStatusChange(id, description) {
+    try {
+        const response = await fetch(api_url, {
+            method: "POST",
+            body: new URLSearchParams({
+                operation: "projstatusmail",
+                id: id,
+                description: description,
+            }),
+        });
+
+        const responseData = await response.json();
+        sendMailNew(responseData);
+        console.log(responseData);
+    } catch (error) {
+        const msg = displayerror(error);
+        alert(msg);
+    }
+}
+
+async function getComplaint() {
+    const content = `
+        <table id="complaintTable" class="table table-bordered table-striped">
+            <thead>
+                <tr>
+                    <th>Lead Id</th>
+                    <th>PD Id</th>
+                    <th>Lead Name</th>
+                    <th scope="col">Mobile/<br>Alternate/<br>Whatsapp/<br>Email</th>
+                    <th>Project Name</th>
+                    <th>Project Type</th>
+                    <th>Caller</th>
+                    <th>Developer</th>
+                    <th>Issue</th>
+                    <th>Description</th>
+                    <th>Type</th>
+                    <th>Date</th>
+                    <th>Status</th>
+                    <th>Options</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    `;
+
+    document.getElementById("displayContent").innerHTML = content;
+
+    try {
+        const response = await fetch(api_url, {
+            method: "POST",
+            body: new URLSearchParams({ operation: "008-4" }),
+        });
+
+        const result = await response.json();
+        console.log(result);
+
+        $("#complaintTable").DataTable({
+            data: result.data,
+            order: [[11, "desc"]],
+            columns: [
+                { data: "lead_id" },
+                { data: "PD_ID" },
+                { data: "lead_name" },
+                {
+                    data: null,
+                    render: function (data, type, row, meta) {
+                        const index = meta.row;
+                        return `
+                            <a href="javascript:void(0)" onclick="makeCall('${row["lead_name"]}', '${row["lead_id"]}', '${row["mobile"]}', ${index})">
+                                ${row["mobile"]}
+                            </a><br>
+                            <a href="javascript:void(0)" onclick="makeCall('${row["lead_name"]}', '${row["lead_id"]}', '${row["Alternate_Mobile"]}', ${index})">
+                                ${row["Alternate_Mobile"]}
+                            </a><br>
+                            <a href="https://api.whatsapp.com/send?phone=91${row["Whatsapp"]}">
+                                ${row["Whatsapp"]}
+                            </a><br>
+                            ${row["email"]}<br>
+                            <button style="display:none" data-toggle="modal" data-target="#exampleModal4" data-whatever="${row["lead_id"]}" id="save-id-${index}" onclick="stopRecord('${row["lead_id"]}', '${index}')">End Call</button>
+                        `;
+                    },
+                },
+                {
+                    data: "Project_Name",
+                    render: function (data, type, row) {
+                        return `
+                            ${data}
+                            <br>
+                            <button data-toggle="modal" data-target="#exampleModalAssignProj" onclick="addProjDetails(${row["PD_ID"]}, '${row["description"]}', '${row["issue"]}', '${row["fileName"]}')">Assign Task</button>
+                            <br>
+                            <button data-toggle="modal" data-target="#exampleModalviewProjecttask" onclick="viewProjectTask(${row["PD_ID"]})">View Task</button>
+                        `;
+                    },
+                },
+                { data: "Project_Type" },
+                { data: "caller" },
+                { data: "developer" },
+                { data: "issue" },
+                {
+                    data: "description",
+                    render: function (data, type, row) {
+                        let image = "";
+                        if (row["fileName"] !== "0") {
+                            image = `<br><button onclick="showImage('${row["fileName"]}')">View image</button>`;
+                        }
+                        return `${data}${image}`;
+                    },
+                },
+                { data: "type" },
+                { data: "date_added" },
+                { data: "status" },
+                {
+                    data: null,
+                    render: function (data, type, row) {
+                        return `
+                            <button data-toggle="modal" data-target="#exampleModalProjectBilling" onclick="getProjectBilling(${row["PD_ID"]})">Billing</button><br>
+                            <button data-toggle="modal" data-target="#exampleModalProjectPayment" onclick="addProjectIDPayment(${row["PD_ID"]})">Payment</button><br>
+                            <button data-toggle="modal" data-target="#exampleModal4" onclick="getAllStatus(${row["lead_id"]})" data-whatever="${row["lead_id"]}">Status</button>
+                        `;
+                    },
+                },
+            ],
+        });
+    } catch (error) {
+        console.error("Error fetching complaints:", error);
+    }
+}
+
+async function sendMailNew(data) {
+    try {
+        const response = await fetch("https://kalamacademy.org/test/test.php", {
+            method: "POST",
+            body: new URLSearchParams({
+                operation: "00100",
+                to: data.to,
+                subject: data.subject,
+                message: data.message,
+            }),
+        });
+
+        const result = await response.text();
+
+        $(".loader").hide();
+
+        if (result > 0) {
+            alert("Mail Sent");
+        } else {
+            alert("Error In Sending Mail");
+        }
+    } catch (error) {
+        $(".loader").hide();
+        const msg = displayerror(error);
+        alert(msg);
+    }
+}
+
+async function paymentVerifyMail(pd_id, id) {
+    try {
+        const response = await fetch(api_url, {
+            method: "POST",
+            body: new URLSearchParams({
+                operation: "paymentVerifyMail",
+                pd_id: pd_id,
+                id: id,
+            }),
+        });
+
+        const responseData = await response.json();
+        sendMailNew(responseData);
+    } catch (error) {
+        const msg = displayerror(error);
+        alert(msg);
+    }
+}
+
+async function taskCompleteMail(id) {
+    try {
+        const response = await fetch(api_url, {
+            method: "POST",
+            body: new URLSearchParams({
+                operation: "taskCompleteMail",
+                id: id,
+            }),
+        });
+
+        const responseData = await response.json();
+        sendMailNew(responseData);
+    } catch (error) {
+        const msg = displayerror(error);
+        alert(msg);
+    }
+}
+
+async function taskAssignMail(id, description) {
+    try {
+        const response = await fetch(api_url, {
+            method: "POST",
+            body: new URLSearchParams({
+                operation: "taskAssignMail",
+                id: id,
+                description: description,
+            }),
+        });
+
+        const responseData = await response.json();
+        sendMailNew(responseData);
+    } catch (error) {
+        const msg = displayerror(error);
+        alert(msg);
+    }
+}
+
+
+async function uploadImage() {
+    if (!selectedFile) return; // If no file is selected, don't proceed
+
+    $(".loader").show();
+
+    try {
+        // Resize and upload the image
+        const resizedFile = await resizeAndUpload(selectedFile);
+        console.log("Resized File:", resizedFile);
+
+        const formData = new FormData();
+        formData.append("image", resizedFile);
+        formData.append("operation", "ImageUploadhr"); // Include operation
+
+        // Using fetch to upload the image
+        const response = await fetch(api_url, {
+            method: "POST",
+            body: formData,
+        });
+
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const responseData = await response.json();
+        console.log(responseData);
+        $(".loader").hide();
+
+        if (responseData.success === true) {
+            console.log(responseData.imageUrl);
+            $("#fileurl").val((i, val) => val.trim() + (val.trim() ? " " : "") + responseData.imageUrl);
+            $(".success-msg").text("Upload success").show();
+        } else {
+            // Handle error in response from server
+            console.error("Upload error:", responseData.error);
+            $(".error-msg").text("Upload failed").show();
+            alert("Upload failed: " + responseData.error);
+        }
+    } catch (error) {
+        $(".loader").hide();
+        console.error("Error during image processing:", error);
+        $(".error-msg").text("Image processing failed").show();
+        // Using displayerror function to show the error
+        displayerror(`An error occurred: ${error.message}`);
+    }
+}
+
+async function handleFileSelect(event) {
+    const file = event.target.files[0];
+
+    if (file.type.match("image.*")) {
+        $(".loader").show();
+        try {
+            const resizedFile = await resizeAndUpload(file);
+            console.log("Resized File:", resizedFile);
+
+            const formData = new FormData();
+            formData.append("image", resizedFile);
+            formData.append("operation", "taskImageUpload");
+
+            // Using fetch to upload the image
+            const response = await fetch(api_url, {
+                method: "POST",
+                body: formData,
+            });
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+
+            const responseData = await response.json();
+            console.log(responseData);
+
+            if (responseData.success) {
+                $(".loader").hide();
+                $("#remarksProjAssign").val($("#remarksProjAssign").val() + "\n \n" + responseData.imageUrl);
+                $(".success-msg").text("Upload success").show();
+            } else {
+                // Handle error in response from server
+                $(".loader").hide();
+                $(".error-msg").text("Upload failed").show();
+                console.error("Upload error:", responseData.error);
+                alert("Upload failed: " + responseData.error);
+            }
+        } catch (error) {
+            $(".loader").hide();
+            console.error("Error during file upload:", error);
+            $(".error-msg").text("Upload failed").show();
+            // Using displayerror function to show the error
+            displayerror(`An error occurred: ${error.message}`);
+        }
+    } else {
+        // The selected file is not an image
+        alert("Please select an image file.");
+        $(this).val(""); // Reset the file input
+    }
+}
+
+async function callerDataToday() {
+    const id = localStorage.getItem("userID");
+
+    try {
+        const response = await fetch(api_url, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/x-www-form-urlencoded",
+            },
+            body: new URLSearchParams({
+                operation: "test1",
+                id: id,
+            }),
+        });
+
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const result = await response.json(); // Assuming the response is JSON
+        console.log(result);
+
+        // Update HTML elements
+        $("#brk-time .today").html("Today: " + result.bt);
+        $("#tot-dial .today").html("Today: " + result.call_today);
+        $("#tot-concted .today").html("Today: " + result.countConnected);
+        $("#tot-not-concted .today").html("Today: " + result.countNotConnected);
+        $("#call-durt .today").html("Today: " + result.callDuration);
+        $("#demo .today").html("Today: " + result.demo);
+        $("#follow .today").html("Today: " + result.follow);
+        $("#monster .today").html("Today: " + result.call_count);
+        $("#nrced .today").html("Today: " + result.notRecorded);
+
+    } catch (error) {
+        console.error("Error fetching data:", error);
+        displayerror(`An error occurred: ${error.message}`);
+    }
+}
+
+async function callerDataMonth() {
+    const id = localStorage.getItem("userID");
+    const to = getToday();
+    const from = getLast30Days();
+
+    try {
+        const response = await fetch(api_url, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/x-www-form-urlencoded",
+            },
+            body: new URLSearchParams({
+                operation: "007-month",
+                id: id,
+                to: to,
+                from: from,
+            }),
+        });
+
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const result = await response.json(); // Assuming the response is JSON
+        console.log(result);
+
+        // Update HTML elements
+        $("#brk-time .month").html("30 Days: " + result.bt);
+        $("#tot-dial .month").html("30 Days: " + result.call_today);
+        $("#tot-concted .month").html("30 Days: " + result.countConnected);
+        $("#tot-not-concted .month").html("30 Days: " + result.countNotConnected);
+        $("#call-durt .month").html("30 Days: " + result.callDuration);
+        $("#demo .month").html("30 Days: " + result.demo);
+        $("#follow .month").html("30 Days: " + result.follow);
+        $("#monster .month").html("30 Days: " + result.call_count);
+        $("#nrced .month").html("30 Days: " + result.notRecorded);
+        $("#fakedemo .month").html("30 Days: " + result.fakedemo + "/" + result.incomdemo);
+
+    } catch (error) {
+        console.error("Error fetching data:", error);
+        displayerror(`An error occurred: ${error.message}`);
+    }
+}
+
+async function addMember() {
+    const tl = $("#tl-select").val();
+    const selectedValues = [];
+
+    // Loop through each selected option
+    $("#mb-select option:selected").each(function () {
+        selectedValues.push($(this).val());
+    });
+
+    try {
+        const response = await fetch(api_url, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/x-www-form-urlencoded",
+            },
+            body: new URLSearchParams({
+                operation: "addMembers",
+                tl: tl,
+                members: JSON.stringify(selectedValues),
+            }),
+        });
+
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const result = await response.text(); // Assuming response is plain text ("1" on success)
+        
+        if (result === "1") {
+            alert("Data Inserted successfully");
+            $(".close").click();
+        } else {
+            displayerror("Failed to add members. Please try again.");
+        }
+
+    } catch (error) {
+        console.error("Error adding members:", error);
+        displayerror(`An error occurred: ${error.message}`);
+    }
+}
+
+async function getMembers() {
+    try {
+        const response = await fetch(api_url, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/x-www-form-urlencoded",
+            },
+            body: new URLSearchParams({ operation: "getMembers" }),
+        });
+
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const data = await response.json();
+        console.log(data);
+
+        // Clear existing options
+        $("#tl-select").empty();
+        $("#mb-select").empty();
+
+        // Add default option to TL select
+        $("#tl-select").append(
+            $("<option>", {
+                value: "",
+                text: "Please Select TL",
+            })
+        );
+
+        // Populate TL options
+        data.TL.forEach(function (option) {
+            $("#tl-select").append(
+                $("<option>", {
+                    value: option.Admin_ID,
+                    text: option.Name + " - " + option.Type,
+                })
+            );
+        });
+
+        // Refresh select picker
+        $("#mb-select").selectpicker("refresh");
+        $("#tl-select").selectpicker("refresh");
+
+    } catch (error) {
+        console.error("Error fetching team members:", error);
+        displayerror(`An error occurred: ${error.message}`);
+    }
+}
+
+async function showTeam() {
+    $(".loader").show();
+    const tl = localStorage.getItem("userID");
+
+    const content = `
+        <table id="membersTable" class="display" style="width:100%">
+            <thead>
+                <tr>
+                    <th>Admin ID</th>
+                    <th>Member Name</th>
+                    <th>Attendance</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    `;
+
+    document.getElementById("displayContent").innerHTML = "<h1>MY Team </h1><div style='overflow-x:scroll;'>" + content;
+
+    try {
+        const response = await fetch(api_url, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/x-www-form-urlencoded",
+            },
+            body: new URLSearchParams({ operation: "showMembers", tl: tl }),
+        });
+
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const data = await response.json();
+        console.log(data);
+        const callers = data.data;
+
+        $("#membersTable").DataTable({
+            data: callers, // Initially empty data
+            columns: [
+                { data: "Admin_ID" },
+                { data: "Name" },
+                {
+                    data: null,
+                    render: function (data, type, row) {
+                        return `<button class="btn btn-success" onclick="showAttendence(${row["Admin_ID"]})">Show</button>`;
+                    },
+                },
+            ],
+        });
+
+    } catch (error) {
+        console.error("Error fetching team data:", error);
+        displayerror(`An error occurred: ${error.message}`);
+    } finally {
+        $(".loader").hide();
+    }
+}
+
+async function getTrancations(type) {
+    const start = document.getElementById("reportStartDate").value;
+    const end = document.getElementById("reportEndDate").value;
+
+    // Show the loader
+    $(".loader").show();
+
+    try {
+        const response = await fetch(api_url, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/x-www-form-urlencoded",
+            },
+            body: new URLSearchParams({
+                operation: "getTrancations",
+                start: start,
+                end: end,
+                type: type,
+            }),
+        });
+
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const responseText = await response.text(); // Use text() since the response is in a custom format
+        const partial = responseText.split("/END/");
+        const len = partial.length - 1;
+
+        let content = `
+            <table id="tabletransPayment" class="mt-5 table table-striped table-bordered">
+                <thead>
+                    <th>Project Name</th>
+                    <th>Lead Name</th>
+                    <th>Amount</th>
+                    <th>Proof</th>
+                    <th>Remark</th>
+                    <th>DOR</th>
+                    <th>VERIFY</th>
+                    <th>DELETE</th>
+                </thead>
+                <tbody>`;
+
+        for (let i = 0; i < len; i++) {
+            const element = partial[i].split("<-->");
+            const test = element[9];
+            const isVerified = parseInt(element[8]) === 1;
+            const actionButton = isVerified
+                ? `<td>Verified</td><td><button onclick='unverifiedDelete(${element[0]})'>DELETE</button></td>`
+                : `<td><button onclick='unverifiedVerify(${element[0]})'>VERIFY</button></td><td><button onclick='unverifiedDelete(${element[0]})'>DELETE</button></td>`;
+
+            content += `
+                <tr>
+                    <td>${element[2]}</td>
+                    <td>${element[3]}</td>
+                    <td>${element[4]}</td>
+                    <td><a href="${element[5]}" target="_blank"><b>Click here</b></a></td>
+                    <td><b>Updated By: </b>${test}<hr>${element[6]}</td>
+                    <td>${element[7]}</td>
+                    ${actionButton}
+                </tr>`;
+        }
+
+        document.getElementById("tablereporttrans").innerHTML = content + "</tbody></table>";
+
+        // Initialize DataTable
+        $("#tabletransPayment").DataTable({ stateSave: true });
+
+    } catch (error) {
+        console.error("Error fetching transactions:", error);
+        displayerror(`An error occurred: ${error.message}`);
+    } finally {
+        $(".loader").hide();
+    }
+}
+
+async function getcpls(type) {
+    const start = document.getElementById("reportStartDate").value;
+    const end = document.getElementById("reportEndDate").value;
+
+    // Show the loader
+    $(".loader").show();
+
+    try {
+        const response = await fetch(api_url, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/x-www-form-urlencoded",
+            },
+            body: new URLSearchParams({
+                operation: "getcpls",
+                start: start,
+                end: end,
+                type: type,
+            }),
+        });
+
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const jsonResponse = await response.json();
+
+        if (jsonResponse.success) {
+            const content = `
+                <div class='container mt-5' style='overflow-x:auto;'>
+                    <table id="expensetable" class="table table-bordered table-striped">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Amount</th>
+                                <th>Expense For</th>
+                                <th>Remarks</th>
+                                <th>PD_ID</th>
+                                <th>Proff</th>
+                                <th>Date Of Expense</th>
+                                <th>DOR</th>
+                                <th>Expense For</th>
+                                <th>Expense Purpose</th>
+                                <th>Expense Account</th>
+                                <th>Option</th>
+                            </tr>
+                        </thead>
+                    </table>
+                </div>`;
+
+            document.getElementById("tablereportcpl").innerHTML = content;
+
+            // Initialize DataTable
+            $("#expensetable").DataTable({
+                data: jsonResponse.data,
+                order: [[0, "desc"]],
+                columns: [
+                    { data: "ET_ID" },
+                    { data: "EXP_Amount" },
+                    { data: "Expense_For" },
+                    { data: "Remark" },
+                    { data: "PD_ID" },
+                    { data: "Proff" },
+                    { data: "Date_Of_Expense" },
+                    { data: "DOR" },
+                    {
+                        data: null,
+                        render: (data, type, row) => {
+                            switch (row["EXP_For"]) {
+                                case "1": return "Academy";
+                                case "2": return "Agency";
+                                case "3": return "My Galla";
+                                default: return row["EXP_For"] || "";
+                            }
+                        },
+                    },
+                    {
+                        data: null,
+                        render: (data, type, row) => {
+                            switch (row["Expense_Purpose"]) {
+                                case "1": return "Marketing";
+                                case "2": return "Salary";
+                                case "3": return "Rent";
+                                case "4": return "Other";
+                                default: return row["Expense_Purpose"] || "";
+                            }
+                        },
+                    },
+                    {
+                        data: null,
+                        render: (data, type, row) => {
+                            switch (row["From_Account"]) {
+                                case "1": return "GreenTech India";
+                                case "2": return "Axis (Vikash)";
+                                case "3": return "Kotak (Vikash)";
+                                case "4": return "Other";
+                                case "5": return "Cash";
+                                case "6": return "My Galla HDFC";
+                                case "7": return "Kalam Foundation Axis Bank";
+                                default: return row["From_Account"] || "";
+                            }
+                        },
+                    },
+                    {
+                        data: null,
+                        render: (data, type, row) => `
+                            <button class="btn btn-primary" 
+                                    data-toggle="modal" 
+                                    data-target="#exampleModalExpenseEdit" 
+                                    onclick="editExpense(${row["ET_ID"]})">
+                                Edit
+                            </button>`,
+                    },
+                ],
+            });
+        } else {
+            displayerror("Failed to fetch data. Please try again.");
+        }
+    } catch (error) {
+        console.error("Error fetching options:", error);
+        displayerror(`An error occurred while fetching data: ${error.message}`);
+    } finally {
+        // Hide the loader once the request completes
+        $(".loader").hide();
+    }
+}
+
+async function fetchExpenseReportcomb(start1, end1, start2, end2) {
+    const loader = $(".loader");
+
+    // Helper function to fetch reports for a specific date range
+    async function fetchAllReports(start, end) {
+        loader.show();
+
+        const endpoints = [
+            { operation: "expenseReport", start, end },
+            { operation: "expenseReport-2", start, end },
+            { operation: "expenseReport-3", start, end },
+            { operation: "expenseReport-4", start, end },
+        ];
+
+        try {
+            const promises = endpoints.map((endpoint) =>
+                fetch(api_url, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+                    body: new URLSearchParams(endpoint),
+                }).then((res) => {
+                    if (!res.ok) {
+                        throw new Error(`Failed to fetch ${endpoint.operation}: ${res.statusText}`);
+                    }
+                    return res.json();
+                })
+            );
+
+            return await Promise.all(promises);
+        } catch (error) {
+            console.error(`Error fetching reports for range ${start} - ${end}:`, error);
+            displayError(error); // Assuming a `displayError` function exists
+            throw error; // Rethrow to propagate error handling
+        } finally {
+            loader.hide();
+        }
+    }
+
+    try {
+        // Fetch data for the first date range
+        const responses1 = await fetchAllReports(start2, end2);
+        const datamain1 = {
+            data1: responses1[0],
+            data2: responses1[1],
+            data3: responses1[2],
+            data4: responses1[3],
+        };
+        console.log("datamain1:", datamain1);
+
+        // Fetch data for the second date range
+        const responses2 = await fetchAllReports(start1, end1);
+        const datamain2 = {
+            data1: responses2[0],
+            data2: responses2[1],
+            data3: responses2[2],
+            data4: responses2[3],
+        };
+        console.log("datamain2:", datamain2);
+
+        // Generate the combined table
+        generateCombinedTable(start2, end2, datamain1, datamain2);
+    } catch (error) {
+        console.error("Error fetching or processing data:", error);
+        displayError(error); // Handle the error for user feedback
+    }
+}
+
+function addMissedCall() {
+    console.log("Trying to add missed calls");
+    const id = localStorage.getItem("userID");
+
+    document.addEventListener(
+        "deviceready",
+        async function () {
+            const days = 1; // Fetch logs from the last day
+
+            try {
+                // Fetch call logs using Cordova plugin
+                cordova.plugins.callLog.list(
+                    days,
+                    async function (response) {
+                        try {
+                            const missedCalls = response.rows.filter((call) => call.type == 3);
+                            const json = JSON.stringify(missedCalls);
+
+                            const apiResponse = await fetch(api_url, {
+                                method: "POST",
+                                headers: {
+                                    "Content-Type": "application/x-www-form-urlencoded",
+                                },
+                                body: new URLSearchParams({
+                                    operation: "addmissedcall",
+                                    calls: json,
+                                    id: id,
+                                }),
+                            });
+
+                            if (!apiResponse.ok) {
+                                throw new Error(`Error submitting missed calls: ${apiResponse.statusText}`);
+                            }
+
+                            const responseData = await apiResponse.text();
+                            console.log(responseData);
+                        } catch (error) {
+                            console.error("Error sending missed call data:", error);
+                            displayError(error); // Assuming `displayError` is defined
+                        }
+                    },
+                    function (error) {
+                        console.error("Error fetching call logs:", error);
+                        displayError(error); // Assuming `displayError` is defined
+                    }
+                );
+            } catch (error) {
+                console.error("Unexpected error while processing missed calls:", error);
+                displayError(error); // Assuming `displayError` is defined
+            }
+        },
+        false
+    );
+}
+
+async function syncSheet() {
+    try {
+        // Show the loader
+        $(".loader").show();
+
+        const response = await fetch("https://teamka.in/crm1/APIs/ash_auto_lead_add.php", {
+            method: "POST",
+        });
+
+        if (!response.ok) {
+            throw new Error(`Error syncing sheet: ${response.statusText}`);
+        }
+
+        const responseData = await response.text(); // Assuming the response is plain text
+        console.log(responseData);
+        alert(responseData);
+    } catch (error) {
+        console.error("Error syncing sheet:", error);
+        // Optionally, display the error to the user
+        displayError(error); // Assuming `displayError` is defined elsewhere
+    } finally {
+        // Hide the loader regardless of success or error
+        $(".loader").hide();
+    }
+}
 
 function checkUserStatus(requiredUserType) {
     // Get the user details from localStorage
@@ -32,16 +1506,18 @@ async function login() {
     const password = document.getElementById("password").value;
 
     try {
+        const formdata = new URLSearchParams({
+            operation: "001",
+            mobileNo: mobileNo,
+            password: password,
+        });
+
         const response = await fetch(api_url, {
             method: "POST",
             headers: {
-                "Content-Type": "application/json",
+                "Content-Type": "application/x-www-form-urlencoded",
             },
-            body: JSON.stringify({
-                operation: "001",
-                mobileNo: mobileNo,
-                password: password,
-            }),
+            body: formdata.toString(),
         });
 
         if (!response.ok) {
@@ -71,8 +1547,7 @@ async function login() {
     }
 }
 
-
-async function logout() {
+async function Logout() {
     const user_id = localStorage.getItem("userID");
 
     try {
@@ -99,7 +1574,6 @@ async function logout() {
     }
 }
 
-
 function displayError(error) {
     console.error("Error:", error);
     alert(`Error: ${error.message || error}`);
@@ -110,9 +1584,9 @@ async function checkAbsent(id) {
         const response = await fetch(api_url, {
             method: "POST",
             headers: {
-                "Content-Type": "application/json",
+                "Content-Type": "application/x-www-form-urlencoded",
             },
-            body: JSON.stringify({
+            body: new URLSearchParams({
                 operation: "checkAbsent",
                 id: id,
             }),
@@ -137,9 +1611,9 @@ async function checkLate(id) {
         const response = await fetch(api_url, {
             method: "POST",
             headers: {
-                "Content-Type": "application/json",
+                "Content-Type": "application/x-www-form-urlencoded",
             },
-            body: JSON.stringify({
+            body: new URLSearchParams({
                 operation: "checkLate",
                 id: id,
             }),
@@ -160,9 +1634,12 @@ async function checkLate(id) {
 }
 
 async function addAdminmeta() {
+    $(".loader").show();
     var id = $("#admin_id").val();
-    var emp_id = $("#adminEMP_id").val();
     var username = $("#admin_name").val();
+    var password = $("#edit_passwordCaller").val();
+    var mobile = $("#edit_mobileCaller").val();
+    var type = $("#edit_type").val();
     var joined_date = $("#joined_date").val();
     var reporting_time = $("#reporting_time").val();
     var attendence_status = $("#attendence_status").val();
@@ -175,8 +1652,6 @@ async function addAdminmeta() {
     var nodesIncentive = $("#nodes_incentive").val();
     var numberOfDemos = $("#number_of_demos").val();
     var demosIncentive = $("#demos_incentive").val();
-
-    // New fields
     var userac = $("#user_ac").val();
     var userifsc = $("#user_ifsc").val();
     var userupi = $("#user_upi").val();
@@ -196,12 +1671,15 @@ async function addAdminmeta() {
         const response = await fetch(api_url, {
             method: "POST",
             headers: {
-                "Content-Type": "application/json",
+                "Content-Type": "application/x-www-form-urlencoded",
             },
-            body: JSON.stringify({
+            body: new URLSearchParams({
                 operation: "addAdminmeta",
-                id: emp_id,
+                id: id,
                 username: username,
+                password: password,
+                mobile: mobile,
+                type: type,
                 joined_date: joined_date,
                 reporting_time: reporting_time,
                 attendence_status: attendence_status,
@@ -242,6 +1720,8 @@ async function addAdminmeta() {
         // Handle the success/failure based on the response
         alert(data.message);
         if (data.success === "true") {
+            $(".loader").hide();
+            allCaller();
             $(".close").click();
             // Clear the form fields
             $("#admin_name").val("");
@@ -266,16 +1746,22 @@ async function addAdminmeta() {
         }
     } catch (error) {
         // Display error using the displayError function
+        $(".loader").hide();
         displayError(error.message);
     }
 }
 
-
 async function updateAdminmeta() {
+    $(".loader").show();
+    var ischecked = $("#selectBoxStatus").val();
+    var emp_id = $("#adminEMP_id").val();
     var id = $("#admin_id").val();
     var username = $("#admin_name").val();
+    var mobile = $("#edit_mobileCaller").val();
+    var password = $("#edit_passwordCaller").val();
     var joined_date = $("#joined_date").val();
     var reporting_time = $("#reporting_time").val();
+    var relieving_date = $("#relieving_date").val();
     var attendence_status = $("#attendence_status").val();
     var basicSalary = $("#basic_salary").val();
     var allowedWeekOff = $("#allowed_week_off").val();
@@ -313,13 +1799,18 @@ async function updateAdminmeta() {
         const response = await fetch(api_url, {
             method: "POST",
             headers: {
-                "Content-Type": "application/json",
+                "Content-Type": "application/x-www-form-urlencoded",
             },
-            body: JSON.stringify({
+            body: new URLSearchParams({
                 operation: "updateAdminmeta",
+                ischecked : ischecked,
                 id: id,
+                emp_id: emp_id,
+                mobile: mobile,
+                password: password,
                 username: username,
                 joined_date: joined_date,
+                relieving_date : relieving_date,
                 reporting_time: reporting_time,
                 attendence_status: attendence_status,
                 basicSalary: basicSalary,
@@ -331,7 +1822,6 @@ async function updateAdminmeta() {
                 nodesIncentive: nodesIncentive,
                 numberOfDemos: numberOfDemos,
                 demosIncentive: demosIncentive,
-                // New fields
                 userPhoneNumber: userPhoneNumber,
                 userEmail: userEmail,
                 addressPresent: addressPresent,
@@ -359,13 +1849,17 @@ async function updateAdminmeta() {
         
         // Handle the success/failure based on the response
         alert(data.message);
-        if (data.success === "true") {
+
+        if (data.success == true) {
+            $(".loader").hide();
+            allCaller();
             $(".close").click();
             // Clear the form fields
             $("#admin_name").val("");
             $("#joined_date").val("");
             $("#reporting_time").val("");
             $("#attendence_status").val("");
+           $("#relieving_date").val("");
             // Clear new fields
             $("#user_phone_number").val("");
             $("#user_email").val("");
@@ -384,6 +1878,7 @@ async function updateAdminmeta() {
         }
     } catch (error) {
         // Display error using the displayError function
+        $(".loader").hide();
         displayError(error.message);
     }
 }
@@ -427,8 +1922,6 @@ async function searchLeads(query, filename) {
         displayError(error);
     }
 }
-
-
 
 async function fetchMissedCalls() {
     const content =
@@ -688,6 +2181,10 @@ async function getAdmins() {
         displayError(error); // Assuming displayError is defined elsewhere
     }
 }
+
+
+
+
 
 
 
@@ -1390,59 +2887,59 @@ function handleSelection() {
     selectButtonContainer.style.display = "none";
 }
 
-function addMissedCall() {
-    console.log("Tring adding Missed call");
-    var id = localStorage.getItem("userID");
-    document.addEventListener(
-        "deviceready",
-        function () {
-            const days = 1; // Fetch logs from the last 7 days
+// function addMissedCall() {
+//     console.log("Tring adding Missed call");
+//     var id = localStorage.getItem("userID");
+//     document.addEventListener(
+//         "deviceready",
+//         function () {
+//             const days = 1; // Fetch logs from the last 7 days
 
-            cordova.plugins.callLog.list(
-                days,
-                function (response) {
-                    const missedCalls = response.rows.filter((call) => call.type == 3);
-                    var json = JSON.stringify(missedCalls);
+//             cordova.plugins.callLog.list(
+//                 days,
+//                 function (response) {
+//                     const missedCalls = response.rows.filter((call) => call.type == 3);
+//                     var json = JSON.stringify(missedCalls);
 
-                    $.ajax({
-                        url: api_url,
-                        method: "POST",
-                        data: { operation: "addmissedcall", calls: json, id: id },
-                        success: function (response) {
-                            console.log(response);
-                        },
-                        error: function (xhr, status, error) {
-                            console.error("Error fetching call logs:", error); // Debug log
-                        },
-                    });
-                },
-                function (error) {
-                    console.error("Error fetching call logs:", error); // Debug log
-                }
-            );
-        },
-        false
-    );
-}
+//                     $.ajax({
+//                         url: api_url,
+//                         method: "POST",
+//                         data: { operation: "addmissedcall", calls: json, id: id },
+//                         success: function (response) {
+//                             console.log(response);
+//                         },
+//                         error: function (xhr, status, error) {
+//                             console.error("Error fetching call logs:", error); // Debug log
+//                         },
+//                     });
+//                 },
+//                 function (error) {
+//                     console.error("Error fetching call logs:", error); // Debug log
+//                 }
+//             );
+//         },
+//         false
+//     );
+// }
 
-function syncSheet() {
-    $(".loader").show();
-    $.ajax({
-        url: "https://teamka.in/crm1/APIs/ash_auto_lead_add.php",
-        method: "POST",
-        success: function (response) {
-            //var response = JSON.parse(responseout);
-            console.log(response);
-            alert(response);
+// function syncSheet() {
+//     $(".loader").show();
+//     $.ajax({
+//         url: "https://teamka.in/crm1/APIs/ash_auto_lead_add.php",
+//         method: "POST",
+//         success: function (response) {
+//             //var response = JSON.parse(responseout);
+//             console.log(response);
+//             alert(response);
 
-            $(".loader").hide();
-        },
-        error: function (xhr, status, error) {
-            console.error("Error fetching options:", error);
-            $(".loader").hide();
-        },
-    });
-}
+//             $(".loader").hide();
+//         },
+//         error: function (xhr, status, error) {
+//             console.error("Error fetching options:", error);
+//             $(".loader").hide();
+//         },
+//     });
+// }
 
 function generateDateRanges(start2, end2) {
     const startDate2 = new Date(start2);
@@ -1455,10 +2952,9 @@ function generateDateRanges(start2, end2) {
     const start1 = new Date(startDate2);
     start1.setDate(start1.getDate() - intervalDays); // Move back by the interval
 
-    // Calculate end1 as the last day of the month for the adjusted start1
+    // Calculate end1 as start1 plus the interval
     const end1 = new Date(start1);
-    end1.setMonth(end1.getMonth() + 1); // Move to the next month
-    end1.setDate(0); // Set to the last day of the month (previous month)
+    end1.setDate(end1.getDate() + intervalDays); // Maintain the same interval as start2 and end2
 
     // Format dates as YYYY-MM-DD
     const formatDate = (date) => date.toISOString().split("T")[0];
@@ -1488,83 +2984,83 @@ function generateReport() {
         console.error("start2 and end2 not found in local storage.");
     }
 }
-function fetchExpenseReportcomb(start1, end1, start2, end2) {
-    // Helper function to fetch reports for a specific date range
-    function fetchAllReports(start, end) {
-        $(".loader").show();
+// function fetchExpenseReportcomb(start1, end1, start2, end2) {
+//     // Helper function to fetch reports for a specific date range
+//     function fetchAllReports(start, end) {
+//         $(".loader").show();
 
-        return Promise.all([
-            $.ajax({
-                url: api_url,
-                method: "POST",
-                data: { operation: "expenseReport", start: start, end: end },
-            }),
-            $.ajax({
-                url: api_url,
-                method: "POST",
-                data: { operation: "expenseReport-2", start: start, end: end },
-            }),
-            $.ajax({
-                url: api_url,
-                method: "POST",
-                data: { operation: "expenseReport-3", start: start, end: end },
-            }),
-            $.ajax({
-                url: api_url,
-                method: "POST",
-                data: { operation: "expenseReport-4", start: start, end: end },
-            }),
-        ]);
-    }
+//         return Promise.all([
+//             $.ajax({
+//                 url: api_url,
+//                 method: "POST",
+//                 data: { operation: "expenseReport", start: start, end: end },
+//             }),
+//             $.ajax({
+//                 url: api_url,
+//                 method: "POST",
+//                 data: { operation: "expenseReport-2", start: start, end: end },
+//             }),
+//             $.ajax({
+//                 url: api_url,
+//                 method: "POST",
+//                 data: { operation: "expenseReport-3", start: start, end: end },
+//             }),
+//             $.ajax({
+//                 url: api_url,
+//                 method: "POST",
+//                 data: { operation: "expenseReport-4", start: start, end: end },
+//             }),
+//         ]);
+//     }
 
-    let datamain1, datamain2;
+//     let datamain1, datamain2;
 
-    // Fetch data for the first date range
-    fetchAllReports(start2, end2)
-        .then(function (responses1) {
-            console.log("responses1:", responses1);
-            // Parse the responses
-            const data1 = JSON.parse(responses1[0]);
-            const data2 = JSON.parse(responses1[1]);
-            const data3 = JSON.parse(responses1[2]);
-            const data4 = JSON.parse(responses1[3]);
+//     // Fetch data for the first date range
+//     fetchAllReports(start2, end2)
+//         .then(function (responses1) {
+//             console.log("responses1:", responses1);
+//             // Parse the responses
+//             const data1 = JSON.parse(responses1[0]);
+//             const data2 = JSON.parse(responses1[1]);
+//             const data3 = JSON.parse(responses1[2]);
+//             const data4 = JSON.parse(responses1[3]);
 
-            // Structure datamain1 to allow access like datamain1.data1.totals.spend_mygalla
-            datamain1 = {
-                data1: data1, // Replace 'data1' with the actual key based on your API response structure
-                data2: data2, // Similarly replace 'data2' based on your API response
-                data3: data3, // Replace 'data3' based on your API response
-                data4: data4, // Replace 'data4' based on your API response
-            };
+//             // Structure datamain1 to allow access like datamain1.data1.totals.spend_mygalla
+//             datamain1 = {
+//                 data1: data1, // Replace 'data1' with the actual key based on your API response structure
+//                 data2: data2, // Similarly replace 'data2' based on your API response
+//                 data3: data3, // Replace 'data3' based on your API response
+//                 data4: data4, // Replace 'data4' based on your API response
+//             };
 
-            console.log("datamain1:", datamain1); // Log first set of processed data
+//             console.log("datamain1:", datamain1); // Log first set of processed data
 
-            // Fetch data for the second date range
-            return fetchAllReports(start1, end1);
-        })
-        .then(function (responses2) {
-            console.log("responses2:", responses2);
-            // Parse the second set of responses
-            const data1_2 = JSON.parse(responses2[0]);
-            const data2_2 = JSON.parse(responses2[1]);
-            const data3_2 = JSON.parse(responses2[2]);
-            const data4_2 = JSON.parse(responses2[3]);
+//             // Fetch data for the second date range
+//             return fetchAllReports(start1, end1);
+//         })
+//         .then(function (responses2) {
+//             console.log("responses2:", responses2);
+//             // Parse the second set of responses
+//             const data1_2 = JSON.parse(responses2[0]);
+//             const data2_2 = JSON.parse(responses2[1]);
+//             const data3_2 = JSON.parse(responses2[2]);
+//             const data4_2 = JSON.parse(responses2[3]);
 
-            // Structure datamain2 similarly
-            datamain2 = {
-                data1: data1_2,
-                data2: data2_2,
-                data3: data3_2,
-                data4: data4_2,
-            };
+//             // Structure datamain2 similarly
+//             datamain2 = {
+//                 data1: data1_2,
+//                 data2: data2_2,
+//                 data3: data3_2,
+//                 data4: data4_2,
+//             };
 
-            console.log("datamain2:", datamain2); // Log second set of processed data
-           generateCombinedTable(start2, end2, datamain1, datamain2)
-        })
-        .catch(function (error) {
-            console.error("Error fetching or processing data:", error);
-        });
-}
+//             console.log("datamain2:", datamain2); // Log second set of processed data
+//            generateCombinedTable(start2, end2, datamain1, datamain2)
+//         })
+//         .catch(function (error) {
+//             console.error("Error fetching or processing data:", error);
+//         });
+// }
 function generateCombinedTable(start, end, dataMain1, dataMain2) {
 
     $(".loader").hide();
@@ -1768,215 +3264,215 @@ var content = `
     document.getElementById("displayContent").innerHTML = "<h1>Expense Report</h1><div style='overflow-x:scroll;'>" + content + "</div>";
 }
 
-function getcpls(type) {
-    var start = $("#reportStartDate").val(); // Get the value of the input
-    var end = $("#reportEndDate").val(); // Get the value of the input
+// function getcpls(type) {
+//     var start = $("#reportStartDate").val(); // Get the value of the input
+//     var end = $("#reportEndDate").val(); // Get the value of the input
 
-    $.ajax({
-        url: api_url,
-        method: "POST",
-        data: { operation: "getcpls", start: start, end: end, type: type },
-        success: function (response) {
-             response = JSON.parse(response);
-            if (response.success) {
-                var content = `
+//     $.ajax({
+//         url: api_url,
+//         method: "POST",
+//         data: { operation: "getcpls", start: start, end: end, type: type },
+//         success: function (response) {
+//              response = JSON.parse(response);
+//             if (response.success) {
+//                 var content = `
                         
-                         <div class='container mt-5' style='overflow-x:scroll;'>
-                             <table id="expensetable" class="table table-bordered table-striped">
-                                 <thead>
-                                     <tr>
-                                         <th>ID</th>
-                                         <th>Amount</th>
-                                         <th>Expense For</th>
-                                         <th>Remarks</th>
-                                         <th>PD_ID</th>
-                                         <th>Proff</th>
-                                         <th>Date Of Expense</th>
-                                         <th>DOR</th>
-                                         <th>Expense For</th>
-                                         <th>Expense Pourpose</th>
-                                         <th>Expense Account</th>
-                                         <th>Option</th>
-                                     </tr>
-                                 </thead>
-                             </table>
-                         </div>`;
+//                          <div class='container mt-5' style='overflow-x:scroll;'>
+//                              <table id="expensetable" class="table table-bordered table-striped">
+//                                  <thead>
+//                                      <tr>
+//                                          <th>ID</th>
+//                                          <th>Amount</th>
+//                                          <th>Expense For</th>
+//                                          <th>Remarks</th>
+//                                          <th>PD_ID</th>
+//                                          <th>Proff</th>
+//                                          <th>Date Of Expense</th>
+//                                          <th>DOR</th>
+//                                          <th>Expense For</th>
+//                                          <th>Expense Pourpose</th>
+//                                          <th>Expense Account</th>
+//                                          <th>Option</th>
+//                                      </tr>
+//                                  </thead>
+//                              </table>
+//                          </div>`;
 
                 
-                document.getElementById("tablereportcpl").innerHTML = content ;
+//                 document.getElementById("tablereportcpl").innerHTML = content ;
 
-                // Initialize DataTable with the JSON data
-                $("#expensetable").DataTable({
-                    data: response.data,
-                    order: [[0, "desc"]],
+//                 // Initialize DataTable with the JSON data
+//                 $("#expensetable").DataTable({
+//                     data: response.data,
+//                     order: [[0, "desc"]],
 
-                    columns: [
-                        { data: "ET_ID" },
-                        { data: "EXP_Amount" },
-                        { data: "Expense_For" },
-                        { data: "Remark" },
-                        { data: "PD_ID" },
-                        { data: "Proff" },
-                        { data: "Date_Of_Expense" },
-                        { data: "DOR" },
-                        {
-                            data: null,
-                            render: function (data, type, row) {
-                                if (row["EXP_For"]) {
-                                    switch (row["EXP_For"]) {
-                                        case "1":
-                                            return "Academy";
-                                        case "2":
-                                            return "Agency";
-                                        case "3":
-                                            return "My Galla";
-                                        default:
-                                            return row["EXP_For"];
-                                    }
-                                }
-                                return "";
-                            },
-                        },
-                        {
-                            data: null,
-                            render: function (data, type, row) {
-                                console.log(row["Expense_Purpose"] == 1);
-                                if (row["Expense_Purpose"]) {
-                                    switch (row["Expense_Purpose"]) {
-                                        case "1":
-                                            return "Marketing";
-                                        case "2":
-                                            return "Salary";
-                                        case "3":
-                                            return "Rent";
-                                        case "4":
-                                            return "Other";
-                                        default:
-                                            return row["Expense_Purpose"];
-                                    }
-                                }
-                                return "";
-                            },
-                        },
-                        {
-                            data: null,
-                            render: function (data, type, row) {
-                                if (row["From_Account"]) {
-                                    switch (row["From_Account"]) {
-                                        case "1":
-                                            return "GreenTech India";
-                                        case "2":
-                                            return "Axis (Vikash)";
-                                        case "3":
-                                            return "Kotak (Vikash)";
-                                        case "4":
-                                            return "Other";
-                                        case "5":
-                                            return "Cash";
-                                        case "6":
-                                            return "My Galla HDFC";
-                                        case "7":
-                                            return "Kalam Foundation Axis Bank";
-                                        default:
-                                            return row["From_Account"];
-                                    }
-                                }
-                                return "";
-                            },
-                        },
-                        {
-                            data: null,
-                            render: function (data, type, row) {
-                                return (
-                                    '<button class="btn btn-primary" data-toggle="modal" data-target="#exampleModalExpenseEdit" onclick="editExpense(' +
-                                    row["ET_ID"] +
-                                    ')">Edit</button>'
-                                );
-                            },
-                        },
-                    ],
-                });
-            } else {
-                alert("Failed to fetch data");
-            }
+//                     columns: [
+//                         { data: "ET_ID" },
+//                         { data: "EXP_Amount" },
+//                         { data: "Expense_For" },
+//                         { data: "Remark" },
+//                         { data: "PD_ID" },
+//                         { data: "Proff" },
+//                         { data: "Date_Of_Expense" },
+//                         { data: "DOR" },
+//                         {
+//                             data: null,
+//                             render: function (data, type, row) {
+//                                 if (row["EXP_For"]) {
+//                                     switch (row["EXP_For"]) {
+//                                         case "1":
+//                                             return "Academy";
+//                                         case "2":
+//                                             return "Agency";
+//                                         case "3":
+//                                             return "My Galla";
+//                                         default:
+//                                             return row["EXP_For"];
+//                                     }
+//                                 }
+//                                 return "";
+//                             },
+//                         },
+//                         {
+//                             data: null,
+//                             render: function (data, type, row) {
+//                                 console.log(row["Expense_Purpose"] == 1);
+//                                 if (row["Expense_Purpose"]) {
+//                                     switch (row["Expense_Purpose"]) {
+//                                         case "1":
+//                                             return "Marketing";
+//                                         case "2":
+//                                             return "Salary";
+//                                         case "3":
+//                                             return "Rent";
+//                                         case "4":
+//                                             return "Other";
+//                                         default:
+//                                             return row["Expense_Purpose"];
+//                                     }
+//                                 }
+//                                 return "";
+//                             },
+//                         },
+//                         {
+//                             data: null,
+//                             render: function (data, type, row) {
+//                                 if (row["From_Account"]) {
+//                                     switch (row["From_Account"]) {
+//                                         case "1":
+//                                             return "GreenTech India";
+//                                         case "2":
+//                                             return "Axis (Vikash)";
+//                                         case "3":
+//                                             return "Kotak (Vikash)";
+//                                         case "4":
+//                                             return "Other";
+//                                         case "5":
+//                                             return "Cash";
+//                                         case "6":
+//                                             return "My Galla HDFC";
+//                                         case "7":
+//                                             return "Kalam Foundation Axis Bank";
+//                                         default:
+//                                             return row["From_Account"];
+//                                     }
+//                                 }
+//                                 return "";
+//                             },
+//                         },
+//                         {
+//                             data: null,
+//                             render: function (data, type, row) {
+//                                 return (
+//                                     '<button class="btn btn-primary" data-toggle="modal" data-target="#exampleModalExpenseEdit" onclick="editExpense(' +
+//                                     row["ET_ID"] +
+//                                     ')">Edit</button>'
+//                                 );
+//                             },
+//                         },
+//                     ],
+//                 });
+//             } else {
+//                 alert("Failed to fetch data");
+//             }
             
-        },
-        error: function (xhr, status, error) {
-            console.error("Error fetching options:", error);
-            $(".loader").hide();
-        },
-    });
-}
+//         },
+//         error: function (xhr, status, error) {
+//             console.error("Error fetching options:", error);
+//             $(".loader").hide();
+//         },
+//     });
+// }
 
-function getTrancations(type) {
-    var start = $("#reportStartDate").val(); // Get the value of the input
-    var end = $("#reportEndDate").val(); // Get the value of the input
+// function getTrancations(type) {
+//     var start = $("#reportStartDate").val(); // Get the value of the input
+//     var end = $("#reportEndDate").val(); // Get the value of the input
 
-    $.ajax({
-        url: api_url,
-        method: "POST",
-        data: { operation: "getTrancations", start: start, end: end, type: type },
-        success: function (response) {
-            //var response = JSON.parse(responseout);
-            console.log(response);
-            var partial = response.split("/END/");
-            var len = partial.length - 1;
-            var content =
-                "<table id='tabletransPayment' class='mt-5 table table-striped table-bordered'><thead><th>Project Name</th><th>Lead Name</th><th>Amount</th><th>Proof</th><th>Remark</th><th>DOR</th><th>VERIFY</th><th>DELETE</th></thead><tbody>";
-            for (let i = 0; i < len; i++) {
-                var element = partial[i].split("<-->");
-                var test = element[9];
-                if (parseInt(element[8]) == 0) {
-                    content +=
-                        "<tr><td>" +
-                        element[2] +
-                        "</td><td>" +
-                        element[3] +
-                        "</td><td>" +
-                        element[4] +
-                        "</td><td><a href='" +
-                        element[5] +
-                        "' target='_blank'><b>Cilck here</b></a></td><td><b>Updated By: </b>" +
-                        test +
-                        "<hr>" +
-                        element[6] +
-                        "</td><td>" +
-                        element[7] +
-                        "</td><td><button onclick='unverifiedVerify(" +
-                        element[0] +
-                        ")'>VERIFY</button></td><td><button onclick='unverifiedDelete(" +
-                        element[0] +
-                        ")'>DELETE</button></td></tr>";
-                } else if (parseInt(element[8]) == 1) {
-                    content +=
-                        "<tr><td>" +
-                        element[2] +
-                        "</td><td>" +
-                        element[3] +
-                        "</td><td>" +
-                        element[4] +
-                        "</td><td><a href='" +
-                        element[5] +
-                        "' target='_blank'><b>Cilck here</b></a></td><td><b>Updated By: </b>" +
-                        test +
-                        "<hr>" +
-                        element[6] +
-                        "</td><td>" +
-                        element[7] +
-                        "</td><td>Verified</td><td><button onclick='unverifiedDelete(" +
-                        element[0] +
-                        ")'>DELETE</button></td></tr>";
-                }
-            }
-            document.getElementById("tablereporttrans").innerHTML = content + "</tbody></table>";
-            $("#tabletransPayment").DataTable({ stateSave: true });
-        },
-        error: function (xhr, status, error) {
-            console.error("Error fetching options:", error);
-            $(".loader").hide();
-        },
-    });
-}
+//     $.ajax({
+//         url: api_url,
+//         method: "POST",
+//         data: { operation: "getTrancations", start: start, end: end, type: type },
+//         success: function (response) {
+//             //var response = JSON.parse(responseout);
+//             console.log(response);
+//             var partial = response.split("/END/");
+//             var len = partial.length - 1;
+//             var content =
+//                 "<table id='tabletransPayment' class='mt-5 table table-striped table-bordered'><thead><th>Project Name</th><th>Lead Name</th><th>Amount</th><th>Proof</th><th>Remark</th><th>DOR</th><th>VERIFY</th><th>DELETE</th></thead><tbody>";
+//             for (let i = 0; i < len; i++) {
+//                 var element = partial[i].split("<-->");
+//                 var test = element[9];
+//                 if (parseInt(element[8]) == 0) {
+//                     content +=
+//                         "<tr><td>" +
+//                         element[2] +
+//                         "</td><td>" +
+//                         element[3] +
+//                         "</td><td>" +
+//                         element[4] +
+//                         "</td><td><a href='" +
+//                         element[5] +
+//                         "' target='_blank'><b>Cilck here</b></a></td><td><b>Updated By: </b>" +
+//                         test +
+//                         "<hr>" +
+//                         element[6] +
+//                         "</td><td>" +
+//                         element[7] +
+//                         "</td><td><button onclick='unverifiedVerify(" +
+//                         element[0] +
+//                         ")'>VERIFY</button></td><td><button onclick='unverifiedDelete(" +
+//                         element[0] +
+//                         ")'>DELETE</button></td></tr>";
+//                 } else if (parseInt(element[8]) == 1) {
+//                     content +=
+//                         "<tr><td>" +
+//                         element[2] +
+//                         "</td><td>" +
+//                         element[3] +
+//                         "</td><td>" +
+//                         element[4] +
+//                         "</td><td><a href='" +
+//                         element[5] +
+//                         "' target='_blank'><b>Cilck here</b></a></td><td><b>Updated By: </b>" +
+//                         test +
+//                         "<hr>" +
+//                         element[6] +
+//                         "</td><td>" +
+//                         element[7] +
+//                         "</td><td>Verified</td><td><button onclick='unverifiedDelete(" +
+//                         element[0] +
+//                         ")'>DELETE</button></td></tr>";
+//                 }
+//             }
+//             document.getElementById("tablereporttrans").innerHTML = content + "</tbody></table>";
+//             $("#tabletransPayment").DataTable({ stateSave: true });
+//         },
+//         error: function (xhr, status, error) {
+//             console.error("Error fetching options:", error);
+//             $(".loader").hide();
+//         },
+//     });
+// }
 
 function expenseReportTable() {
     var content = `<table id="example" class="display  table table-bordered table-striped " style="width:100%">
@@ -2033,110 +3529,110 @@ function getStatstl() {
     window.open(newUrl, "_blank");
 }
 
-function showTeam() {
-    $(".loader").show();
-    var tl = localStorage.getItem("userID");
-    var content =
-        '<table id="membersTable" class="display" style="width:100%"><thead><tr> <th>Admin ID</th> <th>Member Name</th><th>Attendence</th></tr></thead><tbody></tbody></table>';
+// function showTeam() {
+//     $(".loader").show();
+//     var tl = localStorage.getItem("userID");
+//     var content =
+//         '<table id="membersTable" class="display" style="width:100%"><thead><tr> <th>Admin ID</th> <th>Member Name</th><th>Attendence</th></tr></thead><tbody></tbody></table>';
 
-    document.getElementById("displayContent").innerHTML = "<h1>MY Team </h1><div style='overflow-x:scroll;'>" + content;
-    $.ajax({
-        url: api_url,
-        method: "POST",
-        data: { operation: "showMembers", tl: tl },
-        success: function (response) {
-            data = JSON.parse(response);
-            console.log(data);
-            var callers = data.data;
+//     document.getElementById("displayContent").innerHTML = "<h1>MY Team </h1><div style='overflow-x:scroll;'>" + content;
+//     $.ajax({
+//         url: api_url,
+//         method: "POST",
+//         data: { operation: "showMembers", tl: tl },
+//         success: function (response) {
+//             data = JSON.parse(response);
+//             console.log(data);
+//             var callers = data.data;
 
-            $("#membersTable").DataTable({
-                data: callers, // Initially empty data
-                columns: [
-                    { data: "Admin_ID" },
-                    { data: "Name" },
-                    {
-                        data: null,
+//             $("#membersTable").DataTable({
+//                 data: callers, // Initially empty data
+//                 columns: [
+//                     { data: "Admin_ID" },
+//                     { data: "Name" },
+//                     {
+//                         data: null,
 
-                        render: function (data, type, row) {
-                            console.log(row);
-                            return '<button class="btn btn-success" onclick="showAttendence(' + row["Admin_ID"] + ')">Show</button>';
-                        },
-                    },
-                ],
-            });
+//                         render: function (data, type, row) {
+//                             console.log(row);
+//                             return '<button class="btn btn-success" onclick="showAttendence(' + row["Admin_ID"] + ')">Show</button>';
+//                         },
+//                     },
+//                 ],
+//             });
 
-            $(".loader").hide();
-        },
-        error: function (xhr, status, error) {
-            console.error("Error fetching options:", error);
-        },
-    });
-}
+//             $(".loader").hide();
+//         },
+//         error: function (xhr, status, error) {
+//             console.error("Error fetching options:", error);
+//         },
+//     });
+// }
 
-function addMember() {
-    var tl = $("#tl-select").val();
-    var selectedValues = [];
-    // Loop through each selected option
-    $("#mb-select option:selected").each(function () {
-        selectedValues.push($(this).val());
-    });
+// function addMember() {
+//     var tl = $("#tl-select").val();
+//     var selectedValues = [];
+//     // Loop through each selected option
+//     $("#mb-select option:selected").each(function () {
+//         selectedValues.push($(this).val());
+//     });
 
-    $.ajax({
-        url: api_url,
-        method: "POST",
-        data: {
-            operation: "addMembers",
-            tl: tl,
-            members: JSON.stringify(selectedValues),
-        },
-        success: function (response) {
-            if (response == 1) {
-                alert("Data Inserted successfully");
-                $(".close").click();
-            }
-        },
-        error: function (xhr, status, error) {
-            console.error("Error fetching options:", error);
-        },
-    });
-}
+//     $.ajax({
+//         url: api_url,
+//         method: "POST",
+//         data: {
+//             operation: "addMembers",
+//             tl: tl,
+//             members: JSON.stringify(selectedValues),
+//         },
+//         success: function (response) {
+//             if (response == 1) {
+//                 alert("Data Inserted successfully");
+//                 $(".close").click();
+//             }
+//         },
+//         error: function (xhr, status, error) {
+//             console.error("Error fetching options:", error);
+//         },
+//     });
+// }
 
-function getMembers() {
-    $.ajax({
-        url: api_url,
-        method: "POST",
-        data: { operation: "getMembers" },
-        success: function (response) {
-            data = JSON.parse(response);
-            console.log(data);
-            //Clear existing options
-            $("#tl-select").empty();
-            $("#mb-select").empty();
+// function getMembers() {
+//     $.ajax({
+//         url: api_url,
+//         method: "POST",
+//         data: { operation: "getMembers" },
+//         success: function (response) {
+//             data = JSON.parse(response);
+//             console.log(data);
+//             //Clear existing options
+//             $("#tl-select").empty();
+//             $("#mb-select").empty();
 
-            $("#tl-select").append(
-                $("<option>", {
-                    value: "",
-                    text: "Please Select TL",
-                })
-            );
+//             $("#tl-select").append(
+//                 $("<option>", {
+//                     value: "",
+//                     text: "Please Select TL",
+//                 })
+//             );
 
-            // Populate options
-            data.TL.forEach(function (option) {
-                $("#tl-select").append(
-                    $("<option>", {
-                        value: option.Admin_ID,
-                        text: option.Name + " - " + option.Type,
-                    })
-                );
-            });
-            $("#mb-select").selectpicker("refresh");
-            $("#tl-select").selectpicker("refresh");
-        },
-        error: function (xhr, status, error) {
-            console.error("Error fetching options:", error);
-        },
-    });
-}
+//             // Populate options
+//             data.TL.forEach(function (option) {
+//                 $("#tl-select").append(
+//                     $("<option>", {
+//                         value: option.Admin_ID,
+//                         text: option.Name + " - " + option.Type,
+//                     })
+//                 );
+//             });
+//             $("#mb-select").selectpicker("refresh");
+//             $("#tl-select").selectpicker("refresh");
+//         },
+//         error: function (xhr, status, error) {
+//             console.error("Error fetching options:", error);
+//         },
+//     });
+// }
 
 function getToday() {
     var today = new Date();
@@ -2171,63 +3667,63 @@ function run15() {
 
 //     import from html
 
-function callerDataMonth() {
-    var id = localStorage.getItem("userID");
-    var to = getToday();
-    var from = getLast30Days();
+// function callerDataMonth() {
+//     var id = localStorage.getItem("userID");
+//     var to = getToday();
+//     var from = getLast30Days();
 
-    //console.log(from,to);
-    $.ajax({
-        url: api_url,
-        method: "POST", // You can use "GET" if appropriate
-        data: { operation: "007-month", id: id, to: to, from: from },
-        success: function (response) {
-            let result = JSON.parse(response);
-            console.log(result);
+//     //console.log(from,to);
+//     $.ajax({
+//         url: api_url,
+//         method: "POST", // You can use "GET" if appropriate
+//         data: { operation: "007-month", id: id, to: to, from: from },
+//         success: function (response) {
+//             let result = JSON.parse(response);
+//             console.log(result);
 
-            $("#brk-time .month").html("30 Days: " + result.bt);
-            $("#tot-dial .month").html("30 Days: " + result.call_today);
-            $("#tot-concted .month").html("30 Days: " + result.countConnected);
-            $("#tot-not-concted .month").html("30 Days: " + result.countNotConnected);
-            $("#call-durt .month").html("30 Days: " + result.callDuration);
-            $("#demo .month").html("30 Days: " + result.demo);
-            $("#follow .month").html("30 Days: " + result.follow);
-            $("#monster .month").html("30 Days: " + result.call_count);
-            $("#nrced .month").html("30 Days: " + result.notRecorded);
-            $("#fakedemo .month").html("30 Days: " + result.fakedemo + "/" + result.incomdemo);
-        },
-        error: function (xhr, status, error) {
-            console.error("AJAX Error: " + status, error);
-        },
-    });
-}
+//             $("#brk-time .month").html("30 Days: " + result.bt);
+//             $("#tot-dial .month").html("30 Days: " + result.call_today);
+//             $("#tot-concted .month").html("30 Days: " + result.countConnected);
+//             $("#tot-not-concted .month").html("30 Days: " + result.countNotConnected);
+//             $("#call-durt .month").html("30 Days: " + result.callDuration);
+//             $("#demo .month").html("30 Days: " + result.demo);
+//             $("#follow .month").html("30 Days: " + result.follow);
+//             $("#monster .month").html("30 Days: " + result.call_count);
+//             $("#nrced .month").html("30 Days: " + result.notRecorded);
+//             $("#fakedemo .month").html("30 Days: " + result.fakedemo + "/" + result.incomdemo);
+//         },
+//         error: function (xhr, status, error) {
+//             console.error("AJAX Error: " + status, error);
+//         },
+//     });
+// }
 
-function callerDataToday() {
-    var id = localStorage.getItem("userID");
+// function callerDataToday() {
+//     var id = localStorage.getItem("userID");
 
-    $.ajax({
-        url: api_url,
-        method: "POST", // You can use "GET" if appropriate
-        data: { operation: "test1", id: id },
-        success: function (response) {
-            let result = JSON.parse(response);
-            //console.log(result);
+//     $.ajax({
+//         url: api_url,
+//         method: "POST", // You can use "GET" if appropriate
+//         data: { operation: "test1", id: id },
+//         success: function (response) {
+//             let result = JSON.parse(response);
+//             //console.log(result);
 
-            $("#brk-time .today").html("Today: " + result.bt);
-            $("#tot-dial .today").html("Today: " + result.call_today);
-            $("#tot-concted .today").html("Today: " + result.countConnected);
-            $("#tot-not-concted .today").html("Today: " + result.countNotConnected);
-            $("#call-durt .today").html("Today: " + result.callDuration);
-            $("#demo .today").html("Today: " + result.demo);
-            $("#follow .today").html("Today: " + result.follow);
-            $("#monster .today").html("Today: " + result.call_count);
-            $("#nrced .today").html("Today: " + result.notRecorded);
-        },
-        error: function (xhr, status, error) {
-            console.error("AJAX Error: " + status, error);
-        },
-    });
-}
+//             $("#brk-time .today").html("Today: " + result.bt);
+//             $("#tot-dial .today").html("Today: " + result.call_today);
+//             $("#tot-concted .today").html("Today: " + result.countConnected);
+//             $("#tot-not-concted .today").html("Today: " + result.countNotConnected);
+//             $("#call-durt .today").html("Today: " + result.callDuration);
+//             $("#demo .today").html("Today: " + result.demo);
+//             $("#follow .today").html("Today: " + result.follow);
+//             $("#monster .today").html("Today: " + result.call_count);
+//             $("#nrced .today").html("Today: " + result.notRecorded);
+//         },
+//         error: function (xhr, status, error) {
+//             console.error("AJAX Error: " + status, error);
+//         },
+//     });
+// }
 
 //  image compression
 
@@ -2273,58 +3769,58 @@ async function resizeAndUpload(file, maxWidth = 600, maxHeight = 600) {
     });
 }
 
-async function handleFileSelect(event) {
-    const file = event.target.files[0];
+// async function handleFileSelect(event) {
+//     const file = event.target.files[0];
 
-    if (file.type.match("image.*")) {
-        $(".loader").show();
-        const resizedFile = await resizeAndUpload(file);
-        console.log("Resized File:", resizedFile);
+//     if (file.type.match("image.*")) {
+//         $(".loader").show();
+//         const resizedFile = await resizeAndUpload(file);
+//         console.log("Resized File:", resizedFile);
 
-        var formData = new FormData();
-        formData.append("image", resizedFile);
-        formData.append("operation", "taskImageUpload"); // Include operation
+//         var formData = new FormData();
+//         formData.append("image", resizedFile);
+//         formData.append("operation", "taskImageUpload"); // Include operation
 
-        // AJAX request to upload the image
-        $.ajax({
-            url: api_url,
-            type: "POST",
-            data: formData,
-            processData: false,
-            contentType: false,
-            success: function (response) {
-                var responseData = JSON.parse(response);
-                console.log(responseData);
-                if (responseData.success == true) {
-                    console.log(responseData.imageUrl);
-                    $(".loader").hide();
-                    $("#remarksProjAssign").val($("#remarksProjAssign").val() + "\n \n" + responseData.imageUrl);
-                    $(".success-msg").text("Upload success").show();
-                } else {
-                    // Handle error: log the error message
-                    console.error("Upload error:", responseData.error);
-                    // You can also display the error message to the user, for example:
-                    $(".loader").hide();
-                    $(".error-msg").text("Upload failed").show();
-                    alert("Upload failed: " + responseData.error);
-                }
-            },
-            error: function (xhr, status, error) {
-                // Handle AJAX error
-                $(".loader").hide();
-                console.error("AJAX error:", error);
-                $(".error-msg").text("Upload failed").show();
-                // You can display a generic error message to the user, for example:
-                alert("An error occurred while processing your request. Please try again later.");
-            },
-        });
-    } else {
-        // The selected file is not an image, show an error message
-        alert("Please select an image file.");
-        // Clear the file input to reset it
-        $(this).val("");
-    }
-}
+//         // AJAX request to upload the image
+//         $.ajax({
+//             url: api_url,
+//             type: "POST",
+//             data: formData,
+//             processData: false,
+//             contentType: false,
+//             success: function (response) {
+//                 var responseData = JSON.parse(response);
+//                 console.log(responseData);
+//                 if (responseData.success == true) {
+//                     console.log(responseData.imageUrl);
+//                     $(".loader").hide();
+//                     $("#remarksProjAssign").val($("#remarksProjAssign").val() + "\n \n" + responseData.imageUrl);
+//                     $(".success-msg").text("Upload success").show();
+//                 } else {
+//                     // Handle error: log the error message
+//                     console.error("Upload error:", responseData.error);
+//                     // You can also display the error message to the user, for example:
+//                     $(".loader").hide();
+//                     $(".error-msg").text("Upload failed").show();
+//                     alert("Upload failed: " + responseData.error);
+//                 }
+//             },
+//             error: function (xhr, status, error) {
+//                 // Handle AJAX error
+//                 $(".loader").hide();
+//                 console.error("AJAX error:", error);
+//                 $(".error-msg").text("Upload failed").show();
+//                 // You can display a generic error message to the user, for example:
+//                 alert("An error occurred while processing your request. Please try again later.");
+//             },
+//         });
+//     } else {
+//         // The selected file is not an image, show an error message
+//         alert("Please select an image file.");
+//         // Clear the file input to reset it
+//         $(this).val("");
+//     }
+// }
 
 let selectedFile; // Global variable to store the selected file
 
@@ -2355,56 +3851,56 @@ async function handleFileSelecthr(event) {
     }
 }
 
-async function uploadImage() {
-    if (!selectedFile) return; // If no file is selected, don't proceed
+// async function uploadImage() {
+//     if (!selectedFile) return; // If no file is selected, don't proceed
 
-    $(".loader").show();
+//     $(".loader").show();
 
-    try {
-        // Resize and upload the image
-        const resizedFile = await resizeAndUpload(selectedFile);
-        console.log("Resized File:", resizedFile);
+//     try {
+//         // Resize and upload the image
+//         const resizedFile = await resizeAndUpload(selectedFile);
+//         console.log("Resized File:", resizedFile);
 
-        var formData = new FormData();
-        formData.append("image", resizedFile);
-        formData.append("operation", "ImageUploadhr"); // Include operation
+//         var formData = new FormData();
+//         formData.append("image", resizedFile);
+//         formData.append("operation", "ImageUploadhr"); // Include operation
 
-        // AJAX request to upload the image
-        $.ajax({
-            url: api_url,
-            type: "POST",
-            data: formData,
-            processData: false,
-            contentType: false,
-            success: function (response) {
-                var responseData = JSON.parse(response);
-                console.log(responseData);
-                $(".loader").hide();
+//         // AJAX request to upload the image
+//         $.ajax({
+//             url: api_url,
+//             type: "POST",
+//             data: formData,
+//             processData: false,
+//             contentType: false,
+//             success: function (response) {
+//                 var responseData = JSON.parse(response);
+//                 console.log(responseData);
+//                 $(".loader").hide();
 
-                if (responseData.success === true) {
-                    console.log(responseData.imageUrl);
-                    $("#fileurl").val((i, val) => val.trim() + (val.trim() ? " " : "") + responseData.imageUrl);
+//                 if (responseData.success === true) {
+//                     console.log(responseData.imageUrl);
+//                     $("#fileurl").val((i, val) => val.trim() + (val.trim() ? " " : "") + responseData.imageUrl);
 
-                    $(".success-msg").text("Upload success").show();
-                } else {
-                    console.error("Upload error:", responseData.error);
-                    $(".error-msg").text("Upload failed").show();
-                    alert("Upload failed: " + responseData.error);
-                }
-            },
-            error: function (xhr, status, error) {
-                $(".loader").hide();
-                console.error("AJAX error:", error);
-                $(".error-msg").text("Upload failed").show();
-                alert("An error occurred while processing your request. Please try again later.");
-            },
-        });
-    } catch (error) {
-        $(".loader").hide();
-        console.error("Error during image processing:", error);
-        $(".error-msg").text("Image processing failed").show();
-    }
-}
+//                     $(".success-msg").text("Upload success").show();
+//                 } else {
+//                     console.error("Upload error:", responseData.error);
+//                     $(".error-msg").text("Upload failed").show();
+//                     alert("Upload failed: " + responseData.error);
+//                 }
+//             },
+//             error: function (xhr, status, error) {
+//                 $(".loader").hide();
+//                 console.error("AJAX error:", error);
+//                 $(".error-msg").text("Upload failed").show();
+//                 alert("An error occurred while processing your request. Please try again later.");
+//             },
+//         });
+//     } catch (error) {
+//         $(".loader").hide();
+//         console.error("Error during image processing:", error);
+//         $(".error-msg").text("Image processing failed").show();
+//     }
+// }
 
 function addTaskImage() {
     var loader = $("<div>", {
@@ -2456,242 +3952,242 @@ function addTaskImage() {
     // Insert the new input element after the textarea
     textarea.after(loader, newImageInput, successMsg, errorMsg);
 }
-function sendMailNew(data) {
-    $.ajax({
-        type: "post",
-        url: "https://kalamacademy.org/test/test.php",
-        data: {
-            operation: "00100",
-            to: data.to,
-            subject: data.subject,
-            message: data.message,
-        },
-        success: function (response) {
-            $(".loader").hide();
-            //console.log(response)
-            if (response > 0) {
-                alert("Mail Sent");
-            } else {
-                alert("Error In Sending Mail");
-            }
-        },
-        error: function (jqXHR, exception) {
-            var msg = displayerror(jqXHR, exception);
-            alert(msg);
-        },
-    });
-}
+// function sendMailNew(data) {
+//     $.ajax({
+//         type: "post",
+//         url: "https://kalamacademy.org/test/test.php",
+//         data: {
+//             operation: "00100",
+//             to: data.to,
+//             subject: data.subject,
+//             message: data.message,
+//         },
+//         success: function (response) {
+//             $(".loader").hide();
+//             //console.log(response)
+//             if (response > 0) {
+//                 alert("Mail Sent");
+//             } else {
+//                 alert("Error In Sending Mail");
+//             }
+//         },
+//         error: function (jqXHR, exception) {
+//             var msg = displayerror(jqXHR, exception);
+//             alert(msg);
+//         },
+//     });
+// }
 
-function paymentVerifyMail(pd_id, id) {
-    $.ajax({
-        type: "post",
-        url: api_url,
-        data: { operation: "paymentVerifyMail", pd_id: pd_id, id: id },
-        success: function (response) {
-            response = JSON.parse(response);
-            sendMailNew(response);
-        },
-        error: function (jqXHR, exception) {
-            var msg = displayerror(jqXHR, exception);
-            alert(msg);
-        },
-    });
-}
+// function paymentVerifyMail(pd_id, id) {
+//     $.ajax({
+//         type: "post",
+//         url: api_url,
+//         data: { operation: "paymentVerifyMail", pd_id: pd_id, id: id },
+//         success: function (response) {
+//             response = JSON.parse(response);
+//             sendMailNew(response);
+//         },
+//         error: function (jqXHR, exception) {
+//             var msg = displayerror(jqXHR, exception);
+//             alert(msg);
+//         },
+//     });
+// }
 
-function taskCompleteMail(id) {
-    $.ajax({
-        type: "post",
-        url: api_url,
-        data: { operation: "taskCompleteMail", id: id },
-        success: function (response) {
-            response = JSON.parse(response);
-            sendMailNew(response);
-        },
-        error: function (jqXHR, exception) {
-            var msg = displayerror(jqXHR, exception);
-            alert(msg);
-        },
-    });
-}
+// function taskCompleteMail(id) {
+//     $.ajax({
+//         type: "post",
+//         url: api_url,
+//         data: { operation: "taskCompleteMail", id: id },
+//         success: function (response) {
+//             response = JSON.parse(response);
+//             sendMailNew(response);
+//         },
+//         error: function (jqXHR, exception) {
+//             var msg = displayerror(jqXHR, exception);
+//             alert(msg);
+//         },
+//     });
+// }
 
-function taskAssignMail(id, description) {
-    $.ajax({
-        type: "post",
-        url: api_url,
-        data: { operation: "taskAssignMail", id: id, description: description },
-        success: function (response) {
-            response = JSON.parse(response);
-            sendMailNew(response);
-        },
-        error: function (jqXHR, exception) {
-            var msg = displayerror(jqXHR, exception);
-            alert(msg);
-        },
-    });
-}
+// function taskAssignMail(id, description) {
+//     $.ajax({
+//         type: "post",
+//         url: api_url,
+//         data: { operation: "taskAssignMail", id: id, description: description },
+//         success: function (response) {
+//             response = JSON.parse(response);
+//             sendMailNew(response);
+//         },
+//         error: function (jqXHR, exception) {
+//             var msg = displayerror(jqXHR, exception);
+//             alert(msg);
+//         },
+//     });
+// }
 
-function addNewProjMail(id) {
-    $.ajax({
-        type: "post",
-        url: api_url,
-        data: { operation: "addNewProjMail", id: id },
-        success: function (response) {
-            response = JSON.parse(response);
-            sendMailNew(response);
-            console.log(response);
-        },
-        error: function (jqXHR, exception) {
-            var msg = displayerror(jqXHR, exception);
-            alert(msg);
-        },
-    });
-}
-function projStatusChange(id, description) {
-    $.ajax({
-        type: "post",
-        url: api_url,
-        data: { operation: "projstatusmail", id: id, description: description },
-        success: function (response) {
-            response = JSON.parse(response);
-            sendMailNew(response);
-            console.log(response);
-        },
-        error: function (jqXHR, exception) {
-            var msg = displayerror(jqXHR, exception);
-            alert(msg);
-        },
-    });
-}
+// function addNewProjMail(id) {
+//     $.ajax({
+//         type: "post",
+//         url: api_url,
+//         data: { operation: "addNewProjMail", id: id },
+//         success: function (response) {
+//             response = JSON.parse(response);
+//             sendMailNew(response);
+//             console.log(response);
+//         },
+//         error: function (jqXHR, exception) {
+//             var msg = displayerror(jqXHR, exception);
+//             alert(msg);
+//         },
+//     });
+// }
+// function projStatusChange(id, description) {
+//     $.ajax({
+//         type: "post",
+//         url: api_url,
+//         data: { operation: "projstatusmail", id: id, description: description },
+//         success: function (response) {
+//             response = JSON.parse(response);
+//             sendMailNew(response);
+//             console.log(response);
+//         },
+//         error: function (jqXHR, exception) {
+//             var msg = displayerror(jqXHR, exception);
+//             alert(msg);
+//         },
+//     });
+// }
 
-function getComplaint() {
-    var content =
-        '<table id="complaintTable" class="table table-bordered table-striped"> <thead> <tr> <th>Lead Id</th> <th>PD Id</th> <th>Lead Name</th><th scope="col">Mobile/<br>Alternate/<br>Whatsapp/<br>Email</th> <th>Project Name</th> <th>Project Type</th> <th>Caller</th> <th>Developer</th> <th>Issue</th> <th>Description</th> <th>Type</th> <th>Date</th> <th>Status</th> <th>Options</th></tr> </thead> <tbody></tbody> </table>';
+// function getComplaint() {
+//     var content =
+//         '<table id="complaintTable" class="table table-bordered table-striped"> <thead> <tr> <th>Lead Id</th> <th>PD Id</th> <th>Lead Name</th><th scope="col">Mobile/<br>Alternate/<br>Whatsapp/<br>Email</th> <th>Project Name</th> <th>Project Type</th> <th>Caller</th> <th>Developer</th> <th>Issue</th> <th>Description</th> <th>Type</th> <th>Date</th> <th>Status</th> <th>Options</th></tr> </thead> <tbody></tbody> </table>';
 
-    document.getElementById("displayContent").innerHTML = content;
+//     document.getElementById("displayContent").innerHTML = content;
 
-    $.ajax({
-        url: api_url,
-        method: "POST",
-        data: { operation: "008-4" },
-        success: function (data) {
-            data = JSON.parse(data);
-            //console.log(data);
+//     $.ajax({
+//         url: api_url,
+//         method: "POST",
+//         data: { operation: "008-4" },
+//         success: function (data) {
+//             data = JSON.parse(data);
+//             //console.log(data);
 
-            $("#complaintTable").DataTable({
-                data: data.data,
-                order: [[11, "desc"]],
-                columns: [
-                    { data: "lead_id" },
-                    { data: "PD_ID" },
-                    { data: "lead_name" },
-                    {
-                        data: null,
-                        render: function (data, type, row, meta) {
-                            var index = meta.row;
-                            //console.log(row);
+//             $("#complaintTable").DataTable({
+//                 data: data.data,
+//                 order: [[11, "desc"]],
+//                 columns: [
+//                     { data: "lead_id" },
+//                     { data: "PD_ID" },
+//                     { data: "lead_name" },
+//                     {
+//                         data: null,
+//                         render: function (data, type, row, meta) {
+//                             var index = meta.row;
+//                             //console.log(row);
 
-                            return (
-                                '<a href="javascript:void(0)" onclick="makeCall(\'' +
-                                row["lead_name"] +
-                                "', '" +
-                                row["lead_id"] +
-                                "', '" +
-                                row["mobile"] +
-                                "', " +
-                                index +
-                                ')">' +
-                                row["mobile"] +
-                                '</a><br><a href="javascript:void(0)" onclick="makeCall(\'' +
-                                row["lead_name"] +
-                                "', '" +
-                                row["lead_id"] +
-                                "', '" +
-                                row["Alternate_Mobile"] +
-                                "', " +
-                                index +
-                                ')">' +
-                                row["Alternate_Mobile"] +
-                                '</a><br><a href="https://api.whatsapp.com/send?phone=91' +
-                                row["Whatsapp"] +
-                                '">' +
-                                row["Whatsapp"] +
-                                "</a><br>" +
-                                row["email"] +
-                                '<br><button style="display:none"  data-toggle="modal" data-target="#exampleModal4" data-whatever="' +
-                                row["lead_id"] +
-                                '" id="save-id-' +
-                                index +
-                                '" onclick=stopRecord("' +
-                                row["lead_id"] +
-                                '","' +
-                                index +
-                                '")>End Call</button>'
-                            );
-                        },
-                    },
-                    {
-                        data: "Project_Name",
-                        render: function (data, type, row) {
-                            return (
-                                data +
-                                '<br><button data-toggle="modal" data-target="#exampleModalAssignProj" onclick="addProjDetails(' +
-                                row["PD_ID"] +
-                                ", '" +
-                                row["description"] +
-                                "', '" +
-                                row["issue"] +
-                                "', '" +
-                                row["fileName"] +
-                                '\')">Assign Task</button><br><button data-toggle="modal" data-target="#exampleModalviewProjecttask" onclick="viewProjectTask(' +
-                                row["PD_ID"] +
-                                ')">View Task</button>'
-                            );
-                        },
-                    },
-                    { data: "Project_Type" },
-                    { data: "caller" },
-                    { data: "developer" },
-                    { data: "issue" },
-                    {
-                        data: "description",
-                        render: function (data, type, row) {
-                            var image = "";
-                            if (row["fileName"] != "0") {
-                                image = "<br><button onclick=\"showImage('" + row["fileName"] + "')\">View image</button>";
-                            }
+//                             return (
+//                                 '<a href="javascript:void(0)" onclick="makeCall(\'' +
+//                                 row["lead_name"] +
+//                                 "', '" +
+//                                 row["lead_id"] +
+//                                 "', '" +
+//                                 row["mobile"] +
+//                                 "', " +
+//                                 index +
+//                                 ')">' +
+//                                 row["mobile"] +
+//                                 '</a><br><a href="javascript:void(0)" onclick="makeCall(\'' +
+//                                 row["lead_name"] +
+//                                 "', '" +
+//                                 row["lead_id"] +
+//                                 "', '" +
+//                                 row["Alternate_Mobile"] +
+//                                 "', " +
+//                                 index +
+//                                 ')">' +
+//                                 row["Alternate_Mobile"] +
+//                                 '</a><br><a href="https://api.whatsapp.com/send?phone=91' +
+//                                 row["Whatsapp"] +
+//                                 '">' +
+//                                 row["Whatsapp"] +
+//                                 "</a><br>" +
+//                                 row["email"] +
+//                                 '<br><button style="display:none"  data-toggle="modal" data-target="#exampleModal4" data-whatever="' +
+//                                 row["lead_id"] +
+//                                 '" id="save-id-' +
+//                                 index +
+//                                 '" onclick=stopRecord("' +
+//                                 row["lead_id"] +
+//                                 '","' +
+//                                 index +
+//                                 '")>End Call</button>'
+//                             );
+//                         },
+//                     },
+//                     {
+//                         data: "Project_Name",
+//                         render: function (data, type, row) {
+//                             return (
+//                                 data +
+//                                 '<br><button data-toggle="modal" data-target="#exampleModalAssignProj" onclick="addProjDetails(' +
+//                                 row["PD_ID"] +
+//                                 ", '" +
+//                                 row["description"] +
+//                                 "', '" +
+//                                 row["issue"] +
+//                                 "', '" +
+//                                 row["fileName"] +
+//                                 '\')">Assign Task</button><br><button data-toggle="modal" data-target="#exampleModalviewProjecttask" onclick="viewProjectTask(' +
+//                                 row["PD_ID"] +
+//                                 ')">View Task</button>'
+//                             );
+//                         },
+//                     },
+//                     { data: "Project_Type" },
+//                     { data: "caller" },
+//                     { data: "developer" },
+//                     { data: "issue" },
+//                     {
+//                         data: "description",
+//                         render: function (data, type, row) {
+//                             var image = "";
+//                             if (row["fileName"] != "0") {
+//                                 image = "<br><button onclick=\"showImage('" + row["fileName"] + "')\">View image</button>";
+//                             }
 
-                            return data + image;
-                        },
-                    },
-                    { data: "type" },
-                    { data: "date_added" },
-                    { data: "status" },
-                    {
-                        data: null,
-                        render: function (data, type, row) {
-                            return (
-                                '<button data-toggle="modal" data-target="#exampleModalProjectBilling" onclick="getProjectBilling(' +
-                                row["PD_ID"] +
-                                ')">Billing</button><br>' +
-                                '<button data-toggle="modal" data-target="#exampleModalProjectPayment" onclick="addProjectIDPayment(' +
-                                row["PD_ID"] +
-                                ')">Payment</button><br>' +
-                                '<button data-toggle="modal" data-target="#exampleModal4" onclick="getAllStatus(' +
-                                row["lead_id"] +
-                                ')" data-whatever="' +
-                                row["lead_id"] +
-                                '">Status</button>'
-                            );
-                        },
-                    },
-                ],
-            });
-        },
-        error: function (error) {
-            console.error("Error fetching data:", error);
-        },
-    });
-}
+//                             return data + image;
+//                         },
+//                     },
+//                     { data: "type" },
+//                     { data: "date_added" },
+//                     { data: "status" },
+//                     {
+//                         data: null,
+//                         render: function (data, type, row) {
+//                             return (
+//                                 '<button data-toggle="modal" data-target="#exampleModalProjectBilling" onclick="getProjectBilling(' +
+//                                 row["PD_ID"] +
+//                                 ')">Billing</button><br>' +
+//                                 '<button data-toggle="modal" data-target="#exampleModalProjectPayment" onclick="addProjectIDPayment(' +
+//                                 row["PD_ID"] +
+//                                 ')">Payment</button><br>' +
+//                                 '<button data-toggle="modal" data-target="#exampleModal4" onclick="getAllStatus(' +
+//                                 row["lead_id"] +
+//                                 ')" data-whatever="' +
+//                                 row["lead_id"] +
+//                                 '">Status</button>'
+//                             );
+//                         },
+//                     },
+//                 ],
+//             });
+//         },
+//         error: function (error) {
+//             console.error("Error fetching data:", error);
+//         },
+//     });
+// }
 
 function showImage(name) {
     $("#exampleModalViewImage").modal("toggle"); // Toggles the modal
@@ -2700,115 +4196,115 @@ function showImage(name) {
     console.log(link);
 }
 
-function getTHStats() {
-    var startDate = document.getElementById("sDate").value;
-    var endDate = document.getElementById("eDate").value;
+// function getTHStats() {
+//     var startDate = document.getElementById("sDate").value;
+//     var endDate = document.getElementById("eDate").value;
 
-    var content =
-        '<table id="statsTable" class="table table-bordered table-striped"> <thead> <tr> <th>Name</th><th>Total Tasks</th><th>Total Delayed Tasks</th><th>Total Completed on Time</th><th>Total Completed Before Time</th><th>Total Open Tasks</th><th>Total Delayed Not Completed</th> </tr> </thead> <tbody></tbody> </table>';
+//     var content =
+//         '<table id="statsTable" class="table table-bordered table-striped"> <thead> <tr> <th>Name</th><th>Total Tasks</th><th>Total Delayed Tasks</th><th>Total Completed on Time</th><th>Total Completed Before Time</th><th>Total Open Tasks</th><th>Total Delayed Not Completed</th> </tr> </thead> <tbody></tbody> </table>';
 
-    content += '<div id="plotContainer" class="plotContainer mt-3" style="width: 100%; height: 400px;"></div>';
-    document.getElementById("displayContent").innerHTML = content;
+//     content += '<div id="plotContainer" class="plotContainer mt-3" style="width: 100%; height: 400px;"></div>';
+//     document.getElementById("displayContent").innerHTML = content;
 
-    $.ajax({
-        url: api_url,
-        method: "POST",
-        data: { operation: "008-3", startDate: startDate, endDate: endDate },
-        success: function (data) {
-            data = JSON.parse(data);
-            console.log(data);
+//     $.ajax({
+//         url: api_url,
+//         method: "POST",
+//         data: { operation: "008-3", startDate: startDate, endDate: endDate },
+//         success: function (data) {
+//             data = JSON.parse(data);
+//             console.log(data);
 
-            $("#statsTable").DataTable({
-                data: data.data,
-                order: [[1, "desc"]],
-                columns: [
-                    { data: "Name" },
-                    { data: "total_tasks" },
-                    { data: "total_delayed_tasks" },
-                    { data: "total_completed_on_time" },
-                    { data: "total_completed_before_time" },
-                    { data: "total_open_tasks" },
-                    { data: "total_delayed_not_completed" },
-                ],
-            });
-        },
-        error: function (error) {
-            console.error("Error fetching data:", error);
-        },
-    });
-}
+//             $("#statsTable").DataTable({
+//                 data: data.data,
+//                 order: [[1, "desc"]],
+//                 columns: [
+//                     { data: "Name" },
+//                     { data: "total_tasks" },
+//                     { data: "total_delayed_tasks" },
+//                     { data: "total_completed_on_time" },
+//                     { data: "total_completed_before_time" },
+//                     { data: "total_open_tasks" },
+//                     { data: "total_delayed_not_completed" },
+//                 ],
+//             });
+//         },
+//         error: function (error) {
+//             console.error("Error fetching data:", error);
+//         },
+//     });
+// }
 
-function getSupportStats() {
-    function formatDate(date) {
-        const year = date.getFullYear();
-        const month = (date.getMonth() + 1).toString().padStart(2, "0");
-        const day = date.getDate().toString().padStart(2, "0");
-        return `${year}-${month}-${day}`;
-    }
+// function getSupportStats() {
+//     function formatDate(date) {
+//         const year = date.getFullYear();
+//         const month = (date.getMonth() + 1).toString().padStart(2, "0");
+//         const day = date.getDate().toString().padStart(2, "0");
+//         return `${year}-${month}-${day}`;
+//     }
 
-    const currentDate = new Date();
-    const startDate = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
-    const endDate = currentDate;
+//     const currentDate = new Date();
+//     const startDate = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
+//     const endDate = currentDate;
 
-    // Format the dates as YYYY-MM-DD
-    const formattedStartDate = formatDate(startDate);
-    const formattedEndDate = formatDate(endDate);
-    console.log(formattedStartDate, formattedEndDate);
+//     // Format the dates as YYYY-MM-DD
+//     const formattedStartDate = formatDate(startDate);
+//     const formattedEndDate = formatDate(endDate);
+//     console.log(formattedStartDate, formattedEndDate);
 
-    var id = localStorage.getItem("userID");
+//     var id = localStorage.getItem("userID");
 
-    $.ajax({
-        url: api_url,
-        method: "POST",
-        data: {
-            operation: "008-2",
-            startDate: formattedStartDate,
-            endDate: formattedEndDate,
-            id: id,
-        },
-        success: function (data) {
-            data = JSON.parse(data);
-            data = data[0];
-            console.log(data);
-            $("#total-task").text(data.total_tasks);
-            $("#delayed-task").text(data.total_delayed_tasks);
-            $("#delayed-not-completed").text(data.total_delayed_not_completed);
-            $("#completed-before-time").text(data.total_completed_on_time + "/" + data.total_completed_before_time);
-            $("#fake-task").text(data.total_fake_completion_tasks + "/" + data.total_incomplete_task_tasks);
-        },
-        error: function (error) {
-            console.error("Error fetching data:", error);
-        },
-    });
-}
+//     $.ajax({
+//         url: api_url,
+//         method: "POST",
+//         data: {
+//             operation: "008-2",
+//             startDate: formattedStartDate,
+//             endDate: formattedEndDate,
+//             id: id,
+//         },
+//         success: function (data) {
+//             data = JSON.parse(data);
+//             data = data[0];
+//             console.log(data);
+//             $("#total-task").text(data.total_tasks);
+//             $("#delayed-task").text(data.total_delayed_tasks);
+//             $("#delayed-not-completed").text(data.total_delayed_not_completed);
+//             $("#completed-before-time").text(data.total_completed_on_time + "/" + data.total_completed_before_time);
+//             $("#fake-task").text(data.total_fake_completion_tasks + "/" + data.total_incomplete_task_tasks);
+//         },
+//         error: function (error) {
+//             console.error("Error fetching data:", error);
+//         },
+//     });
+// }
 
-function getSupport() {
-    // Replace 'your_api_endpoint' with the actual API endpoint to fetch data from the server
-    $.ajax({
-        url: api_url,
-        method: "POST",
-        data: { operation: "008-1" },
-        success: function (data) {
-            data = JSON.parse(data);
-            // Assuming the response is an array of objects with 'id' and 'text' properties
-            var selectElement = document.getElementById("support-agent");
+// function getSupport() {
+//     // Replace 'your_api_endpoint' with the actual API endpoint to fetch data from the server
+//     $.ajax({
+//         url: api_url,
+//         method: "POST",
+//         data: { operation: "008-1" },
+//         success: function (data) {
+//             data = JSON.parse(data);
+//             // Assuming the response is an array of objects with 'id' and 'text' properties
+//             var selectElement = document.getElementById("support-agent");
 
-            // Clear existing options
-            selectElement.innerHTML = "";
+//             // Clear existing options
+//             selectElement.innerHTML = "";
 
-            // Populate options based on the fetched data
-            data.forEach((item) => {
-                var option = document.createElement("option");
-                option.value = item.ADMIN_ID;
-                option.textContent = item.Name; // Adjust the property names based on your data structure
-                selectElement.appendChild(option);
-            });
-        },
-        error: function (error) {
-            console.error("Error fetching data:", error);
-        },
-    });
-}
+//             // Populate options based on the fetched data
+//             data.forEach((item) => {
+//                 var option = document.createElement("option");
+//                 option.value = item.ADMIN_ID;
+//                 option.textContent = item.Name; // Adjust the property names based on your data structure
+//                 selectElement.appendChild(option);
+//             });
+//         },
+//         error: function (error) {
+//             console.error("Error fetching data:", error);
+//         },
+//     });
+// }
 
 function breakFun(x) {
     let btnValue = x.value;
@@ -5353,158 +6849,147 @@ function getempStatuscount() {
 }
 
 
-function allCaller() {
-    // Create the table structure
-    var content = `
-        <h1>All Members</h1>
-        <div class='container' style='overflow-x:scroll;'>
-        <div class="d-flex justify-content-center">
-            <div class="btn-item active" id="All">All <span id="noti1">0</span></div>
-            <div class="btn-item" id="Active">Active <span id="noti2">0</span></div>
-            <div class="btn-item" id="Fired">Fired <span id="noti3">0</span></div>
-            <div class="btn-item" id="Suspended">Suspended <span id="noti4">0</span></div>
-            <div class="btn-item" id="Absconded">Absconded <span id="noti5">0</span></div>
-            <div class="btn-item" id="Resigned">Resigned <span id="noti6">0</span></div>
-        </div>
-        <table id="table2" class="table table-bordered table-striped">
-            <thead>
-                <tr>
-                    <th>ID</th>
-                    <th>Name</th>
-                    <th>Mobile No</th>
-                    <th>Type</th>
-                    <th>DOR</th>
-                    <th>Status</th>
-                    <th>Lead Type</th>
-                    <th>Lead Status</th>
-                    <th>User</th>
-                    <th>Attendence</th>
-                    <th>Show Attend..</th>
-                </tr>
-            </thead>
-        </table>
-        </div>`;
+// function allCaller() {
+//     // Create the table structure
+//     var content = `
+//         <h1>All Members</h1>
+//         <div class='container' style='overflow-x:scroll;'>
+//         <div class="d-flex justify-content-center">
+//             <div class="btn-item active" id="All">All <span id="noti1">0</span></div>
+//             <div class="btn-item" id="Active">Active <span id="noti2">0</span></div>
+//             <div class="btn-item" id="Fired">Fired <span id="noti3">0</span></div>
+//             <div class="btn-item" id="Suspended">Suspended <span id="noti4">0</span></div>
+//             <div class="btn-item" id="Absconded">Absconded <span id="noti5">0</span></div>
+//             <div class="btn-item" id="Resigned">Resigned <span id="noti6">0</span></div>
+//         </div>
+//         <table id="table2" class="table table-bordered table-striped">
+//             <thead>
+//                 <tr>
+//                     <th>ID</th>
+//                     <th>Name</th>
+//                     <th>Mobile No</th>
+//                     <th>Type</th>
+//                     <th>DOR</th>
+//                     <th>Status</th>
+//                     <th>Lead Type</th>
+//                     <th>Lead Status</th>
+//                     <th>Attendence</th>
+//                     <th>Show Attend..</th>
+//                 </tr>
+//             </thead>
+//         </table>
+//         </div>`;
 
-    document.getElementById("displayContent").innerHTML = content;
+//     document.getElementById("displayContent").innerHTML = content;
 
-    // Function to initialize/reload DataTable
-    function loadtable2(option) {
-        if ($.fn.DataTable.isDataTable("#table2")) {
-            // Destroy existing DataTable
-            $("#table2").DataTable().destroy();
-        }
-        getempStatuscount();
-        $("#table2").DataTable({
+//     // Function to initialize/reload DataTable
+//     function loadtable2(option) {
+//         if ($.fn.DataTable.isDataTable("#table2")) {
+//             // Destroy existing DataTable
+//             $("#table2").DataTable().destroy();
+//         }
+//         getempStatuscount();
+//         $("#table2").DataTable({
             
-            ajax: {
-                url: api_url,
-                method: "POST",
-                data: {
-                    operation: "005",
-                    option: option, // Pass the dynamic option value
-                },
-                beforeSend: function () {
-                    $(".loader").show();
-                },
-                complete: function () {
-                    $(".loader").hide();
-                },
-            },
-            columns: [
-                { data: "Admin_ID" },
-                { data: "Name" },
-                { data: "Mobile" },
-                { data: "Type" },
-                {
-                    data: "Joining Date",
-                    render: function (data, type, row) {
-                        return row.Joining_Date;
-                    },
-                },
-                { data: "Status" },
-                {
-                    data: "Types",
-                    render: function (data, type, row) {
-                        return row.Types;
-                    },
-                },
-                {
-                    data: "leadStatus",
-                    render: function (data, type, row) {
-                        if (data == 1) {
-                            return '<button class="btn btn-danger" onclick="disableLead(' + row.Admin_ID + ')">Disable</button>';
-                        } else {
-                            return '<button class="btn btn-success" onclick="enableLead(' + row.Admin_ID + ')">Enable</button>';
-                        }
-                    },
-                },
-                {
-                    data: null,
-                    render: function (data, type, row) {
-                        return (
-                            '<button class="btn btn-success" data-toggle="modal" data-target="#exampleModalEditMember" onclick="getAdminDetails(' +
-                            row.Admin_ID +
-                            ')">Edit</button>'
-                        );
-                    },
-                },
-                {
-                    data: "metaStatus",
-                    render: function (data, type, row) {
-                        console.log(row);
-                        if (data == 1) {
-                            return (
-                                '<button class="btn btn-success" data-toggle="modal" data-target="#ModalAttendence" onclick="getAdminMeta(' +
-                                row.EMP_ID +
-                                ",'" +
-                                row.username +
-                                "')\">Edit</button>"
-                            );
-                        } else {
-                            return (
-                                '<button class="btn btn-danger" data-toggle="modal" data-target="#ModalAttendence" onclick="getAdminMeta(' +
-                                row.EMP_ID +
-                                ",'" +
-                                row.Name +
-                                "')\">Add</button>"
-                            );
-                        }
-                    },
-                },
-                {
-                    data: "metaStatus",
-                    render: function (data, type, row) {
-                        return '<button class="btn btn-success" onclick="showAttendence(' + row.Admin_ID + ')">Show</button>';
-                    },
-                },
-            ],
-            createdRow: function (row, data, index) {
-                if (data["Status"] === "Suspended") {
-                    $("td:eq(5)", row).css({ "background-color": "red", color: "white" });
-                } else if (data["Status"] === "Active") {
-                    $("td:eq(5)", row).css({ "background-color": "green", color: "white" });
-                }
-            },
-            stateSave: true,
-        });
-    }
+//             ajax: {
+//                 url: api_url,
+//                 method: "POST",
+//                 data: {
+//                     operation: "005",
+//                     option: option, // Pass the dynamic option value
+//                 },
+//                 beforeSend: function () {
+//                     $(".loader").show();
+//                 },
+//                 complete: function () {
+//                     $(".loader").hide();
+//                 },
+//             },
+//             columns: [
+//                 { data: "Admin_ID" },
+//                 { data: "Name" },
+//                 { data: "Mobile" },
+//                 { data: "Type" },
+//                 {
+//                     data: "Joining Date",
+//                     render: function (data, type, row) {
+//                         return row.Joining_Date;
+//                     },
+//                 },
+//                 { data: "Status" },
+//                 {
+//                     data: "Types",
+//                     render: function (data, type, row) {
+//                         return row.Types;
+//                     },
+//                 },
+//                 {
+//                     data: "leadStatus",
+//                     render: function (data, type, row) {
+//                         if (data == 1) {
+//                             return '<button class="btn btn-danger" onclick="disableLead(' + row.Admin_ID + ')">Disable</button>';
+//                         } else {
+//                             return '<button class="btn btn-success" onclick="enableLead(' + row.Admin_ID + ')">Enable</button>';
+//                         }
+//                     },
+//                 },
+//                 {
+//                     data: "metaStatus",
+//                     render: function (data, type, row) {
+//                         console.log(row);
+//                         if (data == 1) {
+//                             return (
+//                                 '<button class="btn btn-success" data-toggle="modal" data-target="#ModalAttendence" onclick="getAdminMeta(' +
+//                                 row.EMP_ID +
+//                                 ",'" +
+//                                 row.username +
+//                                 "')\">Edit</button>"
+//                             );
+//                         } else {
+//                             return (
+//                                 '<button class="btn btn-danger" data-toggle="modal" data-target="#ModalAttendence" onclick="getAdminMeta(' +
+//                                 row.EMP_ID +
+//                                 ",'" +
+//                                 row.Name +
+//                                 "')\">Add</button>"
+//                             );
+//                         }
+//                     },
+//                 },
+//                 {
+//                     data: "metaStatus",
+//                     render: function (data, type, row) {
+//                         return '<button class="btn btn-success" onclick="showAttendence(' + row.Admin_ID + ')">Show</button>';
+//                     },
+//                 },
+//             ],
+//             createdRow: function (row, data, index) {
+//                 if (data["Status"] === "Suspended") {
+//                     $("td:eq(5)", row).css({ "background-color": "red", color: "white" });
+//                 } else if (data["Status"] === "Active") {
+//                     $("td:eq(5)", row).css({ "background-color": "green", color: "white" });
+//                 }
+//             },
+//             stateSave: true,
+//         });
+//     }
 
-    // Initial table load with "All"
-    loadtable2("All");
+//     // Initial table load with "All"
+//     loadtable2("All");
 
-    // Event listener for buttons
-    $(".btn-item").on("click", function () {
-        // Highlight the active button
-        $(".btn-item").removeClass("active");
-        $(this).addClass("active");
+//     // Event listener for buttons
+//     $(".btn-item").on("click", function () {
+//         // Highlight the active button
+//         $(".btn-item").removeClass("active");
+//         $(this).addClass("active");
 
-        // Get the selected option
-        var option = $(this).attr("id");
+//         // Get the selected option
+//         var option = $(this).attr("id");
 
-        // Reload the table with the selected option
-        loadtable2(option);
-    });
-}
+//         // Reload the table with the selected option
+//         loadtable2(option);
+//     });
+// }
 
 
 function showExpense() {
@@ -5678,149 +7163,147 @@ function showAttendence(id) {
     window.open("./CalenderDataUser.html", "_blank");
 }
 
-function getAdminMeta(id, name,emp_id) {
-    $("#admin_name").val("");
-    $("#joined_date").val("");
-    $("#reporting_time").val("");
-    $("#attendence_status").val("");
-    $("#basic_salary").val("");
-    $("#allowed_week_off").val("");
-    $("#due_week_off").val("");
-    $("#allowed_late").val("");
-    $("#due_late").val("");
-    $("#number_of_nodes").val("");
-    $("#nodes_incentive").val("");
-    $("#number_of_demos").val("");
-    $("#demos_incentive").val("");
+// function getAdminMeta(id,emp_id) {
+//     $("#admin_name").val("");
+//     $("#joined_date").val("");
+//     $("#reporting_time").val("");
+//     $("#attendence_status").val("");
+//     $("#basic_salary").val("");
+//     $("#allowed_week_off").val("");
+//     $("#due_week_off").val("");
+//     $("#allowed_late").val("");
+//     $("#due_late").val("");
+//     $("#number_of_nodes").val("");
+//     $("#nodes_incentive").val("");
+//     $("#number_of_demos").val("");
+//     $("#demos_incentive").val("");
 
-    // Clear new fields
-    $("#user_phone_number").val("");
-    $("#user_email").val("");
-    $("#address_present").val("");
-    $("#address_permanent").val("");
-    $("#alt_contact_person_1").val("");
-    $("#alt_number_1").val("");
-    $("#alt_contact_person_2").val("");
-    $("#alt_number_2").val("");
-    $("#alt_contact_person_3").val("");
-    $("#alt_number_3").val("");
-    $("#fileurl").val("");
-    $("#user_ac").val("");
-    $("#user_ifsc").val("");
-    $("#user_upi").val("");
-    clearFileInput();
-    $("#lt-select option").prop("selected", false);
-    $("#lt-select").selectpicker("refresh");
+//     // Clear new fields
+//     $("#user_phone_number").val("");
+//     $("#user_email").val("");
+//     $("#address_present").val("");
+//     $("#address_permanent").val("");
+//     $("#alt_contact_person_1").val("");
+//     $("#alt_number_1").val("");
+//     $("#alt_contact_person_2").val("");
+//     $("#alt_number_2").val("");
+//     $("#alt_contact_person_3").val("");
+//     $("#alt_number_3").val("");
+//     $("#fileurl").val("");
+//     $("#user_ac").val("");
+//     $("#user_ifsc").val("");
+//     $("#user_upi").val("");
+//     clearFileInput();
+//     $("#lt-select option").prop("selected", false);
+//     $("#lt-select").selectpicker("refresh");
 
-    $.ajax({
-        url: api_url,
-        data: { operation: "getAdminMeta", id: id },
-        success: function (response) {
-            response = JSON.parse(response);
-            console.log(response);
+//     $.ajax({
+//         url: api_url,
+//         data: { operation: "getAdminMeta", id: id },
+//         success: function (response) {
+//             response = JSON.parse(response);
+//             console.log(response);
 
-            if (response.success == true) {
-                console.log("yes True");
-                  
-                $("#adminEMP_id").val(emp_id);
-                $("#admin_id").val(id);
-                $("#admin_name").val(name);
-                $("#joined_date").val(response.data.Joining_Date);
-                $("#reporting_time").val(response.data.Reporting_Time);
-                $("#attendence_status").val(response.data.Status);
-                $("#basic_salary").val(response.meta.basicSalary);
-                $("#allowed_week_off").val(response.meta.allowedWeekOff);
-                $("#due_week_off").val(response.meta.dueWeekOff);
-                $("#allowed_late").val(response.meta.allowedLate);
-                $("#due_late").val(response.meta.dueLate);
-                $("#number_of_nodes").val(response.meta.numberOfNodes);
-                $("#nodes_incentive").val(response.meta.nodesIncentive);
-                $("#number_of_demos").val(response.meta.numberOfDemos);
-                $("#demos_incentive").val(response.meta.demosIncentive);
+//             if (response.success == true) {
+              
+//                 $("#adminEMP_id").val(emp_id);
+//                 $("#admin_id").val(id);
+//                 $("#joined_date").val(response.data.Joining_Date);
+//                 $("#reporting_time").val(response.data.Reporting_Time);
+//                 $("#attendence_status").val(response.data.Status);
+//                 $("#basic_salary").val(response.meta.basicSalary);
+//                 $("#allowed_week_off").val(response.meta.allowedWeekOff);
+//                 $("#due_week_off").val(response.meta.dueWeekOff);
+//                 $("#allowed_late").val(response.meta.allowedLate);
+//                 $("#due_late").val(response.meta.dueLate);
+//                 $("#number_of_nodes").val(response.meta.numberOfNodes);
+//                 $("#nodes_incentive").val(response.meta.nodesIncentive);
+//                 $("#number_of_demos").val(response.meta.numberOfDemos);
+//                 $("#demos_incentive").val(response.meta.demosIncentive);
 
-                // Populate new fields
+//                 // Populate new fields
 
-                $("#user_ac").val(response.meta.userac);
-                $("#user_ifsc").val(response.meta.userifsc);
-                $("#user_upi").val(response.meta.userupi);
-                $("#user_phone_number").val(response.meta.userPhoneNumber);
-                $("#user_email").val(response.meta.userEmail);
-                $("#address_present").val(response.meta.addressPresent);
-                $("#address_permanent").val(response.meta.addressPermanent);
-                $("#alt_contact_person_1").val(response.meta.altContactPerson1);
-                $("#alt_number_1").val(response.meta.altNumber1);
-                $("#alt_contact_person_2").val(response.meta.altContactPerson2);
-                $("#alt_number_2").val(response.meta.altNumber2);
-                $("#alt_contact_person_3").val(response.meta.altContactPerson3);
-                $("#alt_number_3").val(response.meta.altNumber3);
-                $("#fileurl").val(response.meta.fileurl);
+//                 $("#user_ac").val(response.meta.userac);
+//                 $("#user_ifsc").val(response.meta.userifsc);
+//                 $("#user_upi").val(response.meta.userupi);
+//                 $("#user_phone_number").val(response.meta.userPhoneNumber);
+//                 $("#user_email").val(response.meta.userEmail);
+//                 $("#address_present").val(response.meta.addressPresent);
+//                 $("#address_permanent").val(response.meta.addressPermanent);
+//                 $("#alt_contact_person_1").val(response.meta.altContactPerson1);
+//                 $("#alt_number_1").val(response.meta.altNumber1);
+//                 $("#alt_contact_person_2").val(response.meta.altContactPerson2);
+//                 $("#alt_number_2").val(response.meta.altNumber2);
+//                 $("#alt_contact_person_3").val(response.meta.altContactPerson3);
+//                 $("#alt_number_3").val(response.meta.altNumber3);
+//                 $("#fileurl").val(response.meta.fileurl);
 
-                if (response.meta.leadType) {
-                    response.meta.leadType.forEach(function (selectedOption) {
-                        // Iterate over each option in the select dropdown
-                        $("#lt-select option").each(function () {
-                            // Check if the current option matches the selected option
-                            if ($(this).val() === selectedOption.trim()) {
-                                $(this).prop("selected", true); // Mark as selected
-                            }
-                        });
-                    });
-                }
+//                 if (response.meta.leadType) {
+//                     response.meta.leadType.forEach(function (selectedOption) {
+//                         // Iterate over each option in the select dropdown
+//                         $("#lt-select option").each(function () {
+//                             // Check if the current option matches the selected option
+//                             if ($(this).val() === selectedOption.trim()) {
+//                                 $(this).prop("selected", true); // Mark as selected
+//                             }
+//                         });
+//                     });
+//                 }
 
-                $("#lt-select").selectpicker("refresh");
+//                 $("#lt-select").selectpicker("refresh");
 
-                var urls = response.meta.fileurl.split(",");
+//                 var urls = response.meta.fileurl.split(",");
 
-                // Generate image previews
-                generateImagePreviews(urls);
+//                 // Generate image previews
+//                 generateImagePreviews(urls);
 
-                function generateImagePreviews(urls) {
-                    $("#image-preview-container").empty(); // Clear existing previews
-                    if (urls.length === 0) {
-                        // Show "No images" message if array is empty
-                        $("#image-preview-container").html("<p>No images</p>");
-                    } else {
-                        urls.forEach(function (url, index) {
-                            // Create the image preview container
-                            var imagePreview = `
-                              <div class="image-preview" style="display:inline-block; position:relative; margin:5px;">
-                                  <img src="${url}" alt="Image" style="width: 100px; height: 100px; object-fit: cover;">
-                                  <button class="remove-image" type="button" style="position: absolute; top: 0; right: 0; background: red; color: white; border: none; cursor: pointer;" data-index="${index}"              >&times;</button>
-                              </div>
-                          `;
+//                 function generateImagePreviews(urls) {
+//                     $("#image-preview-container").empty(); // Clear existing previews
+//                     if (urls.length === 0) {
+//                         // Show "No images" message if array is empty
+//                         $("#image-preview-container").html("<p>No images</p>");
+//                     } else {
+//                         urls.forEach(function (url, index) {
+//                             // Create the image preview container
+//                             var imagePreview = `
+//                               <div class="image-preview" style="display:inline-block; position:relative; margin:5px;">
+//                                   <img src="${url}" alt="Image" style="width: 100px; height: 100px; object-fit: cover;">
+//                                   <button class="remove-image" type="button" style="position: absolute; top: 0; right: 0; background: red; color: white; border: none; cursor: pointer;" data-index="${index}"              >&times;</button>
+//                               </div>
+//                           `;
 
-                            // Append the preview to the container
-                            $("#image-preview-container").append(imagePreview);
-                        });
-                    }
-                }
+//                             // Append the preview to the container
+//                             $("#image-preview-container").append(imagePreview);
+//                         });
+//                     }
+//                 }
 
-                // Delegate the event to handle dynamically generated remove buttons
-                $(document).on("click", ".remove-image", function (event) {
-                    event.preventDefault(); // Prevent the default action
+//                 // Delegate the event to handle dynamically generated remove buttons
+//                 $(document).on("click", ".remove-image", function (event) {
+//                     event.preventDefault(); // Prevent the default action
 
-                    var indexToRemove = $(this).data("index");
+//                     var indexToRemove = $(this).data("index");
 
-                    // Remove the corresponding URL from the array
-                    urls.splice(indexToRemove, 1);
+//                     // Remove the corresponding URL from the array
+//                     urls.splice(indexToRemove, 1);
 
-                    // Update the textarea value
-                    $("#fileurl").val(urls.join(","));
+//                     // Update the textarea value
+//                     $("#fileurl").val(urls.join(","));
 
-                    // Regenerate the image previews
-                    generateImagePreviews(urls);
-                });
-            } else {
-                $("#admin_id").val(id);
-                $("#admin_name").val(name);
-            }
-        },
-        error: function (jqXHR, exception) {
-            var msg = displayerror(jqXHR, exception);
-            alert(msg);
-        },
-    });
-}
+//                     // Regenerate the image previews
+//                     generateImagePreviews(urls);
+//                 });
+//             } else {
+//                 $("#admin_id").val(id);
+//                 $("#admin_name").val(name);
+//             }
+//         },
+//         error: function (jqXHR, exception) {
+//             var msg = displayerror(jqXHR, exception);
+//             alert(msg);
+//         },
+//     });
+// }
 
 function clearFileInput() {
     // Clear the file input
@@ -5833,34 +7316,34 @@ function clearFileInput() {
     document.getElementById("confirmUploadBtn").style.display = "none";
 }
 
-function getAdminDetails(id) {
-    $("#edit_CallerID").val("");
-    $("#edit_nameCaller").val("");
-    $("#edit_mobileCaller").val("");
-    $("#edit_passwordCaller").val("");
-    $("#edit_type").val("");
+// function getAdminDetails(id) {
+//     $("#edit_CallerID").val("");
+//     $("#edit_nameCaller").val("");
+//     $("#edit_mobileCaller").val("");
+//     $("#edit_passwordCaller").val("");
+//     $("#edit_type").val("");
 
-    $.ajax({
-        url: api_url,
-        data: { operation: "getAdminDetails", id: id },
-        success: function (response) {
-            response = JSON.parse(response);
-            console.log(response);
+//     $.ajax({
+//         url: api_url,
+//         data: { operation: "getAdminDetails", id: id },
+//         success: function (response) {
+//             response = JSON.parse(response);
+//             console.log(response);
 
-            if (response.success == true) {
-                $("#edit_CallerID").val(id);
-                $("#edit_nameCaller").val(response.data.Name);
-                $("#edit_mobileCaller").val(response.data.Mobile);
-                $("#edit_passwordCaller").val(response.data.Password);
-                $("#edit_type").val(response.data.Type);
-            }
-        },
-        error: function (jqXHR, exception) {
-            var msg = displayerror(jqXHR, exception);
-            alert(msg);
-        },
-    });
-}
+//             if (response.success == true) {
+//                 $("#edit_CallerID").val(id);
+//                 $("#edit_nameCaller").val(response.data.Name);
+//                 $("#edit_mobileCaller").val(response.data.Mobile);
+//                 $("#edit_passwordCaller").val(response.data.Password);
+//                 $("#edit_type").val(response.data.Type);
+//             }
+//         },
+//         error: function (jqXHR, exception) {
+//             var msg = displayerror(jqXHR, exception);
+//             alert(msg);
+//         },
+//     });
+// }
 
 function disableLead(id) {
     $(".loader").show();
