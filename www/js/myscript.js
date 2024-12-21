@@ -83,8 +83,6 @@ async function checkinactivenumbers(id) {
         
     }
 }
-
-// Function to populate the select box
 function populateAdminSelect(response) {
     const selectBox = document.getElementById("edit_number");
     selectBox.innerHTML = "";
@@ -258,7 +256,7 @@ async function getAdminMeta(id, emp_id) {
 async function allCaller() {
     // Create the table structure
     $(".loader").show();
-    const content = `
+    const content =`
         <h1>All Members</h1>
         
         <div class='container' style='overflow-x:scroll;'>
