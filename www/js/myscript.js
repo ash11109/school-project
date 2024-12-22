@@ -1,6 +1,6 @@
-var api_url = "https://teamka.in/crm1/APIs/api.php";
+//var api_url = "https://teamka.in/crm1/APIs/api.php";
 
-//var api_url = "https://teamka.in/crm1/APIs/api_development.php";
+var api_url = "https://teamka.in/crm1/APIs/api_development.php";
 
 //new code starts Here 
 
