@@ -13,6 +13,8 @@
         <script src="https://code.jquery.com/jquery-3.3.1.js"></script>
         <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/datatables@1.10.18/media/js/jquery.dataTables.min.js"></script>
+        <script src="./js/constant.js"></script>
+      
         <link
             href="
        https://cdn.jsdelivr.net/npm/datatables@1.10.18/media/css/jquery.dataTables.min.css
@@ -786,7 +788,7 @@
         async function fetchReportingTimes() {
             return new Promise((resolve, reject) => {
                 $.ajax({
-                    url: "https://teamka.in/crm1/APIs/api.php",
+                    url: Config.api_url,
                     method: "POST",
                     data: { operation: "getReportingtime" },
                     success: function (response) {
@@ -997,7 +999,7 @@
         async function getPaymentStatus(month, year) {
             return new Promise((resolve, reject) => {
                 $.ajax({
-                    url: "https://teamka.in/crm1/APIs/api.php",
+                    url: Config.api_url,
                     data: { operation: "getPaymentStatus", month: month, year: year },
                     method: "POST",
                     success: function (response) {
@@ -1018,7 +1020,7 @@
         async function noDues(startDate, endDate) {
             return new Promise((resolve, reject) => {
                 $.ajax({
-                    url: "https://teamka.in/crm1/APIs/api.php",
+                    url: Config.api_url,
                     data: {
                         operation: "getNoDuesBulk",
                         start: startDate,
@@ -1045,7 +1047,7 @@
         async function getSlipMeta(id, month, year) {
             return new Promise((resolve, reject) => {
                 $.ajax({
-                    url: "https://teamka.in/crm1/APIs/api.php",
+                    url: Config.api_url,
                     data: { operation: "getSlipMeta", id: id.toString(), month: month, year: year },
                     method: "POST",
 
@@ -1068,7 +1070,7 @@
             incentive = $("#incentiveInput").val();
             if ( Amount !== "" && Amount !== null && Amount !== 0) {
                 $.ajax({
-                url: "https://teamka.in/crm1/APIs/api.php",
+                url: Config.api_url,
                 data: {
                     operation: "saveSlip",
                     id: id,
@@ -1154,7 +1156,7 @@
 
             $.ajax({
                 type: "POST",
-                url: "https://teamka.in/crm1/APIs/api.php",
+                url: Config.api_url,
                 data: {
                     operation: "payCaller",
                     id: id,
@@ -1194,7 +1196,7 @@
         async function getPaymentInfo(id, Amount, month, year, date) {
             const slipMetaData = await getSlipMeta(id, month, year);
             $.ajax({
-                url: "https://teamka.in/crm1/APIs/api.php",
+                url: Config.api_url,
                 data: { operation: "getPaymentInfo", id: id },
                 method: "POST",
                 success: function (response) {
@@ -1248,7 +1250,7 @@
             const year = document.getElementById("year").value;
 
             $.ajax({
-                url: "https://teamka.in/crm1/APIs/api.php",
+                url: Config.api_url,
                 method: "POST",
                 data: { operation: "getAttendenceData", year: year, month: month },
                 success: async function (response) {

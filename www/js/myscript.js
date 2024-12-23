@@ -1,24 +1,27 @@
-//var api_url = "https://teamka.in/crm1/APIs/api.php";
+// //var Config.api_url = "https://teamka.in/crm1/APIs/api.php";
 
-var api_url = "https://teamka.in/crm1/APIs/api_development.php";
+// var Config.api_url = "https://teamka.in/crm1/APIs/api_development.php";
 
 //new code starts Here 
 
 
 // Function to fetch data from the API
-function fetchData(id) {
-    const todayDate = new Date().toISOString().split('T')[0]; // shorthand for today date
+function fetchData() {
+    id = localStorage.getItem("userID");
+    const todayDate = formatDate(new Date()); // today's date
+
     const yesterdayDate = new Date();
     yesterdayDate.setDate(yesterdayDate.getDate() - 1); // Subtract 1 day to get yesterday
-    const yesterdayDateFormatted = yesterdayDate.toISOString().split('T')[0]; // formatted yesterday date
-
+    const yesterdayDateFormatted = formatDate(yesterdayDate); // formatted yesterday date
+    
     const thirtyDaysBack = new Date();
     thirtyDaysBack.setDate(thirtyDaysBack.getDate() - 30); // Subtract 30 days
-    const thirtyDaysBackDate = thirtyDaysBack.toISOString().split('T')[0];
-
+    const thirtyDaysBackDate = formatDate(thirtyDaysBack); // formatted 30 days back date
+    
     const sixtyDaysBack = new Date();
     sixtyDaysBack.setDate(sixtyDaysBack.getDate() - 60); // Subtract 60 days
-    const sixtyDaysBackDate = sixtyDaysBack.toISOString().split('T')[0];
+    const sixtyDaysBackDate = formatDate(sixtyDaysBack); // formatted 60 days back date
+
 
     // Fetch data for today, yesterday, 30 days back, and 60 days back
     Promise.all([
@@ -36,10 +39,9 @@ function fetchData(id) {
     });
 }
 
-
 // Function to fetch data for a date range (start and end date)
 function fetchDataForDateRange(id, startDate, endDate) {
-    const url = api_url; // API URL without query parameters
+    const url = Config.api_url; // API URL without query parameters
     const data = new URLSearchParams(); // Create URLSearchParams object to encode data
 
     // Append the parameters to the URLSearchParams object
@@ -115,14 +117,14 @@ function filterAndCalculateData(rawData, breakTime) {
     });
 
     // Convert total call duration to HH:MM:SS format
-    const durationDisplay = new Date(totalCallDuration * 1000).toISOString().substr(11, 8);
-
+    //const durationDisplay = new Date(totalCallDuration * 1000).toISOString().substr(11, 8);
+     console.log(totalCallDuration);
     return {
         breakTime,
         callToday,
         countConnected,
         countNotConnected,
-        durationDisplay,
+        totalCallDuration,
         demoCount,
         followup,
         monster,
@@ -130,76 +132,99 @@ function filterAndCalculateData(rawData, breakTime) {
     };
 }
 function compareAndPopulateData(todayData, yesterdayData, thirtyDaysBackData, sixtyDaysBackData) {
-    // Helper function to validate numeric values or return 0 for invalid data
-    function getValidValue(value, isTime = false) {
-        // If value is a time string like "HH:MM:SS", try to convert to seconds
-        if (isTime && typeof value === "string") {
-            const timeParts = value.split(':');
-            if (timeParts.length === 3) {
-                return parseInt(timeParts[0]) * 3600 + parseInt(timeParts[1]) * 60 + parseInt(timeParts[2]);
-            }
-        }
-        // For non-time values, return number or 0 if invalid
-        return (typeof value === 'number' && !isNaN(value)) ? value : 0;
+    // Helper function to update HTML content (customizable)
+    console.log(thirtyDaysBackData);
+    function updateHtml(id, label, value, arrow, diffText) {
+        // Customize this logic to control how content is displayed
+        $(id).html(`${label}: ${value} ${arrow} ${diffText}`);
     }
+
+    // Helper function to convert seconds to time format (hh:mm:ss)
+    function secondsToTime(seconds) {
+        const isNegative = seconds < 0;
+        seconds = Math.abs(seconds);
+    
+        const hours = Math.floor(seconds / 3600);
+        const minutes = Math.floor((seconds % 3600) / 60);
+        const sec = seconds % 60;
+    
+        const timeStr = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${sec.toString().padStart(2, '0')}`;
+    
+        return isNegative ? `-${timeStr}` : timeStr;
+    }
+    
 
     // Compare and append the result for Today
     const elements = [
         { id: '#tot-dial .today', todayValue: todayData.callToday, yesterdayValue: yesterdayData.callToday },
         { id: '#tot-concted .today', todayValue: todayData.countConnected, yesterdayValue: yesterdayData.countConnected },
         { id: '#tot-not-concted .today', todayValue: todayData.countNotConnected, yesterdayValue: yesterdayData.countNotConnected },
-        { id: '#call-durt .today', todayValue: todayData.durationDisplay, yesterdayValue: yesterdayData.durationDisplay, isTime: true },
+        { id: '#call-durt .today', todayValue: todayData.totalCallDuration, yesterdayValue: yesterdayData.totalCallDuration, isTime: true },
         { id: '#demo .today', todayValue: todayData.demoCount, yesterdayValue: yesterdayData.demoCount },
         { id: '#follow .today', todayValue: todayData.followup, yesterdayValue: yesterdayData.followup },
         { id: '#monster .today', todayValue: todayData.monster, yesterdayValue: yesterdayData.monster },
         { id: '#nrced .today', todayValue: todayData.notrecoded, yesterdayValue: yesterdayData.notrecoded },
-        { id: '#brk-time .today', todayValue: todayData.breakTime, yesterdayValue: yesterdayData.breakTime, isTime: true }, // Added #brk-time for today
+        { id: '#brk-time .today', todayValue: todayData.breakTime, yesterdayValue: yesterdayData.breakTime, isTime: true },
     ];
 
     elements.forEach(item => {
-        const todayValue = getValidValue(item.todayValue, item.isTime);
-        const yesterdayValue = getValidValue(item.yesterdayValue, item.isTime);
-        const diffTodayYesterday = todayValue - yesterdayValue;
-
-        const arrowTodayYesterday = diffTodayYesterday > 0 ? '↑' : diffTodayYesterday < 0 ? '↓' : '';
-        const diffTextTodayYesterday = diffTodayYesterday !== 0 ? `(${Math.abs(diffTodayYesterday)})` : '(no change)';
-
-        // Populate today's data with difference and arrows
-        $(item.id).html(`Today: ${item.todayValue} ${arrowTodayYesterday} ${diffTextTodayYesterday}`);
+        const todayValue = item.isTime ? secondsToTime(item.todayValue) : item.todayValue;
+        const yesterdayValue = item.isTime ? secondsToTime(item.yesterdayValue) : item.yesterdayValue;
+        
+        const diffTodayYesterday = item.todayValue - item.yesterdayValue;
+    
+        let arrowTodayYesterday = '';
+        let diffTextTodayYesterday = '';
+    
+        if (diffTodayYesterday > 0) {
+            arrowTodayYesterday = '<i class="fa fa-arrow-up text-success"></i>';
+            diffTextTodayYesterday = `(+${item.isTime ? secondsToTime(diffTodayYesterday) : diffTodayYesterday})`;
+        } else if (diffTodayYesterday < 0) {
+            arrowTodayYesterday = '<i class="fa fa-arrow-down text-danger"></i>';
+            diffTextTodayYesterday = `(${item.isTime ? secondsToTime(diffTodayYesterday) : diffTodayYesterday})`;
+        } else {
+            diffTextTodayYesterday = '<i class="fa fa-circle text-muted"></i>';
+        }
+    
+        updateHtml(item.id, 'Today', todayValue, arrowTodayYesterday, diffTextTodayYesterday);
     });
+    
 
     // Compare and append the result for 30 Days
     const elements30Days = [
         { id: '#tot-dial .month', thirtyValue: thirtyDaysBackData.callToday, sixtyValue: sixtyDaysBackData.callToday },
         { id: '#tot-concted .month', thirtyValue: thirtyDaysBackData.countConnected, sixtyValue: sixtyDaysBackData.countConnected },
         { id: '#tot-not-concted .month', thirtyValue: thirtyDaysBackData.countNotConnected, sixtyValue: sixtyDaysBackData.countNotConnected },
-        { id: '#call-durt .month', thirtyValue: thirtyDaysBackData.durationDisplay, sixtyValue: sixtyDaysBackData.durationDisplay, isTime: true },
+        { id: '#call-durt .month', thirtyValue: thirtyDaysBackData.totalCallDuration, sixtyValue: sixtyDaysBackData.totalCallDuration, isTime: true },
         { id: '#demo .month', thirtyValue: thirtyDaysBackData.demoCount, sixtyValue: sixtyDaysBackData.demoCount },
         { id: '#follow .month', thirtyValue: thirtyDaysBackData.followup, sixtyValue: sixtyDaysBackData.followup },
         { id: '#monster .month', thirtyValue: thirtyDaysBackData.monster, sixtyValue: sixtyDaysBackData.monster },
         { id: '#nrced .month', thirtyValue: thirtyDaysBackData.notrecoded, sixtyValue: sixtyDaysBackData.notrecoded },
-        { id: '#brk-time .month', thirtyValue: thirtyDaysBackData.breakTime, sixtyValue: sixtyDaysBackData.breakTime, isTime: true }, // Added #brk-time for 30 days
+        { id: '#brk-time .month', thirtyValue: thirtyDaysBackData.breakTime, sixtyValue: sixtyDaysBackData.breakTime, isTime: true },
     ];
 
     elements30Days.forEach(item => {
-        const thirtyValue = getValidValue(item.thirtyValue, item.isTime);
-        const sixtyValue = getValidValue(item.sixtyValue, item.isTime);
-        const diff30vs30 = thirtyValue - sixtyValue;
-
-        const arrow30vs30 = diff30vs30 > 0 ? '↑' : diff30vs30 < 0 ? '↓' : '';
-        const diffText30vs30 = diff30vs30 !== 0 ? `(${Math.abs(diff30vs30)})` : '(no change)';
-
-        // Populate 30 days data with difference and arrows
-        $(item.id).html(`30 Days: ${item.thirtyValue} ${arrow30vs30} ${diffText30vs30}`);
+        const thirtyValue = item.isTime ? secondsToTime(item.thirtyValue) : item.thirtyValue;
+        const sixtyValue = item.isTime ? secondsToTime(item.sixtyValue) : item.sixtyValue;
+    
+        const diff30vs30 = item.thirtyValue - item.sixtyValue;
+    
+        let arrow30vs30 = '';
+        let diffText30vs30 = '';
+    
+        if (diff30vs30 > 0) {
+            arrow30vs30 = '<i class="fa fa-arrow-up text-success"></i>';
+            diffText30vs30 = `(+${item.isTime ? secondsToTime(diff30vs30) : diff30vs30})`;
+        } else if (diff30vs30 < 0) {
+            arrow30vs30 = '<i class="fa fa-arrow-down text-danger"></i>';
+            diffText30vs30 = `(${item.isTime ? secondsToTime(diff30vs30) : diff30vs30})`;
+        } else {
+            diffText30vs30 = '<i class="fa fa-circle text-muted"></i>';
+        }
+    
+        updateHtml(item.id, '30 Days', thirtyValue, arrow30vs30, diffText30vs30);
     });
-}
-
-// Helper function to convert seconds to time format (hh:mm:ss)
-function secondsToTime(seconds) {
-    const hours = Math.floor(seconds / 3600);
-    const minutes = Math.floor((seconds % 3600) / 60);
-    const sec = seconds % 60;
-    return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${sec.toString().padStart(2, '0')}`;
+    
 }
 
 
@@ -207,7 +232,8 @@ function secondsToTime(seconds) {
 function changeModalName(name){
 
     if(name == "Add"){
-
+    $("#admin_id").val("");
+    $("#adminEMP_id").val("");
     $("#admin_name").val("");
     $("#joined_date").val("");
     $("#reporting_time").val("");
@@ -262,7 +288,7 @@ async function checkinactivenumbers(id) {
 
     try {
         // Use fetch API with await
-        const response = await fetch(api_url, {
+        const response = await fetch(Config.api_url, {
             method: 'POST',
             body: data
         });
@@ -346,7 +372,7 @@ async function getAdminMeta(id, emp_id) {
     $("#lt-select").selectpicker("refresh");
 
     try {
-        const response = await fetch(api_url, {
+        const response = await fetch(Config.api_url, {
             method: "POST",
             body: new URLSearchParams({
                 operation: "getAdminMeta",
@@ -501,7 +527,7 @@ async function allCaller() {
         await getempStatuscount();
         
         try {
-            const response = await fetch(api_url, {
+            const response = await fetch(Config.api_url, {
                 method: "POST",
                 body: new URLSearchParams({
                     operation: "005",
@@ -605,7 +631,7 @@ async function getAdminDetails(id) {
 
     try {
         // Use fetch API with await
-        const response = await fetch(api_url, {
+        const response = await fetch(Config.api_url, {
             method: 'POST',
             body: data
         });
@@ -657,7 +683,7 @@ async function getTHStats() {
     document.getElementById("displayContent").innerHTML = content;
 
     try {
-        const response = await fetch(api_url, {
+        const response = await fetch(Config.api_url, {
             method: "POST",
             body: new URLSearchParams({ operation: "008-3", startDate, endDate }),
         });
@@ -687,13 +713,15 @@ async function getTHStats() {
     }
 }
 
+function formatDate(date) {
+    const year = date.getFullYear();
+    const month = (date.getMonth() + 1).toString().padStart(2, "0");
+    const day = date.getDate().toString().padStart(2, "0");
+    return `${year}-${month}-${day}`;
+}
+
 async function getSupportStats() {
-    function formatDate(date) {
-        const year = date.getFullYear();
-        const month = (date.getMonth() + 1).toString().padStart(2, "0");
-        const day = date.getDate().toString().padStart(2, "0");
-        return `${year}-${month}-${day}`;
-    }
+    
 
     const currentDate = new Date();
     const startDate = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
@@ -707,7 +735,7 @@ async function getSupportStats() {
     const id = localStorage.getItem("userID");
 
     try {
-        const response = await fetch(api_url, {
+        const response = await fetch(Config.api_url, {
             method: "POST",
             body: new URLSearchParams({
                 operation: "008-2",
@@ -737,7 +765,7 @@ async function getSupportStats() {
 
 async function getSupport() {
     try {
-        const response = await fetch(api_url, {
+        const response = await fetch(Config.api_url, {
             method: "POST",
             body: new URLSearchParams({ operation: "008-1" }),
         });
@@ -766,7 +794,7 @@ async function getSupport() {
 
 async function addNewProjMail(id) {
     try {
-        const response = await fetch(api_url, {
+        const response = await fetch(Config.api_url, {
             method: "POST",
             body: new URLSearchParams({
                 operation: "addNewProjMail",
@@ -785,7 +813,7 @@ async function addNewProjMail(id) {
 
 async function projStatusChange(id, description) {
     try {
-        const response = await fetch(api_url, {
+        const response = await fetch(Config.api_url, {
             method: "POST",
             body: new URLSearchParams({
                 operation: "projstatusmail",
@@ -831,7 +859,7 @@ async function getComplaint() {
     document.getElementById("displayContent").innerHTML = content;
 
     try {
-        const response = await fetch(api_url, {
+        const response = await fetch(Config.api_url, {
             method: "POST",
             body: new URLSearchParams({ operation: "008-4" }),
         });
@@ -941,7 +969,7 @@ async function sendMailNew(data) {
 
 async function paymentVerifyMail(pd_id, id) {
     try {
-        const response = await fetch(api_url, {
+        const response = await fetch(Config.api_url, {
             method: "POST",
             body: new URLSearchParams({
                 operation: "paymentVerifyMail",
@@ -960,7 +988,7 @@ async function paymentVerifyMail(pd_id, id) {
 
 async function taskCompleteMail(id) {
     try {
-        const response = await fetch(api_url, {
+        const response = await fetch(Config.api_url, {
             method: "POST",
             body: new URLSearchParams({
                 operation: "taskCompleteMail",
@@ -978,7 +1006,7 @@ async function taskCompleteMail(id) {
 
 async function taskAssignMail(id, description) {
     try {
-        const response = await fetch(api_url, {
+        const response = await fetch(Config.api_url, {
             method: "POST",
             body: new URLSearchParams({
                 operation: "taskAssignMail",
@@ -1011,7 +1039,7 @@ async function uploadImage() {
         formData.append("operation", "ImageUploadhr"); // Include operation
 
         // Using fetch to upload the image
-        const response = await fetch(api_url, {
+        const response = await fetch(Config.api_url, {
             method: "POST",
             body: formData,
         });
@@ -1057,7 +1085,7 @@ async function handleFileSelect(event) {
             formData.append("operation", "taskImageUpload");
 
             // Using fetch to upload the image
-            const response = await fetch(api_url, {
+            const response = await fetch(Config.api_url, {
                 method: "POST",
                 body: formData,
             });
@@ -1100,7 +1128,7 @@ async function handleFileSelect(event) {
 //     const id = localStorage.getItem("userID");
 
 //     try {
-//         const response = await fetch(api_url, {
+//         const response = await fetch(Config.api_url, {
 //             method: "POST",
 //             headers: {
 //                 "Content-Type": "application/x-www-form-urlencoded",
@@ -1141,7 +1169,7 @@ async function handleFileSelect(event) {
 //     const from = getLast30Days();
 
 //     try {
-//         const response = await fetch(api_url, {
+//         const response = await fetch(Config.api_url, {
 //             method: "POST",
 //             headers: {
 //                 "Content-Type": "application/x-www-form-urlencoded",
@@ -1189,7 +1217,7 @@ async function addMember() {
     });
 
     try {
-        const response = await fetch(api_url, {
+        const response = await fetch(Config.api_url, {
             method: "POST",
             headers: {
                 "Content-Type": "application/x-www-form-urlencoded",
@@ -1222,7 +1250,7 @@ async function addMember() {
 
 async function getMembers() {
     try {
-        const response = await fetch(api_url, {
+        const response = await fetch(Config.api_url, {
             method: "POST",
             headers: {
                 "Content-Type": "application/x-www-form-urlencoded",
@@ -1289,7 +1317,7 @@ async function showTeam() {
     document.getElementById("displayContent").innerHTML = "<h1>MY Team </h1><div style='overflow-x:scroll;'>" + content;
 
     try {
-        const response = await fetch(api_url, {
+        const response = await fetch(Config.api_url, {
             method: "POST",
             headers: {
                 "Content-Type": "application/x-www-form-urlencoded",
@@ -1335,7 +1363,7 @@ async function getTrancations(type) {
     $(".loader").show();
 
     try {
-        const response = await fetch(api_url, {
+        const response = await fetch(Config.api_url, {
             method: "POST",
             headers: {
                 "Content-Type": "application/x-www-form-urlencoded",
@@ -1411,7 +1439,7 @@ async function getcpls(type) {
     $(".loader").show();
 
     try {
-        const response = await fetch(api_url, {
+        const response = await fetch(Config.api_url, {
             method: "POST",
             headers: {
                 "Content-Type": "application/x-www-form-urlencoded",
@@ -1546,7 +1574,7 @@ async function fetchExpenseReportcomb(start1, end1, start2, end2) {
 
         try {
             const promises = endpoints.map((endpoint) =>
-                fetch(api_url, {
+                fetch(Config.api_url, {
                     method: "POST",
                     headers: { "Content-Type": "application/x-www-form-urlencoded" },
                     body: new URLSearchParams(endpoint),
@@ -1615,7 +1643,7 @@ function addMissedCall() {
                             const missedCalls = response.rows.filter((call) => call.type == 3);
                             const json = JSON.stringify(missedCalls);
 
-                            const apiResponse = await fetch(api_url, {
+                            const apiResponse = await fetch(Config.api_url, {
                                 method: "POST",
                                 headers: {
                                     "Content-Type": "application/x-www-form-urlencoded",
@@ -1712,7 +1740,7 @@ async function login() {
             password: password,
         });
 
-        const response = await fetch(api_url, {
+        const response = await fetch(Config.api_url, {
             method: "POST",
             headers: {
                 "Content-Type": "application/x-www-form-urlencoded",
@@ -1751,7 +1779,7 @@ async function Logout() {
     const user_id = localStorage.getItem("userID");
 
     try {
-        const response = await fetch(api_url, {
+        const response = await fetch(Config.api_url, {
             method: "POST",
             body: new URLSearchParams({
                 operation: "001-1",
@@ -1781,7 +1809,7 @@ function displayError(error) {
 
 async function checkAbsent(id) {
     try {
-        const response = await fetch(api_url, {
+        const response = await fetch(Config.api_url, {
             method: "POST",
             headers: {
                 "Content-Type": "application/x-www-form-urlencoded",
@@ -1808,7 +1836,7 @@ async function checkAbsent(id) {
 
 async function checkLate(id) {
     try {
-        const response = await fetch(api_url, {
+        const response = await fetch(Config.api_url, {
             method: "POST",
             headers: {
                 "Content-Type": "application/x-www-form-urlencoded",
@@ -1835,7 +1863,7 @@ async function checkLate(id) {
 
 async function addAdminmeta() {
     $(".loader").show();
-    var id = $("#admin_id").val();
+    var id = $("#edit_number").val();
     var username = $("#admin_name").val();
     var password = $("#edit_passwordCaller").val();
     var mobile = $("#edit_mobileCaller").val();
@@ -1868,7 +1896,7 @@ async function addAdminmeta() {
     var fileurl = $("#fileurl").val();
 
     try {
-        const response = await fetch(api_url, {
+        const response = await fetch(Config.api_url, {
             method: "POST",
             headers: {
                 "Content-Type": "application/x-www-form-urlencoded",
@@ -1919,7 +1947,7 @@ async function addAdminmeta() {
         
         // Handle the success/failure based on the response
         alert(data.message);
-        if (data.success === "true") {
+        if (data.success == true) {
             $(".loader").hide();
             allCaller();
             $(".close").click();
@@ -1996,7 +2024,7 @@ async function updateAdminmeta() {
     });
 
     try {
-        const response = await fetch(api_url, {
+        const response = await fetch(Config.api_url, {
             method: "POST",
             headers: {
                 "Content-Type": "application/x-www-form-urlencoded",
@@ -2094,7 +2122,7 @@ async function searchLeads(query, filename) {
     console.log(query, filename);
 
     try {
-        const response = await fetch(api_url, {
+        const response = await fetch(Config.api_url, {
             method: "POST",
             headers: {
                 "Content-Type": "application/x-www-form-urlencoded",
@@ -2134,7 +2162,7 @@ async function fetchMissedCalls() {
     const type = localStorage.getItem("userType");
 
     try {
-        const response = await fetch(api_url, {
+        const response = await fetch(Config.api_url, {
             method: "POST",
             headers: {
                 "Content-Type": "application/x-www-form-urlencoded",
@@ -2302,7 +2330,7 @@ async function fetchMissedCalls() {
 
 async function getusersnew() {
     try {
-        const response = await fetch(api_url, {
+        const response = await fetch(Config.api_url, {
             method: "POST",
             headers: {
                 "Content-Type": "application/x-www-form-urlencoded",
@@ -2345,7 +2373,7 @@ async function getusersnew() {
 
 async function getAdmins() {
     try {
-        const response = await fetch(api_url, {
+        const response = await fetch(Config.api_url, {
             method: "POST",
             headers: {
                 "Content-Type": "application/x-www-form-urlencoded",
@@ -2451,7 +2479,7 @@ document.addEventListener("DOMContentLoaded", function () {
         if (selectedTL) {
             // Make AJAX call to get data based on the selected TL
             $.ajax({
-                url: api_url,
+                url: Config.api_url,
                 method: "POST",
                 data: { operation: "editMembers", tl: selectedTL },
                 success: function (response) {
@@ -2490,7 +2518,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
 // function getusersnew() {
 //     $.ajax({
-//         url: api_url,
+//         url: Config.api_url,
 //         method: "POST",
 //         data: { operation: "getUsers-new-2", id: localStorage.getItem("userID") },
 //         success: function (response) {
@@ -2527,7 +2555,7 @@ function redirectcal() {
 
 // function getAdmins() {
 //     $.ajax({
-//         url: api_url,
+//         url: Config.api_url,
 //         method: "POST",
 //         data: { operation: "getMembers" },
 //         success: function (response) {
@@ -2550,7 +2578,7 @@ function redirectcal() {
 
 // function checkAbsent(id) {
 //     $.ajax({
-//         url: api_url,
+//         url: Config.api_url,
 //         method: "POST",
 //         data: { operation: "checkAbsent", id: id },
 //         success: function (response) {
@@ -2568,7 +2596,7 @@ function redirectcal() {
 
 // function checkLate(id) {
 //     $.ajax({
-//         url: api_url,
+//         url: Config.api_url,
 //         method: "POST",
 //         data: { operation: "checkLate", id: id },
 //         success: function (response) {
@@ -2641,7 +2669,7 @@ function confirmDelete(){
 //     var fileurl = $("#fileurl").val();
 
 //     $.ajax({
-//         url: api_url,
+//         url: Config.api_url,
 //         method: "POST",
 //         data: {
 //             operation: "addAdminmeta",
@@ -2747,7 +2775,7 @@ function confirmDelete(){
 //     });
 
 //     $.ajax({
-//         url: api_url,
+//         url: Config.api_url,
 //         method: "POST",
 //         data: {
 //             operation: "updateAdminmeta",
@@ -2826,7 +2854,7 @@ function confirmDelete(){
 //     var type = localStorage.getItem("userType");
 
 //     $.ajax({
-//         url: api_url,
+//         url: Config.api_url,
 //         method: "POST",
 //         data: { operation: "fetchMissedCalls", user: user, type: type },
 //         success: function (data) {
@@ -3023,7 +3051,7 @@ function addmissedlead(mobile) {
 //     }
 //     console.log(query, filename);
 //     $.ajax({
-//         url: api_url, // Your PHP endpoint
+//         url: Config.api_url, // Your PHP endpoint
 //         method: "POST",
 //         data: {
 //             operation: "leadSearch",
@@ -3102,7 +3130,7 @@ function handleSelection() {
 //                     var json = JSON.stringify(missedCalls);
 
 //                     $.ajax({
-//                         url: api_url,
+//                         url: Config.api_url,
 //                         method: "POST",
 //                         data: { operation: "addmissedcall", calls: json, id: id },
 //                         success: function (response) {
@@ -3191,22 +3219,22 @@ function generateReport() {
 
 //         return Promise.all([
 //             $.ajax({
-//                 url: api_url,
+//                 url: Config.api_url,
 //                 method: "POST",
 //                 data: { operation: "expenseReport", start: start, end: end },
 //             }),
 //             $.ajax({
-//                 url: api_url,
+//                 url: Config.api_url,
 //                 method: "POST",
 //                 data: { operation: "expenseReport-2", start: start, end: end },
 //             }),
 //             $.ajax({
-//                 url: api_url,
+//                 url: Config.api_url,
 //                 method: "POST",
 //                 data: { operation: "expenseReport-3", start: start, end: end },
 //             }),
 //             $.ajax({
-//                 url: api_url,
+//                 url: Config.api_url,
 //                 method: "POST",
 //                 data: { operation: "expenseReport-4", start: start, end: end },
 //             }),
@@ -3469,7 +3497,7 @@ var content = `
 //     var end = $("#reportEndDate").val(); // Get the value of the input
 
 //     $.ajax({
-//         url: api_url,
+//         url: Config.api_url,
 //         method: "POST",
 //         data: { operation: "getcpls", start: start, end: end, type: type },
 //         success: function (response) {
@@ -3609,7 +3637,7 @@ var content = `
 //     var end = $("#reportEndDate").val(); // Get the value of the input
 
 //     $.ajax({
-//         url: api_url,
+//         url: Config.api_url,
 //         method: "POST",
 //         data: { operation: "getTrancations", start: start, end: end, type: type },
 //         success: function (response) {
@@ -3737,7 +3765,7 @@ function getStatstl() {
 
 //     document.getElementById("displayContent").innerHTML = "<h1>MY Team </h1><div style='overflow-x:scroll;'>" + content;
 //     $.ajax({
-//         url: api_url,
+//         url: Config.api_url,
 //         method: "POST",
 //         data: { operation: "showMembers", tl: tl },
 //         success: function (response) {
@@ -3778,7 +3806,7 @@ function getStatstl() {
 //     });
 
 //     $.ajax({
-//         url: api_url,
+//         url: Config.api_url,
 //         method: "POST",
 //         data: {
 //             operation: "addMembers",
@@ -3799,7 +3827,7 @@ function getStatstl() {
 
 // function getMembers() {
 //     $.ajax({
-//         url: api_url,
+//         url: Config.api_url,
 //         method: "POST",
 //         data: { operation: "getMembers" },
 //         success: function (response) {
@@ -3874,7 +3902,7 @@ function run15() {
 
 //     //console.log(from,to);
 //     $.ajax({
-//         url: api_url,
+//         url: Config.api_url,
 //         method: "POST", // You can use "GET" if appropriate
 //         data: { operation: "007-month", id: id, to: to, from: from },
 //         success: function (response) {
@@ -3902,7 +3930,7 @@ function run15() {
 //     var id = localStorage.getItem("userID");
 
 //     $.ajax({
-//         url: api_url,
+//         url: Config.api_url,
 //         method: "POST", // You can use "GET" if appropriate
 //         data: { operation: "test1", id: id },
 //         success: function (response) {
@@ -3983,7 +4011,7 @@ async function resizeAndUpload(file, maxWidth = 600, maxHeight = 600) {
 
 //         // AJAX request to upload the image
 //         $.ajax({
-//             url: api_url,
+//             url: Config.api_url,
 //             type: "POST",
 //             data: formData,
 //             processData: false,
@@ -4067,7 +4095,7 @@ async function handleFileSelecthr(event) {
 
 //         // AJAX request to upload the image
 //         $.ajax({
-//             url: api_url,
+//             url: Config.api_url,
 //             type: "POST",
 //             data: formData,
 //             processData: false,
@@ -4181,7 +4209,7 @@ function addTaskImage() {
 // function paymentVerifyMail(pd_id, id) {
 //     $.ajax({
 //         type: "post",
-//         url: api_url,
+//         url: Config.api_url,
 //         data: { operation: "paymentVerifyMail", pd_id: pd_id, id: id },
 //         success: function (response) {
 //             response = JSON.parse(response);
@@ -4197,7 +4225,7 @@ function addTaskImage() {
 // function taskCompleteMail(id) {
 //     $.ajax({
 //         type: "post",
-//         url: api_url,
+//         url: Config.api_url,
 //         data: { operation: "taskCompleteMail", id: id },
 //         success: function (response) {
 //             response = JSON.parse(response);
@@ -4213,7 +4241,7 @@ function addTaskImage() {
 // function taskAssignMail(id, description) {
 //     $.ajax({
 //         type: "post",
-//         url: api_url,
+//         url: Config.api_url,
 //         data: { operation: "taskAssignMail", id: id, description: description },
 //         success: function (response) {
 //             response = JSON.parse(response);
@@ -4229,7 +4257,7 @@ function addTaskImage() {
 // function addNewProjMail(id) {
 //     $.ajax({
 //         type: "post",
-//         url: api_url,
+//         url: Config.api_url,
 //         data: { operation: "addNewProjMail", id: id },
 //         success: function (response) {
 //             response = JSON.parse(response);
@@ -4245,7 +4273,7 @@ function addTaskImage() {
 // function projStatusChange(id, description) {
 //     $.ajax({
 //         type: "post",
-//         url: api_url,
+//         url: Config.api_url,
 //         data: { operation: "projstatusmail", id: id, description: description },
 //         success: function (response) {
 //             response = JSON.parse(response);
@@ -4266,7 +4294,7 @@ function addTaskImage() {
 //     document.getElementById("displayContent").innerHTML = content;
 
 //     $.ajax({
-//         url: api_url,
+//         url: Config.api_url,
 //         method: "POST",
 //         data: { operation: "008-4" },
 //         success: function (data) {
@@ -4407,7 +4435,7 @@ function showImage(name) {
 //     document.getElementById("displayContent").innerHTML = content;
 
 //     $.ajax({
-//         url: api_url,
+//         url: Config.api_url,
 //         method: "POST",
 //         data: { operation: "008-3", startDate: startDate, endDate: endDate },
 //         success: function (data) {
@@ -4454,7 +4482,7 @@ function showImage(name) {
 //     var id = localStorage.getItem("userID");
 
 //     $.ajax({
-//         url: api_url,
+//         url: Config.api_url,
 //         method: "POST",
 //         data: {
 //             operation: "008-2",
@@ -4481,7 +4509,7 @@ function showImage(name) {
 // function getSupport() {
 //     // Replace 'your_api_endpoint' with the actual API endpoint to fetch data from the server
 //     $.ajax({
-//         url: api_url,
+//         url: Config.api_url,
 //         method: "POST",
 //         data: { operation: "008-1" },
 //         success: function (data) {
@@ -4518,7 +4546,7 @@ function checkBreakOnLoad() {
     $(".loader").show();
 
     $.ajax({
-        url: api_url,
+        url: Config.api_url,
         method: "POST",
         data: { operation: "085-1", userID: userID },
         success: function (res) {
@@ -4606,7 +4634,7 @@ function StartAgentBreak() {
     $(".loader").show();
 
     $.ajax({
-        url: api_url,
+        url: Config.api_url,
         method: "POST",
         data: {
             operation: "085",
@@ -4662,7 +4690,7 @@ function EndAgentBreak() {
         var curr_time = new Date().toLocaleTimeString();
         $(".loader").show();
         $.ajax({
-            url: api_url,
+            url: Config.api_url,
             method: "POST",
             data: { operation: "086", Break_ID: Break_ID, curr_time: curr_time },
             success: function (res) {
@@ -4715,7 +4743,7 @@ function displayerror(jqXHR, exception) {
 //     var password = document.getElementById("password").value;
 
 //     $.ajax({
-//         url: api_url,
+//         url: Config.api_url,
 //         data: {
 //             operation: "001",
 //             mobileNo: mobileNo,
@@ -4771,7 +4799,7 @@ function displayerror(jqXHR, exception) {
 // function Logout() {
 //     var user_id = localStorage.getItem("userID");
 //     $.ajax({
-//         url: api_url,
+//         url: Config.api_url,
 //         data: {
 //             operation: "001-1",
 //             user_id: user_id,
@@ -4795,7 +4823,7 @@ function displayerror(jqXHR, exception) {
 function getDevices() {
     $(".loader").show();
     $.ajax({
-        url: api_url,
+        url: Config.api_url,
         data: { operation: "079" },
         success: function (res) {
             $(".loader").hide();
@@ -4848,7 +4876,7 @@ function updateDevice() {
         if (deviceid !== "") {
             $(".loader").show();
             $.ajax({
-                url: api_url,
+                url: Config.api_url,
                 data: {
                     operation: "080",
                     deviceid: deviceid,
@@ -4875,7 +4903,7 @@ function updateDevice() {
             });
         } else {
             $.ajax({
-                url: api_url,
+                url: Config.api_url,
                 data: {
                     operation: "082",
                     namedevice: namedevice,
@@ -4909,7 +4937,7 @@ function selectDevice(deviceid) {
     document.getElementById("exampleModalDevicebutton").innerHTML = "Update Device";
     $(".loader").show();
     $.ajax({
-        url: api_url,
+        url: Config.api_url,
         data: { operation: "081", deviceid: deviceid },
         success: function (response) {
             $(".loader").hide();
@@ -4932,7 +4960,7 @@ function disableDevice(deviceid) {
         if (upt == "YES") {
             $(".loader").show();
             $.ajax({
-                url: api_url,
+                url: Config.api_url,
                 data: { operation: "083", deviceid: deviceid },
                 success: function (response) {
                     $(".loader").hide();
@@ -4972,7 +5000,7 @@ function addCaller() {
         document.getElementById("errorDetailsCallerForm").innerHTML = "";
         $(".loader").show();
         $.ajax({
-            url: api_url,
+            url: Config.api_url,
             data: {
                 operation: "002",
                 name: name,
@@ -5016,7 +5044,7 @@ function editCaller() {
         document.getElementById("errorDetailsCallerFormEdit").innerHTML = "";
         $(".loader").show();
         $.ajax({
-            url: api_url,
+            url: Config.api_url,
             data: {
                 operation: "002-2",
                 id: id,
@@ -5087,7 +5115,7 @@ function addLead() {
         document.getElementById("errorDetails").innerHTML = "";
         $(".loader").show();
         $.ajax({
-            url: api_url,
+            url: Config.api_url,
             data: {
                 operation: "003",
                 name: name,
@@ -5155,7 +5183,7 @@ function AddExpense() {
         submitButton.disabled = true; // Disable the submit button
 
         $.ajax({
-            url: api_url,
+            url: Config.api_url,
             type: "POST",
             data: {
                 operation: "084",
@@ -5218,7 +5246,7 @@ function updateExpense() {
         document.getElementById("errorDetailsEXP").innerHTML = "";
         $(".loader").show();
         $.ajax({
-            url: api_url,
+            url: Config.api_url,
             data: {
                 operation: "084-2",
                 ET_ID: ET_ID,
@@ -5254,7 +5282,7 @@ function CheckDateWaiseStatus() {
     console.log(chkforDate);
 
     $.ajax({
-        url: api_url,
+        url: Config.api_url,
         data: { operation: "071", chkforDate: chkforDate },
         success: function (res) {
             $(".loader").hide();
@@ -5329,7 +5357,7 @@ function getAudioLink(condition) {
 }
 function CheckCallWaiseStatus(startDate, endDate) {
     $.ajax({
-        url: api_url,
+        url: Config.api_url,
         data: { operation: "077", startDate: startDate, endDate: endDate },
         success: function (res) {
             $(".loader").hide();
@@ -5390,7 +5418,7 @@ function CheckCallWaiseStatusExport() {
     console.log(chkforDate);
 
     $.ajax({
-        url: api_url,
+        url: Config.api_url,
         data: { operation: "078", chkforDate: chkforDate },
         success: function (res) {
             $(".loader").hide();
@@ -5467,7 +5495,7 @@ function testLoadOrphanLeadsADMIN() {
             pagingType: "full_numbers",
             serverSide: true,
             ajax: {
-                url: api_url,
+                url: Config.api_url,
                 method: "POST",
                 data: { operation: "072-new", status: statusf, type: typef },
                 beforeSend: function () {
@@ -5553,7 +5581,7 @@ function LoadOrphanLeadsADMIN() {
 
     var AllUSERDROPDWN = localStorage.getItem("AllUSERDROPDWN");
     $.ajax({
-        url: api_url,
+        url: Config.api_url,
         data: { operation: "072" },
         success: function (res) {
             $(".loader").hide();
@@ -5646,7 +5674,7 @@ function TransferAllLeads() {
                 $(".loader").show();
 
                 $.ajax({
-                    url: api_url,
+                    url: Config.api_url,
                     data: {
                         operation: "074",
                         NewuserID: transferTOuserID,
@@ -5686,7 +5714,7 @@ function testLoadOrphanLeads() {
         pagingType: "full_numbers",
         serverSide: true,
         ajax: {
-            url: api_url,
+            url: Config.api_url,
             method: "POST",
             data: { operation: "072-new" },
             beforeSend: function () {
@@ -5784,7 +5812,7 @@ function LoadOrphanLeads() {
     //console.log(chkforDate);
 
     $.ajax({
-        url: api_url,
+        url: Config.api_url,
         data: { operation: "072" },
         success: function (res) {
             $(".loader").hide();
@@ -5867,7 +5895,7 @@ function testShowprsnlDetails(name, Lid, userID, mobile, email, whatsapp, index,
         $(".loader").show();
 
         $.ajax({
-            url: api_url,
+            url: Config.api_url,
             data: { operation: "073", NewuserID: userID, Lid: Lid },
             success: function (response) {
                 $(".loader").hide();
@@ -5888,7 +5916,7 @@ function ShowprsnlDetails(Lid, mobile, email, userID) {
         $(".loader").show();
 
         $.ajax({
-            url: api_url,
+            url: Config.api_url,
             data: { operation: "073", NewuserID: userID, Lid: Lid },
             success: function (response) {
                 $(".loader").hide();
@@ -6282,7 +6310,7 @@ function getrecount() {
     var type = localStorage.getItem("userType");
 
     $.ajax({
-        url: api_url,
+        url: Config.api_url,
         data: { operation: "getrecount", me: me, type: type },
         success: function (response) {
             count = parseInt(response);
@@ -6303,7 +6331,7 @@ function getuncount() {
     var type = localStorage.getItem("userType");
 
     $.ajax({
-        url: api_url,
+        url: Config.api_url,
         data: { operation: "getuncount", me: me, type: type },
         success: function (response) {
             count = parseInt(response);
@@ -6324,7 +6352,7 @@ function gettrcount() {
     var type = localStorage.getItem("userType");
 
     $.ajax({
-        url: api_url,
+        url: Config.api_url,
         data: { operation: "gettrcount", me: me, type: type },
         success: function (response) {
             count = parseInt(response);
@@ -6374,7 +6402,7 @@ function testallLeads() {
             pagingType: "full_numbers",
             serverSide: true,
             ajax: {
-                url: api_url,
+                url: Config.api_url,
                 method: "POST",
                 data: { operation: "0041", option: option },
                 beforeSend: function () {
@@ -6594,7 +6622,7 @@ function allLeads() {
     /*
           $('.loader').show();
         $.ajax({
-            url : api_url,
+            url : Config.api_url,
             data : {operation : "004"},
             success : function (response){
           $('.loader').hide();
@@ -6649,7 +6677,7 @@ function testallLeadsTL() {
         pagingType: "full_numbers",
         serverSide: true,
         ajax: {
-            url: api_url,
+            url: Config.api_url,
             method: "POST",
             data: { operation: "0041" },
 
@@ -6794,7 +6822,7 @@ function allLeadsTL() {
     /*
           $('.loader').show();
         $.ajax({
-            url : api_url,
+            url : Config.api_url,
             data : {operation : "004"},
             success : function (response){
           $('.loader').hide();
@@ -6838,7 +6866,7 @@ function allLeadsTL() {
 function getProjects() {
     $(".loader").show();
     $.ajax({
-        url: api_url,
+        url: Config.api_url,
         data: { operation: "063" },
         success: function (response) {
             $(".loader").hide();
@@ -6863,7 +6891,7 @@ function getProjects() {
 // Get Cities
 function getCities() {
     $.ajax({
-        url: api_url,
+        url: Config.api_url,
         data: { operation: "069" },
         success: function (response) {
             var data = response.split("<-->");
@@ -6890,7 +6918,7 @@ function getCallers() {
     // getCities();
     $(".loader").show();
     $.ajax({
-        url: api_url,
+        url: Config.api_url,
         data: { operation: "010" },
         success: function (response) {
             $(".loader").hide();
@@ -6927,7 +6955,7 @@ function fillUpdateForm(id) {
     localStorage.setItem("lead_id", id);
     $(".loader").show();
     $.ajax({
-        url: api_url,
+        url: Config.api_url,
         data: { operation: "006", id: id },
         success: function (response) {
             $(".loader").hide();
@@ -6979,7 +7007,7 @@ function updateLeads() {
         $(".loader").show();
 
         $.ajax({
-            url: api_url,
+            url: Config.api_url,
             data: {
                 operation: "007",
                 id: id,
@@ -7024,7 +7052,7 @@ function updateLeads() {
 function getempStatuscount() {
    
     $.ajax({
-        url: api_url,
+        url: Config.api_url,
         data: { operation: "getempStatuscount" },
         dataType: "json", // Specify the expected response format as JSON
         success: function (response) {
@@ -7092,7 +7120,7 @@ function getempStatuscount() {
 //         $("#table2").DataTable({
             
 //             ajax: {
-//                 url: api_url,
+//                 url: Config.api_url,
 //                 method: "POST",
 //                 data: {
 //                     operation: "005",
@@ -7195,7 +7223,7 @@ function getempStatuscount() {
 function showExpense() {
     $(".loader").show();
     $.ajax({
-        url: api_url,
+        url: Config.api_url,
         data: { operation: "showExpense" },
         dataType: "json", // Specify the expected response format
         success: function (response) {
@@ -7332,7 +7360,7 @@ function showExpense() {
 function editExpense(id) {
     $(".loader").show();
     $.ajax({
-        url: api_url,
+        url: Config.api_url,
         data: { operation: "showExpense", id: id },
         success: function (response) {
             response = JSON.parse(response);
@@ -7398,7 +7426,7 @@ function showAttendence(id) {
 //     $("#lt-select").selectpicker("refresh");
 
 //     $.ajax({
-//         url: api_url,
+//         url: Config.api_url,
 //         data: { operation: "getAdminMeta", id: id },
 //         success: function (response) {
 //             response = JSON.parse(response);
@@ -7524,7 +7552,7 @@ function clearFileInput() {
 //     $("#edit_type").val("");
 
 //     $.ajax({
-//         url: api_url,
+//         url: Config.api_url,
 //         data: { operation: "getAdminDetails", id: id },
 //         success: function (response) {
 //             response = JSON.parse(response);
@@ -7548,7 +7576,7 @@ function clearFileInput() {
 function disableLead(id) {
     $(".loader").show();
     $.ajax({
-        url: api_url,
+        url: Config.api_url,
         data: { operation: "061", id: id },
         success: function (response) {
             $(".loader").hide();
@@ -7569,7 +7597,7 @@ function disableLead(id) {
 function enableLead(id) {
     $(".loader").show();
     $.ajax({
-        url: api_url,
+        url: Config.api_url,
         data: { operation: "062", id: id },
         success: function (response) {
             $(".loader").hide();
@@ -7607,7 +7635,7 @@ function addNewStatus() {
         document.getElementById("errorDetailsStatus").innerHTML = "";
         $(".loader").show();
         $.ajax({
-            url: api_url,
+            url: Config.api_url,
             data: {
                 operation: "008",
                 leadId: leadId,
@@ -7701,7 +7729,7 @@ function handleDemoCallScenario(callStatus, id, callerID) {
 
 function getMailTemplate(adminName, mobile, leadName, email, call_status, demoStatus) {
     $.ajax({
-        url: api_url,
+        url: Config.api_url,
         data: { operation: "getMailTemplate", adminName: adminName, mobile: mobile, leadName: leadName, email: email, call_status: call_status, demoStatus: demoStatus },
         success: function (response) {
             response = JSON.parse(response);
@@ -7721,7 +7749,7 @@ function getMailTemplate(adminName, mobile, leadName, email, call_status, demoSt
 function checkDemomail(call_status, id, callerID) {
     console.log(call_status, id);
     $.ajax({
-        url: api_url,
+        url: Config.api_url,
         data: { operation: "checkDemomail", leadId: id, callerID: callerID },
         success: function (response) {
             response = JSON.parse(response);
@@ -7782,7 +7810,7 @@ function getAllStatus(id) {
         paging: false, // Disable pagination
         searching: false, // Disable search
         ajax: {
-            url: api_url, // Your server-side script to fetch data
+            url: Config.api_url, // Your server-side script to fetch data
             type: "POST",
             data: { operation: "009-new", id: id },
         },
@@ -7821,7 +7849,7 @@ function getAllStatus(id) {
 function showMailOption(id) {
     $(".loader").show();
     $.ajax({
-        url: api_url,
+        url: Config.api_url,
         data: { operation: "024", id: id },
         success: function (response) {
             $(".loader").hide();
@@ -7844,7 +7872,7 @@ function getUserDetails() {
     var mobile = localStorage.getItem("MobileNo");
     $(".loader").show();
     $.ajax({
-        url: api_url,
+        url: Config.api_url,
         data: { operation: "011", mobile: mobile },
         success: function (response) {
             $(".loader").hide();
@@ -7865,7 +7893,7 @@ function getUserDetails() {
 function allLeadsOnDate(date) {
     $(".loader").show();
     $.ajax({
-        url: api_url,
+        url: Config.api_url,
         data: { operation: "014", date: date },
         success: function (response) {
             $(".loader").hide();
@@ -8185,7 +8213,7 @@ function allLeadsOnDate1(fromdate, todate) {
         pagingType: "full_numbers",
         serverSide: true,
         ajax: {
-            url: api_url,
+            url: Config.api_url,
             method: "POST",
             data: { operation: "014-new", fromdate: fromdate, todate: todate },
             beforeSend: function () {
@@ -8289,7 +8317,7 @@ function allLeadsOnDateTL(fromdate, todate) {
         pagingType: "full_numbers",
         serverSide: true,
         ajax: {
-            url: api_url,
+            url: Config.api_url,
             method: "POST",
             data: {
                 operation: "014-tl",
@@ -8397,7 +8425,7 @@ function allLeadsOnDate2(fromdate, todate) {
         pagingType: "full_numbers",
         serverSide: true,
         ajax: {
-            url: api_url,
+            url: Config.api_url,
             method: "POST",
             data: {
                 operation: "014-caller",
@@ -8491,7 +8519,7 @@ function allLeadsOnDate2(fromdate, todate) {
 function statistics() {
     $(".loader").show();
     $.ajax({
-        url: api_url,
+        url: Config.api_url,
         data: { operation: "015" },
         success: function (response) {
             $(".loader").hide();
@@ -8615,7 +8643,7 @@ function testmyLeads() {
             pagingType: "full_numbers",
             serverSide: true,
             ajax: {
-                url: api_url,
+                url: Config.api_url,
                 method: "POST",
                 data: { operation: "0042", me: me, option: option },
                 beforeSend: function () {
@@ -8858,7 +8886,7 @@ function leadsTL() {
             pagingType: "full_numbers",
             serverSide: true,
             ajax: {
-                url: api_url,
+                url: Config.api_url,
                 method: "POST",
                 data: { operation: "0042-2", me: me, option: option },
                 beforeSend: function () {
@@ -9078,7 +9106,7 @@ function myLeads() {
           $('.loader').show();
 
         $.ajax({
-            url : api_url,
+            url : Config.api_url,
             data : {operation : "004"},
             success : function (response){
           $('.loader').hide();
@@ -9142,7 +9170,7 @@ function addLeadAsCaller() {
         document.getElementById("errorDetails").innerHTML = "";
         $(".loader").show();
         $.ajax({
-            url: api_url,
+            url: Config.api_url,
             data: {
                 operation: "003",
                 name: name,
@@ -9204,7 +9232,7 @@ function updateLeadsAsCaller() {
         document.getElementById("errorDetails").innerHTML = "";
         $(".loader").show();
         $.ajax({
-            url: api_url,
+            url: Config.api_url,
             data: {
                 operation: "007",
                 id: id,
@@ -9253,7 +9281,7 @@ function updateLeadsAsCaller() {
     function allLeadsCallers(){
           $('.loader').show();
         $.ajax({
-            url : api_url,
+            url : Config.api_url,
             data : {operation : "004"},
             success : function (response){
           $('.loader').hide();
@@ -9291,7 +9319,7 @@ function allLeadsOnDateCaller(date) {
     $(".loader").show();
 
     $.ajax({
-        url: api_url,
+        url: Config.api_url,
         data: { operation: "014", date: date },
         success: function (response) {
             $(".loader").hide();
@@ -9390,7 +9418,7 @@ function fillProjectDetailsForm() {
     $(".loader").show();
 
     $.ajax({
-        url: api_url,
+        url: Config.api_url,
         data: { operation: "016" },
         success: function (response) {
             $(".loader").hide();
@@ -9417,7 +9445,7 @@ function fillProjectDetailsForm() {
 function fillProjectDetailsFormCaller() {
     $(".loader").show();
     $.ajax({
-        url: api_url,
+        url: Config.api_url,
         data: { operation: "016" },
         success: function (response) {
             // alert(response);
@@ -9454,7 +9482,7 @@ function getDevelopers() {
     $(".loader").show();
 
     $.ajax({
-        url: api_url,
+        url: Config.api_url,
         data: { operation: "018" },
         success: function (response) {
             $(".loader").hide();
@@ -9486,7 +9514,7 @@ function setDetails() {
     }
     $(".loader").show();
     $.ajax({
-        url: api_url,
+        url: Config.api_url,
         data: { operation: "017", id: id },
         success: function (response) {
             $(".loader").hide();
@@ -9522,7 +9550,7 @@ function addProjectDetails() {
     } else {
         $(".loader").show();
         $.ajax({
-            url: api_url,
+            url: Config.api_url,
             data: {
                 operation: "019",
                 lead: lead,
@@ -9561,7 +9589,7 @@ function countNotRenewed(name) {
     var count = 0; // Initialize count variable
 
     $.ajax({
-        url: api_url,
+        url: Config.api_url,
         data: { operation: "countNotRenewed", type: name },
         success: function (response) {
             count = parseInt(response);
@@ -9580,7 +9608,7 @@ function countNotLive(name) {
     var count = 0; // Initialize count variable
 
     $.ajax({
-        url: api_url,
+        url: Config.api_url,
         data: { operation: "countNotLive", type: name },
         success: function (response) {
             count = parseInt(response);
@@ -9659,7 +9687,7 @@ function sendCustomerIdsToServer(customerIds) {
         pagingType: "full_numbers",
         processing: true, // Show processing indicator during data load
         ajax: {
-            url: api_url,
+            url: Config.api_url,
             method: "POST",
             data: { operation: "020-order", id: customerIds },
             beforeSend: function () {
@@ -9883,7 +9911,7 @@ function getProjectDetailsSupportNew() {
 
         // Fetch the main data
         $.ajax({
-            url: api_url,
+            url: Config.api_url,
             method: "POST",
             data: { operation: "020-new", option: option, type: type },
             beforeSend: function () {
@@ -10122,7 +10150,7 @@ function getProjectDetails() {
         pagingType: "full_numbers",
         serverSide: true,
         ajax: {
-            url: api_url,
+            url: Config.api_url,
             method: "POST",
             data: { operation: "020" },
             beforeSend: function () {
@@ -10252,7 +10280,7 @@ function fullDetails(id) {
     $(".loader").show();
 
     $.ajax({
-        url: api_url,
+        url: Config.api_url,
         data: { operation: "026", id: id },
         success: function (response) {
             $(".loader").hide();
@@ -10280,7 +10308,7 @@ function fillUpdateProjectStatus(id) {
     getProjectStatus(id);
     $(".loader").show();
     $.ajax({
-        url: api_url,
+        url: Config.api_url,
         data: { operation: "027", id, id },
         success: function (response) {
             $(".loader").hide();
@@ -10299,7 +10327,7 @@ function fillUpdateProjectStatus(id) {
 function addStatusTitle(id) {
     $(".loader").show();
     $.ajax({
-        url: api_url,
+        url: Config.api_url,
         data: { operation: "045", id: id },
         success: function (response) {
             $(".loader").hide();
@@ -10325,7 +10353,7 @@ function addNewProjectStatus() {
     } else {
         $(".loader").show();
         $.ajax({
-            url: api_url,
+            url: Config.api_url,
             data: {
                 operation: "028",
                 leadID: leadID,
@@ -10360,7 +10388,7 @@ function getProjectStatus(id) {
     var content = '<table id="tableProjectStatus" class="table table-bordered table-striped"><thead><th>Summary</th><th>Remarks</th><th>Updated By</th><th>DOR</th></thead><tbody>';
     $(".loader").show();
     $.ajax({
-        url: api_url,
+        url: Config.api_url,
         data: { operation: "029", id: id },
         success: function (response) {
             $(".loader").hide();
@@ -10383,7 +10411,7 @@ function fillUpdateProjectForm(id) {
     fillProjectDetailsForm();
     $(".loader").show();
     $.ajax({
-        url: api_url,
+        url: Config.api_url,
         data: { operation: "021", id: id },
         success: function (response) {
             $(".loader").hide();
@@ -10432,7 +10460,7 @@ function updateProjectDetails() {
     } else {
         $(".loader").show();
         $.ajax({
-            url: api_url,
+            url: Config.api_url,
             data: {
                 operation: "022",
                 id: id,
@@ -10467,7 +10495,7 @@ function updateProjectDetails() {
 function getProjectDetailsDeveloper() {
     $(".loader").show();
     $.ajax({
-        url: api_url,
+        url: Config.api_url,
         data: { operation: "020" },
         success: function (response) {
             $(".loader").hide();
@@ -10624,7 +10652,7 @@ function getProjectDetailsCaller() {
         pagingType: "full_numbers",
         serverSide: true,
         ajax: {
-            url: api_url,
+            url: Config.api_url,
             method: "POST",
             data: { operation: "020-1", callerID: callerID },
             beforeSend: function () {
@@ -10762,7 +10790,7 @@ function getProjectDetailsTL() {
         pagingType: "full_numbers",
         serverSide: true,
         ajax: {
-            url: api_url,
+            url: Config.api_url,
             method: "POST",
             data: { operation: "020-2", callerID: callerID },
             beforeSend: function () {
@@ -10905,7 +10933,7 @@ function updateProjectDetailsDeveloper() {
     } else {
         $(".loader").show();
         $.ajax({
-            url: api_url,
+            url: Config.api_url,
             data: {
                 operation: "022",
                 id: id,
@@ -10938,7 +10966,7 @@ function updateProjectDetailsDeveloper() {
 function sendMail(id) {
     $(".loader").show();
     $.ajax({
-        url: api_url,
+        url: Config.api_url,
         data: { operation: "023", id: id },
         success: function (response) {
             $(".loader").hide();
@@ -10995,7 +11023,7 @@ function serviceAppMail(client, to) {
 function afterMail(id) {
     $(".loader").show();
     $.ajax({
-        url: api_url,
+        url: Config.api_url,
         data: { operation: "025", id: id },
         success: function (response) {
             $(".loader").hide();
@@ -11057,7 +11085,7 @@ function mailSend(client, to, caller, mobile) {
 function addBillingTitle(id) {
     $(".loader").show();
     $.ajax({
-        url: api_url,
+        url: Config.api_url,
         data: { operation: "045", id: id },
         success: function (response) {
             $(".loader").hide();
@@ -11074,7 +11102,7 @@ function addBillingTitle(id) {
 function addPaymentTitle(id) {
     $(".loader").show();
     $.ajax({
-        url: api_url,
+        url: Config.api_url,
         data: { operation: "045", id: id },
         success: function (response) {
             $(".loader").hide();
@@ -11097,7 +11125,7 @@ function getProjectBilling(id) {
         '<table id="tableProjects" class="table table-bordered table-striped"><thead><th>PID</th><th>Addon Name</th><th>Addon Price</th><th>DOR:</th><th>DELETE</th></thead><tbody>';
     $(".loader").show();
     $.ajax({
-        url: api_url,
+        url: Config.api_url,
         data: { operation: "031", id: id },
         success: function (response) {
             $(".loader").hide();
@@ -11205,7 +11233,7 @@ function deleteProjectBilling(id, projectId) {
     if (confirm("Remove Addon?")) {
         $(".loader").show();
         $.ajax({
-            url: api_url,
+            url: Config.api_url,
             data: { operation: "032", id: id },
             success: function (response) {
                 $(".loader").hide();
@@ -11327,7 +11355,7 @@ function addProjectBilling() {
             $(".loader").show();
             console.log(addon);
             $.ajax({
-                url: api_url,
+                url: Config.api_url,
                 data: {
                     operation: "030",
                     id: projectIDBilling,
@@ -11366,7 +11394,7 @@ function addProjectBilling() {
             console.log(addon);
             $(".loader").show();
             $.ajax({
-                url: api_url,
+                url: Config.api_url,
                 data: {
                     operation: "030",
                     id: projectIDBilling,
@@ -11404,7 +11432,7 @@ function addProjectBilling() {
 function checkDiscountPayment(id) {
     $(".loader").show();
     $.ajax({
-        url: api_url,
+        url: Config.api_url,
         data: { operation: "037", id: id },
         success: function (response) {
             $(".loader").hide();
@@ -11441,7 +11469,7 @@ function checkDiscountPayment(id) {
 function removeDiscount(id) {
     $(".loader").show();
     $.ajax({
-        url: api_url,
+        url: Config.api_url,
         data: { operation: "038", id: id },
         success: function (response) {
             $(".loader").hide();
@@ -11472,7 +11500,7 @@ function addProjectDiscount() {
     } else {
         $(".loader").show();
         $.ajax({
-            url: api_url,
+            url: Config.api_url,
             data: { operation: "036", id: id, discount: discount, remark: remark },
             success: function (response) {
                 $(".loader").hide();
@@ -11501,7 +11529,7 @@ function manualMail(id) {
     $(".close").click();
     $(".loader").show();
     $.ajax({
-        url: api_url,
+        url: Config.api_url,
         data: { operation: "040", id: id },
         success: function (response) {
             $(".loader").hide();
@@ -11607,7 +11635,7 @@ function manualMail(id) {
 function billingMail(id) {
     $(".loader").show();
     $.ajax({
-        url: api_url,
+        url: Config.api_url,
         data: { operation: "040", id: id },
         success: function (response) {
             $(".loader").hide();
@@ -11760,7 +11788,7 @@ function addProjectPayment() {
     } else {
         $(".loader").show();
         $.ajax({
-            url: api_url, //Server api to receive the file
+            url: Config.api_url, //Server api to receive the file
             type: "POST",
             //  dataType: 'script',
             cache: false,
@@ -11841,7 +11869,7 @@ function addProjectPayment1() {
             options.params = params;
             var ft = new FileTransfer();
             var imageURI = cordova.file.externalRootDirectory+"myrecording.mp3";
-            ft.upload(fileURL, encodeURI(api_url), function(response){
+            ft.upload(fileURL, encodeURI(Config.api_url), function(response){
                 $('.loader').hide();
                 alert(JSON.stringify(response));
                 document.getElementById("errorProjectPayment").innerHTML = "";
@@ -11873,7 +11901,7 @@ function addProjectPayment1() {
 
         //
         $.ajax({
-            url: api_url, //Server api to receive the file
+            url: Config.api_url, //Server api to receive the file
             type: "POST",
             //  dataType: 'script',
             cache: false,
@@ -11915,7 +11943,7 @@ function getAllProjectPaymentTL(id) {
     addPaymentTitle(id);
     $(".loader").show();
     $.ajax({
-        url: api_url,
+        url: Config.api_url,
         data: { operation: "034", id: id },
         success: function (response) {
             $(".loader").hide();
@@ -11969,7 +11997,7 @@ function getAllProjectPayment(id) {
     addPaymentTitle(id);
     $(".loader").show();
     $.ajax({
-        url: api_url,
+        url: Config.api_url,
         data: { operation: "034", id: id },
         success: function (response) {
             $(".loader").hide();
@@ -12036,7 +12064,7 @@ function verifyPayment(id, pd_id) {
     if (confirm("Verify Payment")) {
         $(".loader").show();
         $.ajax({
-            url: api_url,
+            url: Config.api_url,
             data: { operation: "035", id: id },
             success: function (response) {
                 $(".loader").hide();
@@ -12063,7 +12091,7 @@ function deletePayment(id, pd_id) {
 
           $('.loader').show();
         $.ajax({
-            url:api_url,
+            url:Config.api_url,
             data:{operation:"039",id:id},
             success: function(response){
           $('.loader').hide();
@@ -12182,7 +12210,7 @@ function getGroceryStatus(num, id) {
     $(".loader").show();
     num.trim();
     var value = $.ajax({
-        url: api_url,
+        url: Config.api_url,
         data: { operation: "0058", num: num },
         async: false,
     }).responseText;
@@ -12669,7 +12697,7 @@ function rawDataforCallerService() {
 function getUnverifiedPayment() {
     $(".loader").show();
     $.ajax({
-        url: api_url,
+        url: Config.api_url,
         data: { operation: "04100" },
         success: function (response) {
             $(".loader").hide();
@@ -12737,7 +12765,7 @@ function unverifiedVerify(id) {
         $(".loader").show();
         id = parseInt(id);
         $.ajax({
-            url: api_url,
+            url: Config.api_url,
             data: { operation: "042", id: id },
             success: function (response) {
                 $(".loader").hide();
@@ -12783,7 +12811,7 @@ function getSearchedLead() {
         var edtbtn = "";
 
         $.ajax({
-            url: api_url,
+            url: Config.api_url,
             data: { operation: "044", credential: credential },
             success: function (response) {
                 // $('.loader').hide();
@@ -12838,7 +12866,7 @@ function getSearchedLead() {
         });
 
         $.ajax({
-            url: api_url,
+            url: Config.api_url,
             data: { operation: "076", SearchText: credential },
             success: function (response) {
                 //console.log(response);
@@ -13104,7 +13132,7 @@ function projectRenewals() {
     var month = today.getMonth() + 1;
     $(".loader").show();
     $.ajax({
-        url: api_url,
+        url: Config.api_url,
         data: { operation: "056" },
         success: function (response) {
             $(".loader").hide();
@@ -13251,7 +13279,7 @@ function renewalMail(id) {
     var yyyy = today.getFullYear();
     $(".loader").show();
     $.ajax({
-        url: api_url,
+        url: Config.api_url,
         data: { operation: "057", id: id },
         success: function (response) {
             $(".loader").hide();
@@ -13317,7 +13345,7 @@ function renewedList() {
     var month = today.getMonth() + 1;
     $(".loader").show();
     $.ajax({
-        url: api_url,
+        url: Config.api_url,
         data: { operation: "055" },
         success: function (response) {
             $(".loader").hide();
@@ -13458,7 +13486,7 @@ function getStats() {
 
     $(".loader").show();
     $.ajax({
-        url: api_url,
+        url: Config.api_url,
         data: {
             operation: "046",
             startDate: startDate,
@@ -13507,7 +13535,7 @@ function getStatsTL() {
 
     $(".loader").show();
     $.ajax({
-        url: api_url,
+        url: Config.api_url,
         data: {
             operation: "046",
             startDate: startDate,
@@ -13552,7 +13580,7 @@ function getStatsTL() {
 function getBusinessStats(startDate, endDate, statsFor) {
     $(".loader").show();
     $.ajax({
-        url: api_url,
+        url: Config.api_url,
         data: {
             operation: "047",
             startDate: startDate,
@@ -13606,7 +13634,7 @@ function getBusinessStats(startDate, endDate, statsFor) {
 function getConvertedStats(startDate, endDate, statsFor) {
     $(".loader").show();
     $.ajax({
-        url: api_url,
+        url: Config.api_url,
         data: {
             operation: "048",
             startDate: startDate,
@@ -13699,7 +13727,7 @@ function getConvertedStats(startDate, endDate, statsFor) {
 function notificationAdmin() {
     $(".loader").show();
     $.ajax({
-        url: api_url,
+        url: Config.api_url,
         data: { operation: "049" },
         success: function (response) {
             $(".loader").hide();
@@ -13743,7 +13771,7 @@ function notificationAdmin() {
 function noBillingNotification() {
     $(".loader").show();
     $.ajax({
-        url: api_url,
+        url: Config.api_url,
         data: { operation: "050" },
         success: function (response) {
             $(".loader").hide();
@@ -13771,7 +13799,7 @@ function noBillingNotification() {
 function noDuesNotification() {
     $(".loader").show();
     $.ajax({
-        url: api_url,
+        url: Config.api_url,
         data: { operation: "051" },
         success: function (response) {
             $(".loader").hide();
@@ -13817,7 +13845,7 @@ function notificationCaller() {
     var caller_id = parseInt(localStorage.getItem("userID"));
     $(".loader").show();
     $.ajax({
-        url: api_url,
+        url: Config.api_url,
         data: { operation: "049" },
         success: function (response) {
             $(".loader").hide();
@@ -13864,7 +13892,7 @@ function noBillingNotificationCaller() {
     var caller_id = parseInt(localStorage.getItem("userID"));
     $(".loader").show();
     $.ajax({
-        url: api_url,
+        url: Config.api_url,
         data: { operation: "050" },
         success: function (response) {
             $(".loader").hide();
@@ -13909,7 +13937,7 @@ function noDuesNotificationCaller() {
     var caller_id = parseInt(localStorage.getItem("userID"));
     $(".loader").show();
     $.ajax({
-        url: api_url,
+        url: Config.api_url,
         data: { operation: "051" },
         success: function (response) {
             $(".loader").hide();
@@ -13956,7 +13984,7 @@ function noDuesNotificationCaller() {
 function notifyDeveloperAdmin() {
     $(".loader").show();
     $.ajax({
-        url: api_url,
+        url: Config.api_url,
         data: { operation: "052" },
         success: function (response) {
             $(".loader").hide();
@@ -13999,7 +14027,7 @@ function notifyDeveloperAdmin() {
 function uploadPlaystore() {
     $(".loader").show();
     $.ajax({
-        url: api_url,
+        url: Config.api_url,
         data: { operation: "053" },
         success: function (response) {
             $(".loader").hide();
@@ -14043,7 +14071,7 @@ function uploadPlaystore() {
 function newProjectNotification() {
     $(".loader").show();
     $.ajax({
-        url: api_url,
+        url: Config.api_url,
         data: { operation: "054" },
         success: function (response) {
             $(".loader").hide();
@@ -14071,7 +14099,7 @@ function notifyDeveloper() {
     var dev_id = parseInt(localStorage.getItem("userID"));
     $(".loader").show();
     $.ajax({
-        url: api_url,
+        url: Config.api_url,
         data: { operation: "052" },
         success: function (response) {
             $(".loader").hide();
@@ -14117,7 +14145,7 @@ function uploadPlaystoreDeveloper() {
     var dev_id = parseInt(localStorage.getItem("userID"));
     $(".loader").show();
     $.ajax({
-        url: api_url,
+        url: Config.api_url,
         data: { operation: "053" },
         success: function (response) {
             $(".loader").hide();
@@ -14164,7 +14192,7 @@ function newProjectNotificationDeveloper() {
     var dev_id = parseInt(localStorage.getItem("userID"));
     $(".loader").show();
     $.ajax({
-        url: api_url,
+        url: Config.api_url,
         data: { operation: "054" },
         success: function (response) {
             $(".loader").hide();
@@ -14216,7 +14244,7 @@ function supportTicket() {
 function allLeadsSupport() {
     $(".loader").show();
     $.ajax({
-        url: api_url,
+        url: Config.api_url,
         data: { operation: "004" },
         success: function (response) {
             $(".loader").hide();
@@ -14410,7 +14438,7 @@ function allLeadsSupport() {
 function getAllStatusSupport(id) {
     $(".loader").show();
     $.ajax({
-        url: api_url,
+        url: Config.api_url,
         data: { operation: "009", id: id },
         success: function (response) {
             $(".loader").hide();
@@ -14444,7 +14472,7 @@ function getAllProjectStatusSupport(id) {
     $(".loader").show();
 
     $.ajax({
-        url: api_url,
+        url: Config.api_url,
         data: { operation: "009", id: id },
         success: function (response) {
             $(".loader").hide();
@@ -14477,7 +14505,7 @@ function viewProjectTask(pid) {
     //localStorage.getItem("userType") == "Admin" //Support
 
     $.ajax({
-        url: api_url,
+        url: Config.api_url,
         data: { operation: "087", pid: pid },
         success: function (response) {
             console.log(response);
@@ -14642,7 +14670,7 @@ function getSearchedProject() {
         $(".loader").show(); //searchProjectBy
 
         $.ajax({
-            url: api_url,
+            url: Config.api_url,
             data: { operation: "076", SearchText: SearchText },
             success: function (response) {
                 var partialArranged = response.split("/END/");
@@ -14888,7 +14916,7 @@ function getSearchedProject() {
 function getProjectDetailsSupport() {
     $(".loader").show();
     $.ajax({
-        url: api_url,
+        url: Config.api_url,
         data: { operation: "020" },
         success: function (response) {
             var partialArranged = response.split("/END/");
@@ -15034,7 +15062,7 @@ function getAllProjectPaymentSupport(id) {
     addPaymentTitle(id);
     $(".loader").show();
     $.ajax({
-        url: api_url,
+        url: Config.api_url,
         data: { operation: "034", id: id },
         success: function (response) {
             $(".loader").hide();
@@ -15085,7 +15113,7 @@ function getProjectBillingSupport(id) {
     var content = '<table id="tableProjects" class="table table-bordered table-striped"><thead><th>Addon Name</th><!--<th>Addon Price</th>--><th>DOR:</th></thead><tbody>';
     $(".loader").show();
     $.ajax({
-        url: api_url,
+        url: Config.api_url,
         data: { operation: "031", id: id },
         success: function (response) {
             $(".loader").hide();
@@ -15118,7 +15146,7 @@ function getProjectBillingSupport(id) {
 function checkDiscountPaymentSupport(id) {
     $(".loader").show();
     $.ajax({
-        url: api_url,
+        url: Config.api_url,
         data: { operation: "037", id: id },
         success: function (response) {
             $(".loader").hide();
@@ -15170,7 +15198,7 @@ function checkLeadStatus() {
     var id = localStorage.getItem("userID");
     id = parseInt(id);
     $.ajax({
-        url: api_url,
+        url: Config.api_url,
         data: { operation: "060", id: id },
         success: function (response) {
             if (response == 1) {
@@ -15196,7 +15224,7 @@ function assignProjectTask() {
         document.getElementById("errorDetailsAssignTask").innerHTML = "Fill the Form Correctly";
     } else {
         $.ajax({
-            url: api_url,
+            url: Config.api_url,
             data: { operation: "067", pd_id: pd_id },
             success: function (response) {
                 if (response == 0) {
@@ -15232,7 +15260,7 @@ function addTask() {
     } else {
         $(".loader").show();
         $.ajax({
-            url: api_url,
+            url: Config.api_url,
             data: {
                 operation: "064",
                 pd_id: pd_id,
@@ -15278,7 +15306,7 @@ function getAssignedTask() {
         pagingType: "full_numbers",
         serverSide: true,
         ajax: {
-            url: api_url,
+            url: Config.api_url,
             method: "POST",
             data: { operation: "065" },
             beforeSend: function () {
@@ -15420,7 +15448,7 @@ function assignedByMe() {
         pagingType: "full_numbers",
         serverSide: true,
         ajax: {
-            url: api_url,
+            url: Config.api_url,
             method: "POST",
             data: { operation: "065-2", id: id },
             beforeSend: function () {
@@ -15549,7 +15577,7 @@ function assignedToMe() {
         pagingType: "full_numbers",
         serverSide: true,
         ajax: {
-            url: api_url,
+            url: Config.api_url,
             method: "POST",
             data: { operation: "065-3", id: id },
             beforeSend: function () {
@@ -15677,7 +15705,7 @@ function submitTaskFeedback() {
 
     $(".loader").show();
     $.ajax({
-        url: api_url,
+        url: Config.api_url,
         data: { operation: "068", id: id, rating: rating, feedback: feedback },
         success: function (response) {
             $(".loader").hide();
@@ -15702,7 +15730,7 @@ function myAssignedTask() {
     var id = localStorage.getItem("userID");
     $(".loader").show();
     $.ajax({
-        url: api_url,
+        url: Config.api_url,
         data: { operation: "070", uid: id },
         success: function (response) {
             //      console.log(response);
@@ -15860,7 +15888,7 @@ function markCompletion(id) {
     if (cnf) {
         $(".loader").show();
         $.ajax({
-            url: api_url,
+            url: Config.api_url,
             data: { operation: "066", id: id },
             success: function (response) {
                 if (response == 1) {
@@ -15882,7 +15910,7 @@ function markCompletion1(id) {
     if (cnf) {
         $(".loader").show();
         $.ajax({
-            url: api_url,
+            url: Config.api_url,
             data: { operation: "066", id: id },
             success: function (response) {
                 if (response == 1) {
@@ -15907,7 +15935,7 @@ function markCompletion2(id) {
         $(".loader").show();
         $("#exampleModalFeedbackTask").modal("show");
         $.ajax({
-            url: api_url,
+            url: Config.api_url,
             data: { operation: "066", id: id, caller_id: caller_id },
             success: function (response) {
                 $(".loader").hide();
@@ -15933,7 +15961,7 @@ function markfakeCompletion(id, status) {
     if (cnf) {
         $(".loader").show();
         $.ajax({
-            url: api_url,
+            url: Config.api_url,
             data: {
                 operation: "066-1",
                 id: id,
@@ -15970,7 +15998,7 @@ function addProjDetails(id, description, issue, img) {
 function loadcallerdemoleads() {
     var id = parseInt(localStorage.getItem("userID"));
     $.ajax({
-        url: api_url,
+        url: Config.api_url,
         data: { operation: "getleads-caller", id: id },
         success: function (responseOut) {
             //console.log(responseOut);
@@ -15982,8 +16010,18 @@ function loadcallerdemoleads() {
             var total_leads = parseInt(response.total_leads);
             var demo_leads = parseInt(response.demo_leads);
 
-            $("#ratio .today").html("Today: " + leads_today);
-            $("#ratio .month").html("30 Days: " + total_leads);
+            // Calculate the lead-to-demo ratio
+            var leadToDemoRatioToday = (leads_today > 0) ? (demo_leads_today / leads_today) : 0; // Prevent division by zero
+            var leadToDemoRatioTotal = (total_leads > 0) ? (demo_leads / total_leads) : 0; // Prevent division by zero
+            
+            // Format the ratio as a percentage (optional)
+            var leadToDemoRatioTodayPercentage = (leadToDemoRatioToday * 100).toFixed(2) + "%";
+            var leadToDemoRatioTotalPercentage = (leadToDemoRatioTotal * 100).toFixed(2) + "%";
+
+            $("#totalLeads .today").html("Today: " + leads_today);
+            $("#totalLeads .month").html("30 Days: " + total_leads);
+            $("#demoRatio .today").html("Today: " + leadToDemoRatioTodayPercentage);
+            $("#demoRatio .month").html("30 Days: " + leadToDemoRatioTotalPercentage);
         },
         error: function (jqXHR, exception) {
             var msg = displayerror(jqXHR, exception);
@@ -15995,7 +16033,7 @@ function loadcallerdemoleads() {
 function loadcallerstats() {
     var id = parseInt(localStorage.getItem("userID"));
     $.ajax({
-        url: api_url,
+        url: Config.api_url,
         data: { operation: "075", id: id },
         success: function (responseOut) {
             response = JSON.parse(responseOut);
@@ -16015,7 +16053,7 @@ function loadcallerstats() {
 function loadBestCaller() {
     var id = parseInt(localStorage.getItem("userID"));
     $.ajax({
-        url: api_url,
+        url: Config.api_url,
         data: { operation: "075-2", id: id },
         success: function (responseOut) {
             //console.log(responseOut)
@@ -16057,7 +16095,7 @@ function fetchLeadId(phoneNumber, callback) {
     console.log("Fetching Lead For " + phoneNumber);
 
     $.ajax({
-        url: api_url, // Replace with your server endpoint
+        url: Config.api_url, // Replace with your server endpoint
         method: "POST",
         data: {
             operation: "getLeadinfo",
@@ -16146,7 +16184,7 @@ function sendPing() {
         )}:${pad(customTime.getSeconds())}`;
 
         $.ajax({
-            url: api_url,
+            url: Config.api_url,
             type: "POST",
             data: {
                 operation: "userActivity",
@@ -16360,7 +16398,7 @@ function onDeviceReady() {
 function getDeviceUserAgent() {
     $(".loader").show();
     $.ajax({
-        url: api_url,
+        url: Config.api_url,
         data: { operation: "getuserAgent" },
         success: function (response) {
             $(".loader").hide();

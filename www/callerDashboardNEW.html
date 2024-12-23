@@ -2,7 +2,7 @@
 <!DOCTYPE html>
 <html>
   <head>
-    
+    <script src="./js/constant.js"></script>
     <script src="./js/myscript.js"></script>
     <script> checkUserStatus(["Caller"]);</script>
 
@@ -509,123 +509,113 @@
             </div>
         </button>
 
-
+        <div class="my-top-buttons-div2">
+          <!-- First Row -->
+          <div class="row">
+              <div class="stats-card color-6" id="brk-time-div">
+                  <div id="brk-time">
+                      <p class="today">Today : <span id="loader" style="display: inline;color: #fff;"><i class="fa fa-spinner fa-spin"></i> </span></p>
+                      <p class="month">30 DAYS : <span id="loader" style="display: inline;color: #fff;"><i class="fa fa-spinner fa-spin"></i> </span></p>
+                  </div>
+                  <div>Break</div>
+              </div>
+      
+              <div class="stats-card color-6">
+                  <div id="tot-dial">
+                      <p class="today">Today : <span id="loader" style="display: inline;color: #fff;"><i class="fa fa-spinner fa-spin"></i> </span></p>
+                      <p class="month">30 DAYS : <span id="loader" style="display: inline;color: #fff;"><i class="fa fa-spinner fa-spin"></i> </span></p>
+                  </div>
+                  <div>Dial</div>
+              </div>
+      
+              <div class="stats-card color-6">
+                  <div id="tot-concted">
+                      <p class="today">Today : <span id="loader" style="display: inline;color: #fff;"><i class="fa fa-spinner fa-spin"></i> </span></p>
+                      <p class="month">30 DAYS : <span id="loader" style="display: inline;color: #fff;"><i class="fa fa-spinner fa-spin"></i> </span></p>
+                  </div>
+                  <div>Connected</div>
+              </div>
+      
+              <div class="stats-card color-6">
+                  <div id="tot-not-concted">
+                      <p class="today">Today : <span id="loader" style="display: inline;color: #fff;"><i class="fa fa-spinner fa-spin"></i> </span></p>
+                      <p class="month">30 DAYS : <span id="loader" style="display: inline;color: #fff;"><i class="fa fa-spinner fa-spin"></i> </span></p>
+                  </div>
+                  <div>Not Connected</div>
+              </div>
+      
+              <div class="stats-card color-6">
+                  <div id="call-durt">
+                      <p class="today">Today : <span id="loader" style="display: inline;color: #fff;"><i class="fa fa-spinner fa-spin"></i> </span></p>
+                      <p class="month">30 DAYS : <span id="loader" style="display: inline;color: #fff;"><i class="fa fa-spinner fa-spin"></i> </span></p>
+                  </div>
+                  <div>Call Duration</div>
+              </div>
+      
+              <div class="stats-card color-6">
+                  <div id="totalLeads">
+                      <p class="today">Today : <span id="loader" style="display: inline;color: #fff;"><i class="fa fa-spinner fa-spin"></i> </span></p>
+                      <p class="month">30 DAYS : <span id="loader" style="display: inline;color: #fff;"><i class="fa fa-spinner fa-spin"></i> </span></p>
+                  </div>
+                  <div>Total Leads</div>
+              </div>
+          </div>
+      
+          <!-- Second Row -->
+          <div class="row">
+              <div class="stats-card color-6">
+                  <div id="demo">
+                      <p class="today">Today : <span id="loader" style="display: inline;color: #fff;"><i class="fa fa-spinner fa-spin"></i> </span></p>
+                      <p class="month">30 DAYS : <span id="loader" style="display: inline;color: #fff;"><i class="fa fa-spinner fa-spin"></i> </span></p>
+                  </div>
+                  <div>Demo Done</div>
+              </div>
+      
+              <div class="stats-card color-4">
+                  <div id="fakedemo">
+                      <p class="month">30 DAYS : <span id="loader" style="display: inline;color: #fff;"><i class="fa fa-spinner fa-spin"></i> </span></p>
+                  </div>
+                  <div>Fake Demo/Incomplete Demo</div>
+              </div>
+      
+              <div class="stats-card color-6">
+                  <div id="follow">
+                      <p class="today">Today : <span id="loader" style="display: inline;color: #fff;"><i class="fa fa-spinner fa-spin"></i> </span></p>
+                      <p class="month">30 DAYS : <span id="loader" style="display: inline;color: #fff;"><i class="fa fa-spinner fa-spin"></i> </span></p>
+                  </div>
+                  <div>Pending Followup</div>
+              </div>
+      
+              <div class="stats-card color-6">
+                  <div id="monster">
+                      <p class="today">Today : <span id="loader" style="display: inline;color: #fff;"><i class="fa fa-spinner fa-spin"></i> </span></p>
+                      <p class="month">30 DAYS : <span id="loader" style="display: inline;color: #fff;"><i class="fa fa-spinner fa-spin"></i> </span></p>
+                  </div>
+                  <div>Marked Monster</div>
+              </div>
+      
+              <div class="stats-card color-6">
+                  <div id="demoRatio">
+                      <p class="today">Today : <span id="loader" style="display: inline;color: #fff;"><i class="fa fa-spinner fa-spin"></i> </span></p>
+                      <p class="month">30 DAYS : <span id="loader" style="display: inline;color: #fff;"><i class="fa fa-spinner fa-spin"></i> </span></p>
+                  </div>
+                  <div>Demo Lead Ratio</div>
+              </div>
+      
+              <div class="stats-card color-6">
+                  <div id="nrced">
+                      <p class="today">Today : <span id="loader" style="display: inline;color: #fff;"><i class="fa fa-spinner fa-spin"></i> </span></p>
+                      <p class="month">30 DAYS : <span id="loader" style="display: inline;color: #fff;"><i class="fa fa-spinner fa-spin"></i> </span></p>
+                  </div>
+                  <div>Not Recorded</div>
+              </div>
+          </div>
+      </div>
           
         
     </div>
-    
-    
-    <div class="my-top-buttons-div2">
-      <!-- First Row -->
-      <div class="row">
-          <div class="stats-card color-6" id="brk-time-div">
-              <div id="brk-time">
-                  <p class="today">Today : <span id="loader" style="display: inline;color: #fff;"><i class="fa fa-spinner fa-spin"></i> </span></p>
-                  <p class="month">30 DAYS : <span id="loader" style="display: inline;color: #fff;"><i class="fa fa-spinner fa-spin"></i> </span></p>
-              </div>
-              <div>Break</div>
-          </div>
-  
-          <div class="stats-card color-6">
-              <div id="tot-dial">
-                  <p class="today">Today : <span id="loader" style="display: inline;color: #fff;"><i class="fa fa-spinner fa-spin"></i> </span></p>
-                  <p class="month">30 DAYS : <span id="loader" style="display: inline;color: #fff;"><i class="fa fa-spinner fa-spin"></i> </span></p>
-              </div>
-              <div>Dial</div>
-          </div>
-  
-          <div class="stats-card color-6">
-              <div id="tot-concted">
-                  <p class="today">Today : <span id="loader" style="display: inline;color: #fff;"><i class="fa fa-spinner fa-spin"></i> </span></p>
-                  <p class="month">30 DAYS : <span id="loader" style="display: inline;color: #fff;"><i class="fa fa-spinner fa-spin"></i> </span></p>
-              </div>
-              <div>Connected</div>
-          </div>
-  
-          <div class="stats-card color-6">
-              <div id="tot-not-concted">
-                  <p class="today">Today : <span id="loader" style="display: inline;color: #fff;"><i class="fa fa-spinner fa-spin"></i> </span></p>
-                  <p class="month">30 DAYS : <span id="loader" style="display: inline;color: #fff;"><i class="fa fa-spinner fa-spin"></i> </span></p>
-              </div>
-              <div>Not Connected</div>
-          </div>
-  
-          <div class="stats-card color-6">
-              <div id="call-durt">
-                  <p class="today">Today : <span id="loader" style="display: inline;color: #fff;"><i class="fa fa-spinner fa-spin"></i> </span></p>
-                  <p class="month">30 DAYS : <span id="loader" style="display: inline;color: #fff;"><i class="fa fa-spinner fa-spin"></i> </span></p>
-              </div>
-              <div>Call Duration</div>
-          </div>
-  
-          <div class="stats-card color-6">
-              <div id="ratio">
-                  <p class="today">Today : <span id="loader" style="display: inline;color: #fff;"><i class="fa fa-spinner fa-spin"></i> </span></p>
-                  <p class="month">30 DAYS : <span id="loader" style="display: inline;color: #fff;"><i class="fa fa-spinner fa-spin"></i> </span></p>
-              </div>
-              <div>Total Leads</div>
-          </div>
-      </div>
-  
-      <!-- Second Row -->
-      <div class="row">
-          <div class="stats-card color-6">
-              <div id="demo">
-                  <p class="today">Today : <span id="loader" style="display: inline;color: #fff;"><i class="fa fa-spinner fa-spin"></i> </span></p>
-                  <p class="month">30 DAYS : <span id="loader" style="display: inline;color: #fff;"><i class="fa fa-spinner fa-spin"></i> </span></p>
-              </div>
-              <div>Demo Done</div>
-          </div>
-  
-          <div class="stats-card color-4">
-              <div id="fakedemo">
-                  <p class="month">30 DAYS : <span id="loader" style="display: inline;color: #fff;"><i class="fa fa-spinner fa-spin"></i> </span></p>
-              </div>
-              <div>Fake Demo/Incomplete Demo</div>
-          </div>
-  
-          <div class="stats-card color-6">
-              <div id="follow">
-                  <p class="today">Today : <span id="loader" style="display: inline;color: #fff;"><i class="fa fa-spinner fa-spin"></i> </span></p>
-                  <p class="month">30 DAYS : <span id="loader" style="display: inline;color: #fff;"><i class="fa fa-spinner fa-spin"></i> </span></p>
-              </div>
-              <div>Pending Followup</div>
-          </div>
-  
-          <div class="stats-card color-6">
-              <div id="monster">
-                  <p class="today">Today : <span id="loader" style="display: inline;color: #fff;"><i class="fa fa-spinner fa-spin"></i> </span></p>
-                  <p class="month">30 DAYS : <span id="loader" style="display: inline;color: #fff;"><i class="fa fa-spinner fa-spin"></i> </span></p>
-              </div>
-              <div>Marked Monster</div>
-          </div>
-  
-          <div class="stats-card color-6">
-              <div id="ratio">
-                  <p class="today">Today : <span id="loader" style="display: inline;color: #fff;"><i class="fa fa-spinner fa-spin"></i> </span></p>
-                  <p class="month">30 DAYS : <span id="loader" style="display: inline;color: #fff;"><i class="fa fa-spinner fa-spin"></i> </span></p>
-              </div>
-              <div>Demo Lead Ratio</div>
-          </div>
-  
-          <div class="stats-card color-6">
-              <div id="nrced">
-                  <p class="today">Today : <span id="loader" style="display: inline;color: #fff;"><i class="fa fa-spinner fa-spin"></i> </span></p>
-                  <p class="month">30 DAYS : <span id="loader" style="display: inline;color: #fff;"><i class="fa fa-spinner fa-spin"></i> </span></p>
-              </div>
-              <div>Not Recorded</div>
-          </div>
-      </div>
-  </div>
-  
-
-        
-   
      
 </div>
-
-        
-
 
           <div
             class="modal fade"
@@ -2202,9 +2192,9 @@
      <script>
          loadcallerstats();
          loadBestCaller();
-         callerDataMonth();
-         callerDataToday();
-         fetchData(localStorage.getItem("userID"));
+        //  callerDataMonth();
+        //  callerDataToday();
+         fetchData();
          loadcallerdemoleads();
          </script>
     <script src="cordova.js"></script> 

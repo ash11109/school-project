@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html>
     <head>
+        <script src="./js/constant.js"></script>
+        <script src="./js/myscript.js"></script>
         <script>checkUserStatus(["Admin","TL"]);</script>
         <title>Real time data TL</title>
         <link
@@ -372,7 +374,7 @@
                 const time = new Date().toLocaleString("sv-SE").replace("T", " ").split(".")[0];
 
                 $.ajax({
-                    url: "https://teamka.in/crm1/APIs/api.php", // Replace with the correct URL
+                    url: Config.api_url, // Replace with the correct URL
                     type: "POST",
                     data: {
                         operation: "checkActivity",
@@ -473,7 +475,7 @@
             function getIdleUsers() {
                 var id = localStorage.getItem("userID");
                 $.ajax({
-                    url: "https://teamka.in/crm1/APIs/api.php",
+                    url: Config.api_url,
                     method: "POST",
                     data: { operation: "getIdleUsers", id: id },
                     success: function (data) {
@@ -515,7 +517,7 @@
 
                 var id = localStorage.getItem("userID");
                 $.ajax({
-                    url: "https://teamka.in/crm1/APIs/api.php",
+                    url: Config.api_url,
                     method: "POST",
                     data: { operation: "007-tl-2", id: id },
                     success: function (data) {
@@ -619,7 +621,7 @@
                 var id = localStorage.getItem("userID");
 
                 $.ajax({
-                    url: "https://teamka.in/crm1/APIs/api.php",
+                    url: Config.api_url,
                     data: { operation: "leaderBoard", id: id },
                     success: function (response) {
                         data = JSON.parse(response);
@@ -782,7 +784,7 @@
                 var id = localStorage.getItem("userID");
 
                 $.ajax({
-                    url: "https://teamka.in/crm1/APIs/api.php",
+                    url: Config.api_url,
                     method: "POST", // You can use "GET" if appropriate
                     data: { operation: "007-tl", id: id },
                     success: function (response) {
@@ -885,7 +887,7 @@
                 var id = localStorage.getItem("userID");
 
                 $.ajax({
-                    url: "https://teamka.in/crm1/APIs/api.php",
+                    url: Config.api_url,
                     method: "POST",
                     data: { operation: "tl-graph", id: id },
                     success: function (data) {

@@ -1,20 +1,14 @@
 <!DOCTYPE html>
 <html>
     <head>
+        <script src="./js/constant.js"></script>
+        <script src="./js/myscript.js"></script>
+        <script>checkUserStatus(["Admin","TL"]);</script>
         <script>
-            if (localStorage.getItem("MobileNo") == null) {
-                alert("Not Logged In");
-                window.location.href = "./index.html";
-            }
-            if (localStorage.getItem("userType") == "TL" || localStorage.getItem("userType") == "Admin") {
-            } else {
-                alert("Not Logged In");
-                window.location.href = "./index.html";
-            }
             var start = localStorage.getItem("start");
             var end = localStorage.getItem("end");
-            var api_url = "https://teamka.in/crm1/APIs/api.php";
         </script>
+        
         <title>Real time data TL</title>
         <link rel="stylesheet" href="./font-awesome/css/font-awesome.min.css" />
         <link
@@ -341,7 +335,7 @@
             let responseData = null;
             function getUsers() {
                 $.ajax({
-                    url: "https://teamka.in/crm1/APIs/api.php?operation=getUsers",
+                    url: Config.api_url+"?operation=getUsers",
                     method: "GET",
                     success: function (response) {
                         responseData = JSON.parse(response);
@@ -1015,7 +1009,7 @@
                 var id = localStorage.getItem("userID");
 
                 $.ajax({
-                    url: "https://teamka.in/crm1/APIs/api.php",
+                    url: Config.api_url,
                     method: "POST", // You can use "GET" if appropriate
                     data: { operation: "007-tl-date", id: id, start: start, end: end },
                     success: function (response) {
@@ -1207,7 +1201,7 @@
                 $(button).prop("disabled", true);
 
                 $.ajax({
-                    url: "https://teamka.in/crm1/APIs/api.php",
+                    url: Config.api_url,
                     method: "POST",
                     data: { operation: "transferleads", caller: caller, id: leadId },
                     success: function (response) {
