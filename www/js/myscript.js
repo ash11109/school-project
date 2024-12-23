@@ -4,6 +4,206 @@ var api_url = "https://teamka.in/crm1/APIs/api_development.php";
 
 //new code starts Here 
 
+
+// Function to fetch data from the API
+function fetchData(id) {
+    const todayDate = new Date().toISOString().split('T')[0]; // shorthand for today date
+    const yesterdayDate = new Date();
+    yesterdayDate.setDate(yesterdayDate.getDate() - 1); // Subtract 1 day to get yesterday
+    const yesterdayDateFormatted = yesterdayDate.toISOString().split('T')[0]; // formatted yesterday date
+
+    const thirtyDaysBack = new Date();
+    thirtyDaysBack.setDate(thirtyDaysBack.getDate() - 30); // Subtract 30 days
+    const thirtyDaysBackDate = thirtyDaysBack.toISOString().split('T')[0];
+
+    const sixtyDaysBack = new Date();
+    sixtyDaysBack.setDate(sixtyDaysBack.getDate() - 60); // Subtract 60 days
+    const sixtyDaysBackDate = sixtyDaysBack.toISOString().split('T')[0];
+
+    // Fetch data for today, yesterday, 30 days back, and 60 days back
+    Promise.all([
+        fetchDataForDateRange(id, todayDate,todayDate),  // Today
+        fetchDataForDateRange(id, yesterdayDateFormatted,yesterdayDateFormatted),  // Yesterday
+        fetchDataForDateRange(id, thirtyDaysBackDate, todayDate),  // 30 days back vs today
+        fetchDataForDateRange(id, sixtyDaysBackDate, thirtyDaysBackDate)  // 60 days back vs 30 days back
+    ])
+    .then(([todayData, yesterdayData, thirtyDaysBackData, sixtyDaysBackData]) => {
+        // Compare and populate the data
+        compareAndPopulateData(todayData, yesterdayData, thirtyDaysBackData, sixtyDaysBackData);
+    })
+    .catch(error => {
+        console.error('Error fetching data:', error);
+    });
+}
+
+
+// Function to fetch data for a date range (start and end date)
+function fetchDataForDateRange(id, startDate, endDate) {
+    const url = api_url; // API URL without query parameters
+    const data = new URLSearchParams(); // Create URLSearchParams object to encode data
+
+    // Append the parameters to the URLSearchParams object
+    data.append('operation', 'test1');
+    data.append('id', id);
+    data.append('start_date', startDate); // Pass the start date
+    data.append('end_date', endDate); // Pass the end date
+
+    // Use fetch with POST method and URL-encoded data
+    return fetch(url, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded'
+        },
+        body: data.toString()
+    })
+    .then(response => response.json())
+    .then(result => {
+        console.log(result);
+        return filterAndCalculateData(result.data, result.breakTime);
+    });
+}
+
+// Function to filter and calculate the data
+function filterAndCalculateData(rawData, breakTime) {
+    // Initialize variables for calculations
+    const currentDate = new Date().toISOString().split('T')[0];
+
+    let countNotConnected = 0;
+    let countConnected = 0;
+    let callToday = 0;
+    let notrecoded = 0;
+    let demoCount = 0;
+    let monster = 0;
+    let followup = 0;
+    let totalCallDuration = 0;
+
+    rawData.forEach(call => {
+        // Count Connected / Not Connected
+        if (['Switched Off', 'Not Received', 'Out Of Service', 'Incoming Off', 'Call Busy'].includes(call.Call_Status)) {
+            countNotConnected++;
+        } else {
+            countConnected++;
+        }
+
+        // Count Not Recorded Calls
+        if (call.Duration_Of_Call === 0) {
+            notrecoded++;
+        }
+
+        // Count total calls today
+        callToday++;
+
+        // Count the total call duration
+        totalCallDuration += parseInt(call.Duration_Of_Call);
+
+        // Count demo done (check both Summary_Note and Call_Status)
+        if (
+            (call.Summary_Note && call.Summary_Note.toLowerCase().includes('demo done')) ||
+            call.Call_Status === 'Demo Done'
+        ) {
+            demoCount++;
+        }
+
+        if (call.Next_Call_Date == '2020-01-01') {
+            monster++;
+        }
+
+        // Count pending follow-ups (if Next_Call_Date matches current date)
+        if (call.Next_Call_Date === currentDate) {
+            followup++;
+        }
+    });
+
+    // Convert total call duration to HH:MM:SS format
+    const durationDisplay = new Date(totalCallDuration * 1000).toISOString().substr(11, 8);
+
+    return {
+        breakTime,
+        callToday,
+        countConnected,
+        countNotConnected,
+        durationDisplay,
+        demoCount,
+        followup,
+        monster,
+        notrecoded
+    };
+}
+function compareAndPopulateData(todayData, yesterdayData, thirtyDaysBackData, sixtyDaysBackData) {
+    // Helper function to validate numeric values or return 0 for invalid data
+    function getValidValue(value, isTime = false) {
+        // If value is a time string like "HH:MM:SS", try to convert to seconds
+        if (isTime && typeof value === "string") {
+            const timeParts = value.split(':');
+            if (timeParts.length === 3) {
+                return parseInt(timeParts[0]) * 3600 + parseInt(timeParts[1]) * 60 + parseInt(timeParts[2]);
+            }
+        }
+        // For non-time values, return number or 0 if invalid
+        return (typeof value === 'number' && !isNaN(value)) ? value : 0;
+    }
+
+    // Compare and append the result for Today
+    const elements = [
+        { id: '#tot-dial .today', todayValue: todayData.callToday, yesterdayValue: yesterdayData.callToday },
+        { id: '#tot-concted .today', todayValue: todayData.countConnected, yesterdayValue: yesterdayData.countConnected },
+        { id: '#tot-not-concted .today', todayValue: todayData.countNotConnected, yesterdayValue: yesterdayData.countNotConnected },
+        { id: '#call-durt .today', todayValue: todayData.durationDisplay, yesterdayValue: yesterdayData.durationDisplay, isTime: true },
+        { id: '#demo .today', todayValue: todayData.demoCount, yesterdayValue: yesterdayData.demoCount },
+        { id: '#follow .today', todayValue: todayData.followup, yesterdayValue: yesterdayData.followup },
+        { id: '#monster .today', todayValue: todayData.monster, yesterdayValue: yesterdayData.monster },
+        { id: '#nrced .today', todayValue: todayData.notrecoded, yesterdayValue: yesterdayData.notrecoded },
+        { id: '#brk-time .today', todayValue: todayData.breakTime, yesterdayValue: yesterdayData.breakTime, isTime: true }, // Added #brk-time for today
+    ];
+
+    elements.forEach(item => {
+        const todayValue = getValidValue(item.todayValue, item.isTime);
+        const yesterdayValue = getValidValue(item.yesterdayValue, item.isTime);
+        const diffTodayYesterday = todayValue - yesterdayValue;
+
+        const arrowTodayYesterday = diffTodayYesterday > 0 ? '↑' : diffTodayYesterday < 0 ? '↓' : '';
+        const diffTextTodayYesterday = diffTodayYesterday !== 0 ? `(${Math.abs(diffTodayYesterday)})` : '(no change)';
+
+        // Populate today's data with difference and arrows
+        $(item.id).html(`Today: ${item.todayValue} ${arrowTodayYesterday} ${diffTextTodayYesterday}`);
+    });
+
+    // Compare and append the result for 30 Days
+    const elements30Days = [
+        { id: '#tot-dial .month', thirtyValue: thirtyDaysBackData.callToday, sixtyValue: sixtyDaysBackData.callToday },
+        { id: '#tot-concted .month', thirtyValue: thirtyDaysBackData.countConnected, sixtyValue: sixtyDaysBackData.countConnected },
+        { id: '#tot-not-concted .month', thirtyValue: thirtyDaysBackData.countNotConnected, sixtyValue: sixtyDaysBackData.countNotConnected },
+        { id: '#call-durt .month', thirtyValue: thirtyDaysBackData.durationDisplay, sixtyValue: sixtyDaysBackData.durationDisplay, isTime: true },
+        { id: '#demo .month', thirtyValue: thirtyDaysBackData.demoCount, sixtyValue: sixtyDaysBackData.demoCount },
+        { id: '#follow .month', thirtyValue: thirtyDaysBackData.followup, sixtyValue: sixtyDaysBackData.followup },
+        { id: '#monster .month', thirtyValue: thirtyDaysBackData.monster, sixtyValue: sixtyDaysBackData.monster },
+        { id: '#nrced .month', thirtyValue: thirtyDaysBackData.notrecoded, sixtyValue: sixtyDaysBackData.notrecoded },
+        { id: '#brk-time .month', thirtyValue: thirtyDaysBackData.breakTime, sixtyValue: sixtyDaysBackData.breakTime, isTime: true }, // Added #brk-time for 30 days
+    ];
+
+    elements30Days.forEach(item => {
+        const thirtyValue = getValidValue(item.thirtyValue, item.isTime);
+        const sixtyValue = getValidValue(item.sixtyValue, item.isTime);
+        const diff30vs30 = thirtyValue - sixtyValue;
+
+        const arrow30vs30 = diff30vs30 > 0 ? '↑' : diff30vs30 < 0 ? '↓' : '';
+        const diffText30vs30 = diff30vs30 !== 0 ? `(${Math.abs(diff30vs30)})` : '(no change)';
+
+        // Populate 30 days data with difference and arrows
+        $(item.id).html(`30 Days: ${item.thirtyValue} ${arrow30vs30} ${diffText30vs30}`);
+    });
+}
+
+// Helper function to convert seconds to time format (hh:mm:ss)
+function secondsToTime(seconds) {
+    const hours = Math.floor(seconds / 3600);
+    const minutes = Math.floor((seconds % 3600) / 60);
+    const sec = seconds % 60;
+    return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${sec.toString().padStart(2, '0')}`;
+}
+
+
+
 function changeModalName(name){
 
     if(name == "Add"){
@@ -894,88 +1094,90 @@ async function handleFileSelect(event) {
     }
 }
 
-async function callerDataToday() {
-    const id = localStorage.getItem("userID");
 
-    try {
-        const response = await fetch(api_url, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/x-www-form-urlencoded",
-            },
-            body: new URLSearchParams({
-                operation: "test1",
-                id: id,
-            }),
-        });
 
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
+// async function callerDataToday() {
+//     const id = localStorage.getItem("userID");
 
-        const result = await response.json(); // Assuming the response is JSON
-        console.log(result);
+//     try {
+//         const response = await fetch(api_url, {
+//             method: "POST",
+//             headers: {
+//                 "Content-Type": "application/x-www-form-urlencoded",
+//             },
+//             body: new URLSearchParams({
+//                 operation: "test1",
+//                 id: id,
+//             }),
+//         });
 
-        // Update HTML elements
-        $("#brk-time .today").html("Today: " + result.bt);
-        $("#tot-dial .today").html("Today: " + result.call_today);
-        $("#tot-concted .today").html("Today: " + result.countConnected);
-        $("#tot-not-concted .today").html("Today: " + result.countNotConnected);
-        $("#call-durt .today").html("Today: " + result.callDuration);
-        $("#demo .today").html("Today: " + result.demo);
-        $("#follow .today").html("Today: " + result.follow);
-        $("#monster .today").html("Today: " + result.call_count);
-        $("#nrced .today").html("Today: " + result.notRecorded);
+//         if (!response.ok) {
+//             throw new Error(`HTTP error! status: ${response.status}`);
+//         }
 
-    } catch (error) {
-        console.error("Error fetching data:", error);
-        displayerror(`An error occurred: ${error.message}`);
-    }
-}
+//         const result = await response.json(); // Assuming the response is JSON
+//         console.log(result);
 
-async function callerDataMonth() {
-    const id = localStorage.getItem("userID");
-    const to = getToday();
-    const from = getLast30Days();
+//         // Update HTML elements
+//         $("#brk-time .today").html("Today: " + result.bt);
+//         $("#tot-dial .today").html("Today: " + result.call_today);
+//         $("#tot-concted .today").html("Today: " + result.countConnected);
+//         $("#tot-not-concted .today").html("Today: " + result.countNotConnected);
+//         $("#call-durt .today").html("Today: " + result.callDuration);
+//         $("#demo .today").html("Today: " + result.demo);
+//         $("#follow .today").html("Today: " + result.follow);
+//         $("#monster .today").html("Today: " + result.call_count);
+//         $("#nrced .today").html("Today: " + result.notRecorded);
 
-    try {
-        const response = await fetch(api_url, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/x-www-form-urlencoded",
-            },
-            body: new URLSearchParams({
-                operation: "007-month",
-                id: id,
-                to: to,
-                from: from,
-            }),
-        });
+//     } catch (error) {
+//         console.error("Error fetching data:", error);
+//         displayerror(`An error occurred: ${error.message}`);
+//     }
+// }
 
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
+// async function callerDataMonth() {
+//     const id = localStorage.getItem("userID");
+//     const to = getToday();
+//     const from = getLast30Days();
 
-        const result = await response.json(); // Assuming the response is JSON
-        console.log(result);
+//     try {
+//         const response = await fetch(api_url, {
+//             method: "POST",
+//             headers: {
+//                 "Content-Type": "application/x-www-form-urlencoded",
+//             },
+//             body: new URLSearchParams({
+//                 operation: "007-month",
+//                 id: id,
+//                 to: to,
+//                 from: from,
+//             }),
+//         });
 
-        // Update HTML elements
-        $("#brk-time .month").html("30 Days: " + result.bt);
-        $("#tot-dial .month").html("30 Days: " + result.call_today);
-        $("#tot-concted .month").html("30 Days: " + result.countConnected);
-        $("#tot-not-concted .month").html("30 Days: " + result.countNotConnected);
-        $("#call-durt .month").html("30 Days: " + result.callDuration);
-        $("#demo .month").html("30 Days: " + result.demo);
-        $("#follow .month").html("30 Days: " + result.follow);
-        $("#monster .month").html("30 Days: " + result.call_count);
-        $("#nrced .month").html("30 Days: " + result.notRecorded);
-        $("#fakedemo .month").html("30 Days: " + result.fakedemo + "/" + result.incomdemo);
+//         if (!response.ok) {
+//             throw new Error(`HTTP error! status: ${response.status}`);
+//         }
 
-    } catch (error) {
-        console.error("Error fetching data:", error);
-        displayerror(`An error occurred: ${error.message}`);
-    }
-}
+//         const result = await response.json(); // Assuming the response is JSON
+//         console.log(result);
+
+//         // Update HTML elements
+//         $("#brk-time .month").html("30 Days: " + result.bt);
+//         $("#tot-dial .month").html("30 Days: " + result.call_today);
+//         $("#tot-concted .month").html("30 Days: " + result.countConnected);
+//         $("#tot-not-concted .month").html("30 Days: " + result.countNotConnected);
+//         $("#call-durt .month").html("30 Days: " + result.callDuration);
+//         $("#demo .month").html("30 Days: " + result.demo);
+//         $("#follow .month").html("30 Days: " + result.follow);
+//         $("#monster .month").html("30 Days: " + result.call_count);
+//         $("#nrced .month").html("30 Days: " + result.notRecorded);
+//         $("#fakedemo .month").html("30 Days: " + result.fakedemo + "/" + result.incomdemo);
+
+//     } catch (error) {
+//         console.error("Error fetching data:", error);
+//         displayerror(`An error occurred: ${error.message}`);
+//     }
+// }
 
 async function addMember() {
     const tl = $("#tl-select").val();
