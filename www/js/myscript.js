@@ -7,7 +7,7 @@
 
 // Function to fetch data from the API
 function fetchData() {
-    id = localStorage.getItem("userID");
+    const id = localStorage.getItem("userID");
     const todayDate = formatDate(new Date()); // today's date
 
     const yesterdayDate = new Date();
@@ -61,12 +61,12 @@ function fetchDataForDateRange(id, startDate, endDate) {
     .then(response => response.json())
     .then(result => {
         console.log(result);
-        return filterAndCalculateData(result.data, result.breakTime);
+        return filterAndCalculateData(result.data, result.breakTime,result.leadCount);
     });
 }
 
 // Function to filter and calculate the data
-function filterAndCalculateData(rawData, breakTime) {
+function filterAndCalculateData(rawData, breakTime,leadCount) {
     // Initialize variables for calculations
     const currentDate = new Date().toISOString().split('T')[0];
 
@@ -118,9 +118,13 @@ function filterAndCalculateData(rawData, breakTime) {
 
     // Convert total call duration to HH:MM:SS format
     //const durationDisplay = new Date(totalCallDuration * 1000).toISOString().substr(11, 8);
-     console.log(totalCallDuration);
+    const leadToDemo = (!leadCount || !demoCount) ? 0 : Math.round(leadCount / demoCount);
+
+     console.log(leadToDemo);
     return {
         breakTime,
+        leadCount,
+        leadToDemo,
         callToday,
         countConnected,
         countNotConnected,
@@ -133,7 +137,7 @@ function filterAndCalculateData(rawData, breakTime) {
 }
 function compareAndPopulateData(todayData, yesterdayData, thirtyDaysBackData, sixtyDaysBackData) {
     // Helper function to update HTML content (customizable)
-    console.log(thirtyDaysBackData);
+    
     function updateHtml(id, label, value, arrow, diffText) {
         // Customize this logic to control how content is displayed
         $(id).html(`${label}: ${value} ${arrow} ${diffText}`);
@@ -157,30 +161,34 @@ function compareAndPopulateData(todayData, yesterdayData, thirtyDaysBackData, si
     // Compare and append the result for Today
     const elements = [
         { id: '#tot-dial .today', todayValue: todayData.callToday, yesterdayValue: yesterdayData.callToday },
+        { id: '#totalLeads .today', todayValue: todayData.leadCount, yesterdayValue: yesterdayData.leadCount },
+        { id: '#demoRatio .today', todayValue: todayData.leadToDemo, yesterdayValue: yesterdayData.leadToDemo },
         { id: '#tot-concted .today', todayValue: todayData.countConnected, yesterdayValue: yesterdayData.countConnected },
-        { id: '#tot-not-concted .today', todayValue: todayData.countNotConnected, yesterdayValue: yesterdayData.countNotConnected },
+        { id: '#tot-not-concted .today', todayValue: todayData.countNotConnected, yesterdayValue: yesterdayData.countNotConnected , reverseColor: true},
         { id: '#call-durt .today', todayValue: todayData.totalCallDuration, yesterdayValue: yesterdayData.totalCallDuration, isTime: true },
         { id: '#demo .today', todayValue: todayData.demoCount, yesterdayValue: yesterdayData.demoCount },
-        { id: '#follow .today', todayValue: todayData.followup, yesterdayValue: yesterdayData.followup },
-        { id: '#monster .today', todayValue: todayData.monster, yesterdayValue: yesterdayData.monster },
-        { id: '#nrced .today', todayValue: todayData.notrecoded, yesterdayValue: yesterdayData.notrecoded },
-        { id: '#brk-time .today', todayValue: todayData.breakTime, yesterdayValue: yesterdayData.breakTime, isTime: true },
+        { id: '#follow .today', todayValue: todayData.followup, yesterdayValue: yesterdayData.followup , reverseColor: true },
+        { id: '#monster .today', todayValue: todayData.monster, yesterdayValue: yesterdayData.monster , reverseColor: true },
+        { id: '#nrced .today', todayValue: todayData.notrecoded, yesterdayValue: yesterdayData.notrecoded , reverseColor: true },
+        { id: '#brk-time .today', todayValue: todayData.breakTime, yesterdayValue: yesterdayData.breakTime, isTime: true, reverseColor: true },
     ];
 
     elements.forEach(item => {
         const todayValue = item.isTime ? secondsToTime(item.todayValue) : item.todayValue;
         const yesterdayValue = item.isTime ? secondsToTime(item.yesterdayValue) : item.yesterdayValue;
-        
+    
         const diffTodayYesterday = item.todayValue - item.yesterdayValue;
+    
+        const isReverse = item.reverseColor || false; // Default to false if not set
     
         let arrowTodayYesterday = '';
         let diffTextTodayYesterday = '';
     
         if (diffTodayYesterday > 0) {
-            arrowTodayYesterday = '<i class="fa fa-arrow-up text-success"></i>';
+            arrowTodayYesterday = `<i class="fa fa-arrow-up text-${isReverse ? 'danger' : 'success'}"></i>`;
             diffTextTodayYesterday = `(+${item.isTime ? secondsToTime(diffTodayYesterday) : diffTodayYesterday})`;
         } else if (diffTodayYesterday < 0) {
-            arrowTodayYesterday = '<i class="fa fa-arrow-down text-danger"></i>';
+            arrowTodayYesterday = `<i class="fa fa-arrow-down text-${isReverse ? 'success' : 'danger'}"></i>`;
             diffTextTodayYesterday = `(${item.isTime ? secondsToTime(diffTodayYesterday) : diffTodayYesterday})`;
         } else {
             diffTextTodayYesterday = '<i class="fa fa-circle text-muted"></i>';
@@ -189,18 +197,21 @@ function compareAndPopulateData(todayData, yesterdayData, thirtyDaysBackData, si
         updateHtml(item.id, 'Today', todayValue, arrowTodayYesterday, diffTextTodayYesterday);
     });
     
+    
 
     // Compare and append the result for 30 Days
     const elements30Days = [
         { id: '#tot-dial .month', thirtyValue: thirtyDaysBackData.callToday, sixtyValue: sixtyDaysBackData.callToday },
+        { id: '#totalLeads .month', thirtyValue: thirtyDaysBackData.leadCount, sixtyValue: sixtyDaysBackData.leadCount },
+        { id: '#demoRatio .month', thirtyValue: thirtyDaysBackData.leadToDemo, sixtyValue: sixtyDaysBackData.leadToDemo },
         { id: '#tot-concted .month', thirtyValue: thirtyDaysBackData.countConnected, sixtyValue: sixtyDaysBackData.countConnected },
-        { id: '#tot-not-concted .month', thirtyValue: thirtyDaysBackData.countNotConnected, sixtyValue: sixtyDaysBackData.countNotConnected },
+        { id: '#tot-not-concted .month', thirtyValue: thirtyDaysBackData.countNotConnected, sixtyValue: sixtyDaysBackData.countNotConnected , reverseColor: true},
         { id: '#call-durt .month', thirtyValue: thirtyDaysBackData.totalCallDuration, sixtyValue: sixtyDaysBackData.totalCallDuration, isTime: true },
         { id: '#demo .month', thirtyValue: thirtyDaysBackData.demoCount, sixtyValue: sixtyDaysBackData.demoCount },
-        { id: '#follow .month', thirtyValue: thirtyDaysBackData.followup, sixtyValue: sixtyDaysBackData.followup },
-        { id: '#monster .month', thirtyValue: thirtyDaysBackData.monster, sixtyValue: sixtyDaysBackData.monster },
-        { id: '#nrced .month', thirtyValue: thirtyDaysBackData.notrecoded, sixtyValue: sixtyDaysBackData.notrecoded },
-        { id: '#brk-time .month', thirtyValue: thirtyDaysBackData.breakTime, sixtyValue: sixtyDaysBackData.breakTime, isTime: true },
+        { id: '#follow .month', thirtyValue: thirtyDaysBackData.followup, sixtyValue: sixtyDaysBackData.followup , reverseColor: true},
+        { id: '#monster .month', thirtyValue: thirtyDaysBackData.monster, sixtyValue: sixtyDaysBackData.monster , reverseColor: true},
+        { id: '#nrced .month', thirtyValue: thirtyDaysBackData.notrecoded, sixtyValue: sixtyDaysBackData.notrecoded , reverseColor: true},
+        { id: '#brk-time .month', thirtyValue: thirtyDaysBackData.breakTime, sixtyValue: sixtyDaysBackData.breakTime, isTime: true , reverseColor: true},
     ];
 
     elements30Days.forEach(item => {
@@ -209,14 +220,16 @@ function compareAndPopulateData(todayData, yesterdayData, thirtyDaysBackData, si
     
         const diff30vs30 = item.thirtyValue - item.sixtyValue;
     
+        const isReverse = item.reverseColor || false; // Default to false if not set
+    
         let arrow30vs30 = '';
         let diffText30vs30 = '';
     
         if (diff30vs30 > 0) {
-            arrow30vs30 = '<i class="fa fa-arrow-up text-success"></i>';
+            arrow30vs30 = `<i class="fa fa-arrow-up text-${isReverse ? 'danger' : 'success'}"></i>`;
             diffText30vs30 = `(+${item.isTime ? secondsToTime(diff30vs30) : diff30vs30})`;
         } else if (diff30vs30 < 0) {
-            arrow30vs30 = '<i class="fa fa-arrow-down text-danger"></i>';
+            arrow30vs30 = `<i class="fa fa-arrow-down text-${isReverse ? 'success' : 'danger'}"></i>`;
             diffText30vs30 = `(${item.isTime ? secondsToTime(diff30vs30) : diff30vs30})`;
         } else {
             diffText30vs30 = '<i class="fa fa-circle text-muted"></i>';
@@ -224,6 +237,7 @@ function compareAndPopulateData(todayData, yesterdayData, thirtyDaysBackData, si
     
         updateHtml(item.id, '30 Days', thirtyValue, arrow30vs30, diffText30vs30);
     });
+    
     
 }
 
@@ -2188,9 +2202,9 @@ async function fetchMissedCalls() {
                 {
                     data: null,
                     render: function (data, type, row, meta) {
-                        if (row["status"] === 0) {
+                        if (row["status"] == 0) {
                             return "-";
-                        } else if (row["status"] === 1) {
+                        } else if (row["status"] == 1) {
                             return row["Lead_ID"];
                         }
                     },
@@ -2198,9 +2212,9 @@ async function fetchMissedCalls() {
                 {
                     data: null,
                     render: function (data, type, row, meta) {
-                        if (row["status"] === 0) {
+                        if (row["status"] == 0) {
                             return "-";
-                        } else if (row["status"] === 1) {
+                        } else if (row["status"] == 1) {
                             return row["Name"];
                         }
                     },
@@ -2211,7 +2225,7 @@ async function fetchMissedCalls() {
                         const index = meta.row;
 
                         function makeCallLink(number, displayText, name, leadid) {
-                            if (row["status"] === 1) {
+                            if (row["status"] == 1) {
                                 if (number === row["number"]) {
                                     return `<a href="javascript:void(0)" onclick="makeCall('${name}', '${leadid}', '${number}', '${index}')" style="color:red;">${displayText}</a>`;
                                 } else {
@@ -2234,7 +2248,7 @@ async function fetchMissedCalls() {
                             }
                         }
 
-                        if (row["status"] === 1) {
+                        if (row["status"] == 1) {
                             return `${makeCallLink(row["Mobile"], row["Mobile"], row["Name"], row["Lead_ID"])}<br>` +
                                 `${makeCallLink(row["Alternate_Mobile"], row["Alternate_Mobile"], row["Name"], row["Lead_ID"])}<br>` +
                                 `${makeWhatsAppLink(row["Whatsapp"], row["Whatsapp"])}<br>` +
@@ -2248,9 +2262,9 @@ async function fetchMissedCalls() {
                 {
                     data: null,
                     render: function (data, type, row, meta) {
-                        if (row["status"] === 0) {
+                        if (row["status"] == 0) {
                             return "-";
-                        } else if (row["status"] === 1) {
+                        } else if (row["status"] == 1) {
                             return `${row["State"]}<br>${row["City"]}`;
                         }
                     },
@@ -2258,9 +2272,9 @@ async function fetchMissedCalls() {
                 {
                     data: null,
                     render: function (data, type, row, meta) {
-                        if (row["status"] === 0) {
+                        if (row["status"] == 0) {
                             return "-";
-                        } else if (row["status"] === 1) {
+                        } else if (row["status"] == 1) {
                             return row["Interested_In"];
                         }
                     },
@@ -2268,9 +2282,9 @@ async function fetchMissedCalls() {
                 {
                     data: null,
                     render: function (data, type, row, meta) {
-                        if (row["status"] === 0) {
+                        if (row["status"] == 0) {
                             return "-";
-                        } else if (row["status"] === 1) {
+                        } else if (row["status"] == 1) {
                             return row["Source"];
                         }
                     },
@@ -2278,9 +2292,9 @@ async function fetchMissedCalls() {
                 {
                     data: null,
                     render: function (data, type, row, meta) {
-                        if (row["status"] === 0) {
+                        if (row["status"] == 0) {
                             return "-";
-                        } else if (row["status"] === 1) {
+                        } else if (row["status"] == 1) {
                             return row["status_lead"];
                         }
                     },
@@ -2288,9 +2302,9 @@ async function fetchMissedCalls() {
                 {
                     data: null,
                     render: function (data, type, row, meta) {
-                        if (row["status"] === 0) {
+                        if (row["status"] == 0) {
                             return "-";
-                        } else if (row["status"] === 1) {
+                        } else if (row["status"] == 1) {
                             return row["DOR"];
                         }
                     },
@@ -2298,9 +2312,9 @@ async function fetchMissedCalls() {
                 {
                     data: null,
                     render: function (data, type, row, meta) {
-                        if (row["status"] === 0) {
+                        if (row["status"] == 0) {
                             return "-";
-                        } else if (row["status"] === 1) {
+                        } else if (row["status"] == 1) {
                             return row["Caller"];
                         }
                     },
@@ -2309,9 +2323,9 @@ async function fetchMissedCalls() {
                 {
                     data: null,
                     render: function (data, type, row) {
-                        if (row["status"] === 0) {
+                        if (row["status"] == 0) {
                             return `<button class="btn btn-primary" data-toggle="modal" data-target="#exampleModal" onclick="addmissedlead(${row["number"]})">Add Lead</button>`;
-                        } else if (row["status"] === 1) {
+                        } else if (row["status"] == 1) {
                             return `<button class="btn btn-primary" data-toggle="modal" data-target="#exampleModal4" data-whatever="${row["Lead_ID"]}" onclick="getAllStatus(${row["Lead_ID"]})">Status</button>`;
                         } else {
                             return ""; // Return empty string if status is neither 0 nor 1
