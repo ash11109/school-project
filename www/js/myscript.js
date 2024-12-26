@@ -2527,6 +2527,24 @@ document.addEventListener("DOMContentLoaded", function () {
             // Handle case where no TL is selected (optional)
         }
     });
+
+    const toggleSwitch = document.getElementById("darkModeToggle");
+
+    // Check for saved user preference in localStorage
+    if (localStorage.getItem("dark-mode") === "enabled") {
+        document.body.classList.add("dark-mode");
+        toggleSwitch.checked = true;
+    }
+
+    toggleSwitch.addEventListener("change", () => {
+        if (toggleSwitch.checked) {
+            document.body.classList.add("dark-mode");
+            localStorage.setItem("dark-mode", "enabled");
+        } else {
+            document.body.classList.remove("dark-mode");
+            localStorage.setItem("dark-mode", "disabled");
+        }
+    });
 });
 
 
@@ -3417,6 +3435,14 @@ const refcammMygalla = Math.round(dataMain2.data1.totals.total_expense_mygalla /
 const refcammDM = Math.round(dataMain2.data1.totals.total_expense_DM / dataMain2.data3.noDuesLeadCounts.noDues_dm) ;
 const refcammOther = Math.round(dataMain2.data1.totals.total_expense_other / dataMain2.data3.noDuesLeadCounts.noDues_other) ;
 
+const cpsMygalla = Math.round(totalPaymentAmount1 / dataMain1.data3.calls.totalcallinMyGalla) ;
+const cpsDM = Math.round(totalPaymentAmount2 / dataMain1.data3.calls.totalcallinDM) ;
+const cpsOther = Math.round(totalPaymentAmount3 / dataMain1.data3.calls.totalcallinOthers) ;
+
+const refcpsMygalla = Math.round(dataMain2.data3.totalPaymentAmount1 / dataMain2.data3.calls.totalcallinMyGalla) ;
+const refcpsDM = Math.round(dataMain2.data3.totalPaymentAmount2 / dataMain2.data3.calls.totalcallinDM) ;
+const refcpsOther = Math.round(dataMain2.data3.totalPaymentAmount3 / dataMain2.data3.calls.totalcallinOthers) ;
+
 
 
 // Creating the report content
@@ -3427,6 +3453,7 @@ var content = `
             <tr>
                 <th>No Of Leads</th>
                 <th>CPL</th>
+                <th>CPS</th>
                 <th>Unanswered Lead</th>
                 <th>Demo Done</th>
                 <th>Conversion</th>
@@ -3438,6 +3465,7 @@ var content = `
             <tr>
                 <td>MY GALLA</td>
                 <td><a href="" onclick="getcpls('mygalla')" data-toggle="modal" data-target="#exampleModalviewcpl">₹${spendMyGalla} </a> / ${leadMyGalla} = ₹${cplMygalla} ${getComparisonArrow(cplMygalla, refcplMygalla,1)}</td>
+                <td>${cpsMygalla} ${getComparisonArrow(cpsMygalla, refcpsMygalla,1)}</td>
                 <td>${parseSafe(dataMain1.data2.leadCounts.unassigned_mygalla)} ${getComparisonArrow(parseSafe(dataMain1.data2.leadCounts.unassigned_mygalla), parseSafe(dataMain2.data2.leadCounts.unassigned_mygalla),1)}</td>
                 <td>${parseSafe(dataMain1.data2.demoCounts.demo_mygalla)} ${getComparisonArrow(parseSafe(dataMain1.data2.demoCounts.demo_mygalla), parseSafe(dataMain2.data2.demoCounts.demo_mygalla),2)}</td>
                 <td>${noDuesMyGalla}/${percentageNoDuesMyGalla}% ${getComparisonArrow(noDuesMyGalla, dataMain2.data3.noDuesLeadCounts.noDues_mygalla,2)}</td>
@@ -3447,6 +3475,7 @@ var content = `
             <tr>
                 <td>DM, DM Course, WDC</td>
                 <td><a href="" onclick="getcpls('dm')" data-toggle="modal" data-target="#exampleModalviewcpl">₹${spendDM}</a> / ${leadDM} = ₹${cplDM} ${getComparisonArrow(cplDM, refcplDM,1)}</td>
+                <td>${cpsDM} ${getComparisonArrow(cpsDM, refcpsDM,1)}</td>
                 <td>${parseSafe(dataMain1.data2.leadCounts.unassigned_dm)} ${getComparisonArrow(parseSafe(dataMain1.data2.leadCounts.unassigned_dm), parseSafe(dataMain2.data2.leadCounts.unassigned_dm),1)}</td>
                 <td>${parseSafe(dataMain1.data2.demoCounts.demo_dm)} ${getComparisonArrow(parseSafe(dataMain1.data2.demoCounts.demo_dm), parseSafe(dataMain2.data2.demoCounts.demo_dm),2)}</td>
                 <td>${noDuesDM}/${percentageNoDuesDM}% ${getComparisonArrow(noDuesDM, dataMain2.data3.noDuesLeadCounts.noDues_dm,2)}</td>
@@ -3456,6 +3485,7 @@ var content = `
             <tr>
                 <td>Other</td>
                 <td><a href="" onclick="getcpls('other')" data-toggle="modal" data-target="#exampleModalviewcpl">₹${spendOther}</a> / ${leadOther} = ₹${cplOther} ${getComparisonArrow(cplOther, refcplOther,1)}</td>
+                <td>${cpsOther} ${getComparisonArrow(cpsOther, refcpsOther,1)}</td>
                 <td>${parseSafe(dataMain1.data2.leadCounts.unassigned_other)} ${getComparisonArrow(parseSafe(dataMain1.data2.leadCounts.unassigned_other), parseSafe(dataMain2.data2.leadCounts.unassigned_other),1)}</td>
                 <td>${parseSafe(dataMain1.data2.demoCounts.demo_other)} ${getComparisonArrow(parseSafe(dataMain1.data2.demoCounts.demo_other), parseSafe(dataMain2.data2.demoCounts.demo_other),2)}</td>
                 <td>${noDuesOther}/${percentageNoDuesOther}% ${getComparisonArrow(noDuesOther, dataMain2.data3.noDuesLeadCounts.noDues_other,2)}</td>
