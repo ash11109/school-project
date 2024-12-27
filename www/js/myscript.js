@@ -4,6 +4,12 @@
 
 //new code starts Here 
 
+function loadQA(link,type,id){
+ localStorage.setItem("AI_QA_link",link);
+ localStorage.setItem("AI_QA_Intrested_IN",type);
+ localStorage.setItem("AI_QA_CS_ID",id);
+ window.open("./QA/callquality.html",'_blank');
+}
 
 // Function to fetch data from the API
 function fetchData() {
@@ -3435,9 +3441,9 @@ const refcammMygalla = Math.round(dataMain2.data1.totals.total_expense_mygalla /
 const refcammDM = Math.round(dataMain2.data1.totals.total_expense_DM / dataMain2.data3.noDuesLeadCounts.noDues_dm) ;
 const refcammOther = Math.round(dataMain2.data1.totals.total_expense_other / dataMain2.data3.noDuesLeadCounts.noDues_other) ;
 
-const cpsMygalla = Math.round(totalPaymentAmount1 / dataMain1.data3.calls.totalcallinMyGalla) ;
-const cpsDM = Math.round(totalPaymentAmount2 / dataMain1.data3.calls.totalcallinDM) ;
-const cpsOther = Math.round(totalPaymentAmount3 / dataMain1.data3.calls.totalcallinOthers) ;
+const cpsMygalla = Math.round( dataMain1.data3.calls.totalcallinMyGalla / dataMain1.data3.noDuesLeadCounts.noDues_mygalla) ;
+const cpsDM = Math.round( dataMain1.data3.calls.totalcallinDM / dataMain1.data3.noDuesLeadCounts.noDues_dm ) ;
+const cpsOther = Math.round( dataMain1.data3.calls.totalcallinOthers / dataMain1.data3.noDuesLeadCounts.noDues_other) ;
 
 const refcpsMygalla = Math.round(dataMain2.data3.totalPaymentAmount1 / dataMain2.data3.calls.totalcallinMyGalla) ;
 const refcpsDM = Math.round(dataMain2.data3.totalPaymentAmount2 / dataMain2.data3.calls.totalcallinDM) ;
@@ -7875,6 +7881,17 @@ function getAllStatus(id) {
                     // Render a button to load the audio with duration as a custom attribute
                     return '<button class="load-audio-btn" data-audio-url="' + data + '" data-duration="' + duration + '">Load Audio</button>';
                 },
+            },
+            { data: "Call_Recording", 
+                render: function (data, type, row) {
+                    var duration = row.Duration_Of_Call;
+                    if (!duration || duration == 0) {
+                        // Return an error message if duration is 0 or empty
+                        return "<div class='alert alert-danger' >Not available </div>";
+                    }
+
+                    return `<button class="btn btn-primary" onclick="loadQA('${data}','${row.Interested_In}',${row.CS_ID})">Call QA</button>`;
+                }
             },
         ],
     });
