@@ -1444,6 +1444,134 @@ async function getTrancations(type) {
     }
 }
 
+async function getcacAll(type) {
+    const start = document.getElementById("reportStartDate").value;
+    const end = document.getElementById("reportEndDate").value;
+
+    // Show the loader
+    $(".loader").show();
+
+    try {
+        const response = await fetch(Config.api_url, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/x-www-form-urlencoded",
+            },
+            body: new URLSearchParams({
+                operation: "getcacAll",
+                start: start,
+                end: end,
+                type: type,
+            }),
+        });
+
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const jsonResponse = await response.json();
+
+        if (jsonResponse.success) {
+            const content = `
+                <div class='container mt-5' style='overflow-x:auto;'>
+                    <table id="expensetable" class="table table-bordered table-striped">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Amount</th>
+                                <th>Expense For</th>
+                                <th>Remarks</th>
+                                <th>PD_ID</th>
+                                <th>Proff</th>
+                                <th>Date Of Expense</th>
+                                <th>DOR</th>
+                                <th>Expense For</th>
+                                <th>Expense Purpose</th>
+                                <th>Expense Account</th>
+                                <th>Option</th>
+                            </tr>
+                        </thead>
+                    </table>
+                </div>`;
+
+            document.getElementById("tablereportcpl").innerHTML = content;
+
+            // Initialize DataTable
+            $("#expensetable").DataTable({
+                data: jsonResponse.data,
+                order: [[0, "desc"]],
+                columns: [
+                    { data: "ET_ID" },
+                    { data: "EXP_Amount" },
+                    { data: "Expense_For" },
+                    { data: "Remark" },
+                    { data: "PD_ID" },
+                    { data: "Proff" },
+                    { data: "Date_Of_Expense" },
+                    { data: "DOR" },
+                    {
+                        data: null,
+                        render: (data, type, row) => {
+                            switch (row["EXP_For"]) {
+                                case "1": return "Academy";
+                                case "2": return "Agency";
+                                case "3": return "My Galla";
+                                default: return row["EXP_For"] || "";
+                            }
+                        },
+                    },
+                    {
+                        data: null,
+                        render: (data, type, row) => {
+                            switch (row["Expense_Purpose"]) {
+                                case "1": return "Marketing";
+                                case "2": return "Salary";
+                                case "3": return "Rent";
+                                case "4": return "Other";
+                                default: return row["Expense_Purpose"] || "";
+                            }
+                        },
+                    },
+                    {
+                        data: null,
+                        render: (data, type, row) => {
+                            switch (row["From_Account"]) {
+                                case "1": return "GreenTech India";
+                                case "2": return "Axis (Vikash)";
+                                case "3": return "Kotak (Vikash)";
+                                case "4": return "Other";
+                                case "5": return "Cash";
+                                case "6": return "My Galla HDFC";
+                                case "7": return "Kalam Foundation Axis Bank";
+                                default: return row["From_Account"] || "";
+                            }
+                        },
+                    },
+                    {
+                        data: null,
+                        render: (data, type, row) => `
+                            <button class="btn btn-primary" 
+                                    data-toggle="modal" 
+                                    data-target="#exampleModalExpenseEdit" 
+                                    onclick="editExpense(${row["ET_ID"]})">
+                                Edit
+                            </button>`,
+                    },
+                ],
+            });
+        } else {
+            displayerror("Failed to fetch data. Please try again.");
+        }
+    } catch (error) {
+        console.error("Error fetching options:", error);
+        displayerror(`An error occurred while fetching data: ${error.message}`);
+    } finally {
+        // Hide the loader once the request completes
+        $(".loader").hide();
+    }
+}
+
+
 async function getcpls(type) {
     const start = document.getElementById("reportStartDate").value;
     const end = document.getElementById("reportEndDate").value;
@@ -3201,16 +3329,16 @@ function generateDateRanges(start2, end2) {
     const startDate2 = new Date(start2);
     const endDate2 = new Date(end2);
 
-    // Calculate the interval length between start2 and end2
-    const intervalDays = (endDate2 - startDate2) / (1000 * 60 * 60 * 24);
+    // Calculate the interval length between start2 and end2 (inclusive of start2)
+    const intervalDays = Math.ceil((endDate2 - startDate2) / (1000 * 60 * 60 * 24)) + 1;
 
-    // Calculate start1 as start2 minus the interval
+    // Calculate start1 as 10 days before start2 (excluding start2)
     const start1 = new Date(startDate2);
     start1.setDate(start1.getDate() - intervalDays); // Move back by the interval
 
-    // Calculate end1 as start1 plus the interval
-    const end1 = new Date(start1);
-    end1.setDate(end1.getDate() + intervalDays); // Maintain the same interval as start2 and end2
+    // Calculate end1 as 1 day before start2
+    const end1 = new Date(startDate2);
+    end1.setDate(end1.getDate() - 1); // Move back 1 day
 
     // Format dates as YYYY-MM-DD
     const formatDate = (date) => date.toISOString().split("T")[0];
@@ -3222,6 +3350,7 @@ function generateDateRanges(start2, end2) {
         end2: formatDate(endDate2), // Return original end2
     };
 }
+
 
 function generateReport() {
     console.log("generateReport called");
@@ -3465,8 +3594,8 @@ var content = `
                 <td>${parseSafe(dataMain1.data2.leadCounts.unassigned_mygalla)} ${getComparisonArrow(parseSafe(dataMain1.data2.leadCounts.unassigned_mygalla), parseSafe(dataMain2.data2.leadCounts.unassigned_mygalla),1)}</td>
                 <td>${parseSafe(dataMain1.data2.demoCounts.demo_mygalla)} ${getComparisonArrow(parseSafe(dataMain1.data2.demoCounts.demo_mygalla), parseSafe(dataMain2.data2.demoCounts.demo_mygalla),2)}</td>
                 <td>${noDuesMyGalla}/${percentageNoDuesMyGalla}% ${getComparisonArrow(noDuesMyGalla, dataMain2.data3.noDuesLeadCounts.noDues_mygalla,2)}</td>
-                <td>₹${spendMyGalla} / ${noDuesMyGalla} = ₹${cacMygalla} ${getComparisonArrow(cacMygalla, refcacMygalla,2)}</td>
-                <td>₹${totalExpenseMyGalla} / ${noDuesMyGalla} = ₹${cacmMygalla} ${getComparisonArrow(cacmMygalla, refcammMygalla,2)}</td>
+                <td><a href="" onclick="getcpls('mygalla')" data-toggle="modal" data-target="#exampleModalviewcpl">₹${spendMyGalla} </a>  / ${noDuesMyGalla} = ₹${cacMygalla} ${getComparisonArrow(cacMygalla, refcacMygalla,2)}</td>
+                <td><a href="" onclick="getcacAll('mygalla')" data-toggle="modal" data-target="#exampleModalviewcpl">₹${totalExpenseMyGalla} </a>  / ${noDuesMyGalla} = ₹${cacmMygalla} ${getComparisonArrow(cacmMygalla, refcammMygalla,2)}</td>
             </tr>
             <tr>
                 <td>DM, DM Course, WDC</td>
@@ -3475,8 +3604,8 @@ var content = `
                 <td>${parseSafe(dataMain1.data2.leadCounts.unassigned_dm)} ${getComparisonArrow(parseSafe(dataMain1.data2.leadCounts.unassigned_dm), parseSafe(dataMain2.data2.leadCounts.unassigned_dm),1)}</td>
                 <td>${parseSafe(dataMain1.data2.demoCounts.demo_dm)} ${getComparisonArrow(parseSafe(dataMain1.data2.demoCounts.demo_dm), parseSafe(dataMain2.data2.demoCounts.demo_dm),2)}</td>
                 <td>${noDuesDM}/${percentageNoDuesDM}% ${getComparisonArrow(noDuesDM, dataMain2.data3.noDuesLeadCounts.noDues_dm,2)}</td>
-                <td>₹${spendDM} / ${noDuesDM} = ₹${cacDM} ${getComparisonArrow(cacDM, refcacDM,2)}</td>
-                <td>₹${totalExpenseDM} / ${noDuesDM} = ₹${cacmDM} ${getComparisonArrow(cacmDM, refcammDM,2)}</td>
+                <td><a href="" onclick="getcpls('dm')" data-toggle="modal" data-target="#exampleModalviewcpl">₹${spendDM}</a> / ${noDuesDM} = ₹${cacDM} ${getComparisonArrow(cacDM, refcacDM,2)}</td>
+                <td><a href="" onclick="getcacAll('dm')" data-toggle="modal" data-target="#exampleModalviewcpl">₹${totalExpenseDM} </a>  / ${noDuesDM} = ₹${cacmDM} ${getComparisonArrow(cacmDM, refcammDM,2)}</td>
             </tr>
             <tr>
                 <td>Other</td>
@@ -3485,8 +3614,8 @@ var content = `
                 <td>${parseSafe(dataMain1.data2.leadCounts.unassigned_other)} ${getComparisonArrow(parseSafe(dataMain1.data2.leadCounts.unassigned_other), parseSafe(dataMain2.data2.leadCounts.unassigned_other),1)}</td>
                 <td>${parseSafe(dataMain1.data2.demoCounts.demo_other)} ${getComparisonArrow(parseSafe(dataMain1.data2.demoCounts.demo_other), parseSafe(dataMain2.data2.demoCounts.demo_other),2)}</td>
                 <td>${noDuesOther}/${percentageNoDuesOther}% ${getComparisonArrow(noDuesOther, dataMain2.data3.noDuesLeadCounts.noDues_other,2)}</td>
-                <td>₹${spendOther} / ${noDuesOther} = ₹${cacOther} ${getComparisonArrow(cacOther, refcacOther,2)}</td>
-                <td>₹${totalExpenseOther} / ${noDuesOther} = ₹${cacmOther} ${getComparisonArrow(cacmOther, refcammOther,2)}</td>
+                <td><a href="" onclick="getcpls('other')" data-toggle="modal" data-target="#exampleModalviewcpl">₹${spendOther}</a>  / ${noDuesOther} = ₹${cacOther} ${getComparisonArrow(cacOther, refcacOther,2)}</td>
+                <td><a href="" onclick="getcacAll('other')" data-toggle="modal" data-target="#exampleModalviewcpl">₹${totalExpenseOther} </a>  / ${noDuesOther} = ₹${cacmOther} ${getComparisonArrow(cacmOther, refcammOther,2)}</td>
                 
             </tr>
             <tr>
