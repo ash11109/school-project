@@ -25,6 +25,7 @@ function loadQA(){
   cs_id = localStorage.getItem("AI_QA_CS_ID");
   id = localStorage.getItem("userID");
   startQA(link, type,id,cs_id)
+  document.getElementById("loader").style.display = "block";
 }
 
 async function startQA(audio_url, interested_in,c_id,cs_id) {
@@ -97,9 +98,9 @@ async function getTranscription() {
 async function fetchTranscription() {
   let transcription = "";
   while (transcription === "") {
-    transcription = await getTranscription();
+    
     console.log(transcription);
-    if (transcription !== "") {
+    if (transcription !== "") {getTranscription
       localStorage.setItem("AI_QA_transcription", transcription);
       return transcription;
     }
@@ -234,7 +235,7 @@ function printQA(res) {
         <td>${item.total_score}</td>
         <td>${item.details}</td>
         <td>
-          <button class="btn btn-primary" onclick="check_further('${item.name}')">
+          <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#qaCheckFuther" onclick="check_further('${item.name}')">
               check further
           </button>
         </td>
@@ -254,12 +255,23 @@ function printQA(res) {
   document.getElementById(
     "total_score"
   ).innerHTML = `Total score : ${total_score}`;
+
+  document.getElementById("loader").style.display = "none";
 }
 
 async function view_more(more_type) {
+
+  console.log(more_type);
   
   let transcription = localStorage.getItem("AI_QA_transcription");
   let report = localStorage.getItem("AI_QA_report");
+  
+  if ( transcription == null ) {
+    let x = await getTranscription();
+    console.log(x);
+    localStorage.setItem("AI_QA_transcription" , x);
+    transcription = localStorage.getItem("AI_QA_transcription");
+  }
 
   try {
     const response = await fetch(OPENAI_API, {
@@ -322,8 +334,10 @@ async function view_more(more_type) {
 }
 
 async function check_further(more_type) {
-
+  document.getElementById("loader").style.display = "block";
   let res = await check_further_from_db(more_type);
+
+  console.log(res);
 
   if ( res != null  ) {
     print_view_more(res);
@@ -348,5 +362,6 @@ async function check_further_from_db(more_type) {
 }
 
 function print_view_more(content) {
+  document.getElementById("loader").style.display = "none";
   document.getElementById("more_detailed_result").innerHTML = content;
 }

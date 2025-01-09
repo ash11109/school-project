@@ -1,8 +1,4 @@
-// //var Config.api_url = "https://teamka.in/crm1/APIs/api.php";
 
-// var Config.api_url = "https://teamka.in/crm1/APIs/api_development.php";
-
-//new code starts Here 
 
 function loadQA(link,type,id){
  localStorage.setItem("AI_QA_link",link);
@@ -67,12 +63,12 @@ function fetchDataForDateRange(id, startDate, endDate) {
     .then(response => response.json())
     .then(result => {
         console.log(result);
-        return filterAndCalculateData(result.data, result.breakTime,result.leadCount);
+        return filterAndCalculateData(result.data, result.breakTime,result.leadCount,result.totalPending);
     });
 }
 
 // Function to filter and calculate the data
-function filterAndCalculateData(rawData, breakTime,leadCount) {
+function filterAndCalculateData(rawData, breakTime,leadCount,totalPending) {
     // Initialize variables for calculations
     const currentDate = new Date().toISOString().split('T')[0];
 
@@ -82,7 +78,6 @@ function filterAndCalculateData(rawData, breakTime,leadCount) {
     let notrecoded = 0;
     let demoCount = 0;
     let monster = 0;
-    let followup = 0;
     let totalCallDuration = 0;
 
     rawData.forEach(call => {
@@ -116,10 +111,7 @@ function filterAndCalculateData(rawData, breakTime,leadCount) {
             monster++;
         }
 
-        // Count pending follow-ups (if Next_Call_Date matches current date)
-        if (call.Next_Call_Date === currentDate) {
-            followup++;
-        }
+        
     });
 
     // Convert total call duration to HH:MM:SS format
@@ -136,9 +128,9 @@ function filterAndCalculateData(rawData, breakTime,leadCount) {
         countNotConnected,
         totalCallDuration,
         demoCount,
-        followup,
         monster,
-        notrecoded
+        notrecoded,
+        totalPending
     };
 }
 function compareAndPopulateData(todayData, yesterdayData, thirtyDaysBackData, sixtyDaysBackData) {
@@ -173,7 +165,7 @@ function compareAndPopulateData(todayData, yesterdayData, thirtyDaysBackData, si
         { id: '#tot-not-concted .today', todayValue: todayData.countNotConnected, yesterdayValue: yesterdayData.countNotConnected , reverseColor: true},
         { id: '#call-durt .today', todayValue: todayData.totalCallDuration, yesterdayValue: yesterdayData.totalCallDuration, isTime: true },
         { id: '#demo .today', todayValue: todayData.demoCount, yesterdayValue: yesterdayData.demoCount },
-        { id: '#follow .today', todayValue: todayData.followup, yesterdayValue: yesterdayData.followup , reverseColor: true },
+        { id: '#follow .today', todayValue: todayData.totalPending, yesterdayValue: yesterdayData.totalPending , reverseColor: true },
         { id: '#monster .today', todayValue: todayData.monster, yesterdayValue: yesterdayData.monster , reverseColor: true },
         { id: '#nrced .today', todayValue: todayData.notrecoded, yesterdayValue: yesterdayData.notrecoded , reverseColor: true },
         { id: '#brk-time .today', todayValue: todayData.breakTime, yesterdayValue: yesterdayData.breakTime, isTime: true, reverseColor: true },
@@ -214,7 +206,7 @@ function compareAndPopulateData(todayData, yesterdayData, thirtyDaysBackData, si
         { id: '#tot-not-concted .month', thirtyValue: thirtyDaysBackData.countNotConnected, sixtyValue: sixtyDaysBackData.countNotConnected , reverseColor: true},
         { id: '#call-durt .month', thirtyValue: thirtyDaysBackData.totalCallDuration, sixtyValue: sixtyDaysBackData.totalCallDuration, isTime: true },
         { id: '#demo .month', thirtyValue: thirtyDaysBackData.demoCount, sixtyValue: sixtyDaysBackData.demoCount },
-        { id: '#follow .month', thirtyValue: thirtyDaysBackData.followup, sixtyValue: sixtyDaysBackData.followup , reverseColor: true},
+        { id: '#follow .month', thirtyValue: thirtyDaysBackData.totalPending, sixtyValue: sixtyDaysBackData.totalPending , reverseColor: true},
         { id: '#monster .month', thirtyValue: thirtyDaysBackData.monster, sixtyValue: sixtyDaysBackData.monster , reverseColor: true},
         { id: '#nrced .month', thirtyValue: thirtyDaysBackData.notrecoded, sixtyValue: sixtyDaysBackData.notrecoded , reverseColor: true},
         { id: '#brk-time .month', thirtyValue: thirtyDaysBackData.breakTime, sixtyValue: sixtyDaysBackData.breakTime, isTime: true , reverseColor: true},
@@ -477,8 +469,9 @@ async function getAdminMeta(id, emp_id) {
                         <button class="remove-image" type="button" style="position: absolute; top: 0; right: 0; background: red; color: white; border: none; cursor: pointer;" data-index="${index}">&times;</button>
                     </div>
                 `;
-                $("#image-preview-container").append(imagePreview);
+               
             });
+            $("#image-preview-container").append(imagePreview);
         }
     }
 
@@ -1705,7 +1698,7 @@ async function syncSheet() {
         // Show the loader
         $(".loader").show();
 
-        const response = await fetch("https://teamka.in/crm1/APIs/ash_auto_lead_add.php", {
+        const response = await fetch(Config.autoAssignUrl + "ash_auto_lead_add.php", {
             method: "POST",
         });
 
@@ -2367,9 +2360,6 @@ async function getusersnew() {
 
         const data = await response.json();
         console.log(data);
-
-        // Clear previous options (if needed)
-        $("#team-select").empty();
 
         // Populate the select options
         data.forEach(function (option) {
@@ -3801,7 +3791,7 @@ function getStatstl() {
     localStorage.setItem("end", end);
     localStorage.setItem("teamMembers", JSON.stringify(callers));
 
-    var newUrl = "https://teamka.in/Live/www/NewTLdata.html";
+    var newUrl = Config.domain + "NewTLdata.html";
 
     // Open the new URL in a new window/tab
     window.open(newUrl, "_blank");
@@ -4469,7 +4459,7 @@ function addTaskImage() {
 
 function showImage(name) {
     $("#exampleModalViewImage").modal("toggle"); // Toggles the modal
-    var link = "https://teamka.in/crm1/APIs/support_complaint_document/" + name;
+    var link = Config.autoAssignUrl + "support_complaint_document/" + name;
     $("#show-img").html('<img src="' + link + '" width="100%">');
     console.log(link);
 }
@@ -5416,7 +5406,7 @@ function CheckCallWaiseStatus(startDate, endDate) {
             var data = jQuery.parseJSON(res);
             //console.log(data);
             var the_table =
-                '<a href="https://teamka.in/crm1/APIs/export.php?startDate=' +
+                '<a href="'+ Config.autoAssignUrl+'export.php?startDate=' +
                 startDate +
                 "&endDate=" +
                 endDate +
@@ -6141,7 +6131,7 @@ function uploadPhoto(imageURI, callDetails, callback) {
         var ft = new FileTransfer();
         ft.upload(
             imageURI,
-            encodeURI("https://teamka.in/crm1/APIs/upload/upload.php"),
+            encodeURI(Config.autoAssignUrl + "upload/upload.php"),
             function (r) {
                 $(".loader").hide();
 
@@ -6718,7 +6708,7 @@ function testallLeadsTL() {
 
     content += "</tbody></table></div>";
     document.getElementById("displayContent").innerHTML =
-        "<h1>All Leads</h1><div><a href='https://teamka.in/crm1/APIs/leads_export.php'>Export</a></div><div style='overflow-x:scroll;'>" + content;
+        "<h1>All Leads</h1><div><a href='"+Config.autoAssignUrl+"leads_export.php'>Export</a></div><div style='overflow-x:scroll;'>" + content;
     var me = localStorage.getItem("userID");
     var table = $("#table1").DataTable({
         order: [[0, "desc"]],
@@ -8260,7 +8250,7 @@ function allLeadsOnDate1(fromdate, todate) {
         '<table id="table1" class="table table-bordered table-striped"><thead><tr><th scope="col">Lead ID</th><th scope="col">Name</th><th scope="col">Mobile/<br>Alternate/<br>Whatsapp/<br>Email</th><th scope="col">Interested In</th><th scope="col">Source</th><th scope="col">Status</th><th scope="col">DOR</th><th scope="col">Call Status</th><th scope="col">Option</th><th scope="col">Caller</th></tr></thead><tbody>';
     content += "</tbody></table></div>";
     document.getElementById("displayContent").innerHTML =
-        "<h1>&#x2706; To be Contacted.... </h1><a href='https://teamka.in/crm1/APIs/export_daily_leads.php?startDate=" +
+        "<h1>&#x2706; To be Contacted.... </h1><a href='"+Config.autoAssignUrl+"export_daily_leads.php?startDate=" +
         fromdate +
         "&endDate=" +
         todate +
@@ -8364,7 +8354,7 @@ function allLeadsOnDateTL(fromdate, todate) {
         '<table id="table1" class="table table-bordered table-striped"><thead><tr><th scope="col">Lead ID</th><th scope="col">Name</th><th scope="col">Mobile/<br>Alternate/<br>Whatsapp/<br>Email</th><th scope="col">Interested In</th><th scope="col">Source</th><th scope="col">Status</th><th scope="col">DOR</th><th scope="col">Call Status</th><th scope="col">Option</th><th scope="col">Caller</th></tr></thead><tbody>';
     content += "</tbody></table></div>";
     document.getElementById("displayContent").innerHTML =
-        "<h1>&#x2706; To be Contacted.... </h1><a href='https://teamka.in/crm1/APIs/export_daily_leads.php?startDate=" +
+        "<h1>&#x2706; To be Contacted.... </h1><a href='"+Config.autoAssignUrl+"export_daily_leads.php?startDate=" +
         fromdate +
         "&endDate=" +
         todate +
@@ -8472,7 +8462,7 @@ function allLeadsOnDate2(fromdate, todate) {
         '<table id="table1" class="table table-bordered table-striped"><thead><tr><th scope="col">Lead ID</th><th scope="col">Name</th><th scope="col">Mobile/<br>Alternate/<br>Whatsapp/<br>Email</th><th scope="col">Interested In</th><th scope="col">Source</th><th scope="col">Status</th><th scope="col">DOR</th><th scope="col">Call Status</th><th scope="col">Option</th><th scope="col">Caller</th></tr></thead><tbody>';
     content += "</tbody></table></div>";
     document.getElementById("displayContent").innerHTML =
-        "<h1>&#x2706; To be Contacted.... </h1><a href='https://teamka.in/crm1/APIs/export_daily_leads.php?startDate=" +
+        "<h1>&#x2706; To be Contacted.... </h1><a href='"+Config.autoAssignUrl+"export_daily_leads.php?startDate=" +
         fromdate +
         "&endDate=" +
         todate +
@@ -15243,7 +15233,7 @@ function checkDiscountPaymentSupport(id) {
 function syncmail() {
     $(".loader").show();
     $.ajax({
-        url: "https://teamka.in/crm1/APIs/mail/index.php",
+        url: Config.autoAssignUrl + "mail/index.php",
         success: function (response) {
             $(".loader").hide();
             alert(response + "Email Updated");
@@ -16050,7 +16040,7 @@ function addProjForTask(id) {
 }
 
 function addProjDetails(id, description, issue, img) {
-    var link = "https://teamka.in/crm1/APIs/support_complaint_document/" + img;
+    var link = Config.autoAssignUrl + "support_complaint_document/" + img;
     $("#projDetails").selectpicker("val", id);
     $("#remarksProjAssign").val(description + "\n" + link);
     $("#assignedWork").val(issue);

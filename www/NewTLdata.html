@@ -399,27 +399,27 @@
                 function fetchData(start, end) {
                     return Promise.all([
                         $.ajax({
-                            url: api_url,
+                            url: Config.api_url,
                             method: "POST",
                             data: { operation: "callStatus", start: start, end: end },
                         }),
                         $.ajax({
-                            url: api_url,
+                            url: Config.api_url,
                             method: "POST",
                             data: { operation: "pendingStatus", start: start, end: end },
                         }),
                         $.ajax({
-                            url: api_url,
+                            url: Config.api_url,
                             method: "POST",
                             data: { operation: "otherStatus", start: start, end: end },
                         }),
                         $.ajax({
-                            url: api_url,
+                            url: Config.api_url,
                             method: "POST",
                             data: { operation: "getRatioData", start: start, end: end },
                         }),
                         $.ajax({
-                            url: api_url,
+                            url: Config.api_url,
                             method: "POST",
                             data: { operation: "getUsers", id: localStorage.getItem("userID") },
                         }),
@@ -678,7 +678,7 @@
                         // Fetch data from the server
                         const response = await $.ajax({
                             type: "POST",
-                            url: api_url, // Your server URL here
+                            url: Config.api_url, // Your server URL here
                             data: { operation: "getUsers-new", id: localStorage.getItem("userID") },
                         });
 
@@ -950,7 +950,7 @@
                     paging: false, // Disable pagination
                     searching: false, // Disable search
                     ajax: {
-                        url: api_url, // Your server-side script to fetch data
+                        url: Config.api_url, // Your server-side script to fetch data
                         type: "POST",
                         data: { operation: "009-new", id: id },
                     },
@@ -1054,7 +1054,7 @@
                     pagingType: "full_numbers",
                     serverSide: true,
                     ajax: {
-                        url: api_url,
+                        url: Config.api_url,
                         method: "POST",
                         data: {
                             operation: "077-new",
@@ -1161,7 +1161,7 @@
                     document.getElementById("errorDetailsStatus").innerHTML = "";
                     $(".loader").show();
                     $.ajax({
-                        url: api_url,
+                        url: Config.api_url,
                         data: {
                             operation: "008",
                             leadId: leadId,
@@ -1231,7 +1231,7 @@
                     pagingType: "full_numbers",
                     serverSide: true,
                     ajax: {
-                        url: api_url,
+                        url: Config.api_url,
                         method: "POST",
                         data: {
                             operation: "007calls",
