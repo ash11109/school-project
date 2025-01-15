@@ -1,419 +1,451 @@
 <!DOCTYPE html>
 <html lang="en">
-    <head>
-        <meta charset="UTF-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>Dashboard Calendar</title>
-        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/css/bootstrap.min.css" />
-        <link href="https://fonts.googleapis.com/css?family=Nunito" rel="stylesheet" />
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" />
-        <script src="./js/constant.js"></script>
-        <style>
-            html,
-            body {
-                margin: 0;
-                padding: 0;
-                font-family: "Nunito";
-                font-size: 18px;
-                background-color: #e2ebf2;
-            }
-            h2#fc-dom-1 {
-                font-size: 34px;
-                font-weight: 600;
-            }
-            a {
-                text-decoration: none;
-                font-weight: 600;
-                color: #212529;
-            }
-            .content {
-                font-size: 20px;
-                font-weight: 600;
-            }
-            div#inner1,
-            div#inner2 {
-                display: flex;
-                justify-content: space-between;
-                border-radius: 10px;
-            }
-            div#inner3 {
-                display: flex;
-                flex-wrap: wrap;
-                border-radius: 10px;
-            }
-            .extra {
-                font-size: 18px;
-                background-color: #fff;
-                color: #212529;
-                border-radius: 5px;
-                margin-bottom: 8px;
-                font-weight: 600;
-            }
-            .content2 {
-                height: 110px;
-                width: 170px;
-                margin: 4px;
-                padding: 15px 5px;
-                color: #fff;
-                border-radius: 5px;
-                text-align: center;
-            }
-            #calendar,
-            #info {
-                margin: 40px auto;
-                background: #fff;
-                padding: 20px;
-                border-radius: 10px;
-            }
-            .ontime {
-                background-color: #28a745 !important;
-            }
-            .late {
-                background-color: #dc3545 !important;
-            }
-        </style>
-    </head>
-    <body>
-        <div class="container">
-            <div class="row">
-                <div class="col-md-12">
-                    <div id="info">
-                        <div id="inner1">
-                            <div class="content" id="Name"><i class="fa fa-spinner fa-spin" style="font-size: 24px"></i></div>
-                            <div class="content" id="JDate"><i class="fa fa-spinner fa-spin" style="font-size: 24px"></i></div>
-                            <div class="content" id="RTime"><i class="fa fa-spinner fa-spin" style="font-size: 24px"></i></div>
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dashboard Calendar</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/css/bootstrap.min.css" />
+    <link href="https://fonts.googleapis.com/css?family=Nunito" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" />
+    <script src="./js/constant.js"></script>
+    <style>
+        html,
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: "Nunito";
+            font-size: 18px;
+            background-color: #e2ebf2;
+        }
+
+        h2#fc-dom-1 {
+            font-size: 34px;
+            font-weight: 600;
+        }
+
+        a {
+            text-decoration: none;
+            font-weight: 600;
+            color: #212529;
+        }
+
+        .content {
+            font-size: 20px;
+            font-weight: 600;
+        }
+
+        div#inner1,
+        div#inner2 {
+            display: flex;
+            justify-content: space-between;
+            border-radius: 10px;
+        }
+
+        div#inner3 {
+            display: flex;
+            flex-wrap: wrap;
+            border-radius: 10px;
+        }
+
+        .extra {
+            font-size: 18px;
+            background-color: #fff;
+            color: #212529;
+            border-radius: 5px;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+
+        .content2 {
+            height: 110px;
+            width: 170px;
+            margin: 4px;
+            padding: 15px 5px;
+            color: #fff;
+            border-radius: 5px;
+            text-align: center;
+        }
+
+        #calendar,
+        #info {
+            margin: 40px auto;
+            background: #fff;
+            padding: 20px;
+            border-radius: 10px;
+        }
+
+        .ontime {
+            background-color: #28a745 !important;
+        }
+
+        .late {
+            background-color: #dc3545 !important;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="row">
+            <div class="col-md-12">
+                <div id="info">
+                    <div id="inner1">
+                        <div class="content" id="Name"><i class="fa fa-spinner fa-spin" style="font-size: 24px"></i>
                         </div>
-                        <hr />
-                        <div id="inner2">
-                            <div class="content" id="late">Late: 0</div>
-                            <div class="content">Present: <span id="present">0</span></div>
-                            <div class="content" id="absent">Absent: 0</div>
-                            <div class="content" id="uninformed">Uninformed: 0</div>
+                        <div class="content" id="JDate"><i class="fa fa-spinner fa-spin" style="font-size: 24px"></i>
                         </div>
-                        <hr />
-                        <div id="inner3">
-                            <span id="dueLate" class="d-none">0</span>
-                            <span id="noDuesincentive" class="d-none">0</span>
-                            <span id="dueabsent" class="d-none">0</span>
-                            <div class="content2 bg-success">
-                                <div id="basic" class="extra"><span id="daily-sal">0</span> / <span id="total-sal">0</span></div> Salary
-                            </div>
-                            <div class="content2 bg-primary">
-                                <div id="allowedWeekOff" class="extra"
-                                    ><span id="absent-count">0</span> / <span id="alowed-absent">0</span><br /><span id="absent-dues">0</span></div
-                                >
-                                Week Off
-                            </div>
-                            <div class="content2 bg-warning">
-                                <div id="allowedLate" class="extra"><span id="late-count">0</span> / <span id="allowed-late">0</span><br /><span id="late-dues">0</span></div> Late
-                            </div>
-                            <div class="content2 bg-info">
-                                <div id="numberOfNodes" class="extra"><span id="nodues-count">0</span> / <span id="nodues-amount">₹ 00</span></div> No Dues
-                            </div>
+                        <div class="content" id="RTime"><i class="fa fa-spinner fa-spin" style="font-size: 24px"></i>
                         </div>
                     </div>
-                    <div id="calendar"></div>
+                    <hr />
+                    <div id="inner2">
+                        <div class="content" id="late">Late: 0</div>
+                        <div class="content">Present: <span id="present">0</span></div>
+                        <div class="content" id="absent">Absent: 0</div>
+                        <div class="content" id="uninformed">Uninformed: 0</div>
+                    </div>
+                    <hr />
+                    <div id="inner3">
+                        <span id="dueLate" class="d-none">0</span>
+                        <span id="noDuesincentive" class="d-none">0</span>
+                        <span id="dueabsent" class="d-none">0</span>
+                        <div class="content2 bg-success">
+                            <div id="basic" class="extra"><span id="daily-sal">0</span> / <span id="total-sal">0</span>
+                            </div> Salary
+                        </div>
+                        <div class="content2 bg-primary">
+                            <div id="allowedWeekOff" class="extra"><span id="absent-count">0</span> / <span
+                                    id="alowed-absent">0</span><br /><span id="absent-dues">0</span></div>
+                            Week Off
+                        </div>
+                        <div class="content2 bg-warning">
+                            <div id="allowedLate" class="extra"><span id="late-count">0</span> / <span
+                                    id="allowed-late">0</span><br /><span id="late-dues">0</span></div> Late
+                        </div>
+                        <div class="content2 bg-info">
+                            <div id="numberOfNodes" class="extra"><span id="nodues-count">0</span> / <span
+                                    id="nodues-amount">₹ 00</span></div> No Dues
+                        </div>
+                    </div>
                 </div>
+                <div id="calendar"></div>
             </div>
         </div>
+    </div>
 
-        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.4/moment.min.js"></script>
-        <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.13/index.global.min.js"></script>
-        <script>
-            function calculateNodues() {
-                var countnodues = parseInt($("#nodues-count").text(), 10);
-                var countincentive = parseInt($("#noDuesincentive").text(), 10);
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.4/moment.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.13/index.global.min.js"></script>
+    <script>
+        function calculateNodues() {
+            var countnodues = parseInt($("#nodues-count").text(), 10);
+            var countincentive = parseInt($("#noDuesincentive").text(), 10);
 
-                if (countnodues > 0) {
-                    $("#nodues-count").css("color", "green");
-                    var totalnodues = countincentive * countnodues;
-                    $("#nodues-amount")
-                        .css("color", "green")
-                        .html("+₹" + totalnodues);
-                } else {
-                    $("#nodues-count").css("color", "white");
-                    $("#nodues-amount").css("color", "white").html("+₹00");
-                }
-
-                return totalnodues || 0; // Ensure totalnodues returns 0 if countnodues is 0
+            if (countnodues > 0) {
+                $("#nodues-count").css("color", "green");
+                var totalnodues = countincentive * countnodues;
+                $("#nodues-amount")
+                    .css("color", "green")
+                    .html("+₹" + totalnodues);
+            } else {
+                $("#nodues-count").css("color", "white");
+                $("#nodues-amount").css("color", "white").html("+₹00");
             }
 
-            function calculateAbsentDues() {
-                var countAbsentallowed = parseInt($("#alowed-absent").text(), 10);
-                var countAbsent = parseInt($("#absent-count").text(), 10);
-                var countAbsentdue = parseInt($("#dueabsent").text(), 10);
-                var totalAbsent = 0;
+            return totalnodues || 0; // Ensure totalnodues returns 0 if countnodues is 0
+        }
 
-                if (countAbsent > countAbsentallowed) {
-                    $("#absent-count").css("color", "red");
-                    totalAbsent = (countAbsentallowed - countAbsent) * countAbsentdue;
-                    $("#absent-dues")
-                        .css("color", "red")
-                        .html("₹" + totalAbsent)
-                        .css("display", "block");
-                    console.log("greater");
-                } else if (countAbsent === 0) {
-                    $("#absent-count").css("color", "green");
-                    $("#absent-dues").css("color", "red").html("+₹100").css("display", "block");
-                    console.log("absent is zero");
-                } else if (countAbsent < countAbsentallowed) {
-                    $("#absent-count").css("color", "green");
-                    $("#absent-dues").css("color", "green").html("").css("display", "none");
-                    console.log("less");
-                }
+        function calculateAbsentDues() {
+            var countAbsentallowed = parseInt($("#alowed-absent").text(), 10);
+            var countAbsent = parseInt($("#absent-count").text(), 10);
+            var countAbsentdue = parseInt($("#dueabsent").text(), 10);
+            var totalAbsent = 0;
 
-                return totalAbsent;
+            if (countAbsent > countAbsentallowed) {
+                $("#absent-count").css("color", "red");
+                totalAbsent = (countAbsentallowed - countAbsent) * countAbsentdue;
+                $("#absent-dues")
+                    .css("color", "red")
+                    .html("₹" + totalAbsent)
+                    .css("display", "block");
+                console.log("greater");
+            } else if (countAbsent === 0) {
+                $("#absent-count").css("color", "green");
+                $("#absent-dues").css("color", "red").html("+₹100").css("display", "block");
+                console.log("absent is zero");
+            } else if (countAbsent < countAbsentallowed) {
+                $("#absent-count").css("color", "green");
+                $("#absent-dues").css("color", "green").html("").css("display", "none");
+                console.log("less");
             }
 
-            function calculateLateDues() {
-                var countlate = parseInt($("#late-count").text(), 10);
-                var countlateallowed = parseInt($("#allowed-late").text(), 10);
-                var countlatedue = parseInt($("#dueLate").text(), 10);
-                var totalLate = 0;
+            return totalAbsent;
+        }
 
-                if (countlate > countlateallowed) {
-                    $("#late-count").css("color", "red");
-                    totalLate = (countlateallowed - countlate) * countlatedue;
-                    $("#late-dues")
-                        .css("color", "red")
-                        .html("₹" + totalLate)
-                        .css("display", "block");
-                } else if (countlate < countlateallowed) {
-                    $("#late-count").css("color", "green");
-                    $("#late-dues").css("color", "green").html("").css("display", "none");
-                }
+        function calculateLateDues() {
+            var countlate = parseInt($("#late-count").text(), 10);
+            var countlateallowed = parseInt($("#allowed-late").text(), 10);
+            var countlatedue = parseInt($("#dueLate").text(), 10);
+            var totalLate = 0;
 
-                return totalLate;
+            if (countlate > countlateallowed) {
+                $("#late-count").css("color", "red");
+                totalLate = (countlateallowed - countlate) * countlatedue;
+                $("#late-dues")
+                    .css("color", "red")
+                    .html("₹" + totalLate)
+                    .css("display", "block");
+            } else if (countlate < countlateallowed) {
+                $("#late-count").css("color", "green");
+                $("#late-dues").css("color", "green").html("").css("display", "none");
             }
 
-            function calculateDailySalary() {
-                var countTotalsal = parseInt($("#total-sal").text(), 10);
-                var countDailySal = Math.floor(countTotalsal / 30);
-                var countpresent = parseInt($("#present").text(), 10);
+            return totalLate;
+        }
 
-                var totalAbsent = calculateAbsentDues();
-                var totalLate = calculateLateDues();
-                var totalnodues = calculateNodues();
+        function calculateDailySalary() {
+            var countTotalsal = parseInt($("#total-sal").text(), 10);
+            var countDailySal = Math.floor(countTotalsal / 30);
+            var countpresent = parseInt($("#present").text(), 10);
 
-                var dailysalary = countDailySal * countpresent + totalAbsent + totalLate + totalnodues;
-                console.log("Daily Salary Calculation:", countDailySal, countpresent, totalAbsent, totalLate, totalnodues);
-                console.log("Final Daily Salary:", dailysalary);
+            var totalAbsent = calculateAbsentDues();
+            var totalLate = calculateLateDues();
+            var totalnodues = calculateNodues();
 
-                $("#daily-sal").html("₹" + dailysalary);
+            var dailysalary = countDailySal * countpresent + totalAbsent + totalLate + totalnodues;
+            console.log("Daily Salary Calculation:", countDailySal, countpresent, totalAbsent, totalLate, totalnodues);
+            console.log("Final Daily Salary:", dailysalary);
+
+            $("#daily-sal").html("₹" + dailysalary);
+        }
+
+        function designTiles() {
+            calculateDailySalary();
+        }
+
+        document.addEventListener("DOMContentLoaded", function () {
+            const id = localStorage.getItem("selectedUser") || localStorage.getItem("userID");
+
+            function formatDate(date) {
+                const year = date.getFullYear();
+                const month = String(date.getMonth() + 1).padStart(2, '0'); // Months are 0-based
+                const day = String(date.getDate()).padStart(2, '0');
+                return `${year}-${month}-${day}`;
             }
 
-            function designTiles() {
-                calculateDailySalary();
+            function noDues(startDate, endDate) {
+                //  console.log(startDate, endDate);
+
+                $.ajax({
+                    url: Config.api_url,
+                    data: {
+                        operation: "getNoDues",
+                        user_id: id,
+                        start: startDate,
+                        end: endDate,
+                    },
+                    method: "POST",
+                    success: function (response) {
+                        response = JSON.parse(response);
+
+                        $("#nodues-count").html(response.data);
+                        designTiles();
+                    },
+                    error: function (jqXHR, textStatus, errorThrown) {
+                        console.error(textStatus, errorThrown);
+                    },
+                });
             }
 
-            document.addEventListener("DOMContentLoaded", function () {
-                const id = localStorage.getItem("selectedUser") || localStorage.getItem("userID");
+            function loadData() {
+                $.ajax({
+                    url: Config.api_url,
+                    data: { operation: "getAdminMeta", id: id },
+                    method: "POST",
+                    success: function (response) {
+                        response = JSON.parse(response);
+                        console.log(response);
+                        $("#Name").html(response.data.Name);
+                        $("#JDate").html("Joined on :" + response.data.Joining_Date);
+                        $("#RTime").html("Reporting Time: " + response.data.Reporting_Time);
+                        $("#total-sal").html(response.meta.basicSalary);
+                        $("#alowed-absent").html(response.meta.allowedWeekOff);
+                        $("#dueabsent").html(response.meta.dueWeekOff);
+                        $("#allowed-late").html(response.meta.allowedLate);
+                        $("#dueLate").html(response.meta.dueLate);
+                        $("#noDuesincentive").html(response.meta.nodesIncentive);
+                    },
+                    error: function (jqXHR, textStatus, errorThrown) {
+                        console.error(textStatus, errorThrown);
+                    },
+                });
+            }
 
-                function formatDate(date) {
-                    const year = date.getFullYear();
-                    const month = (date.getMonth() + 1).toString().padStart(2, "0");
-                    const day = date.getDate().toString().padStart(2, "0");
-                    return `${year}-${month}-${day}`;
-                }
+            function loadCalendar() {
+                $.ajax({
+                    url: Config.api_url,
+                    data: { operation: "getCalendarDataUser", id: id },
+                    method: "POST",
+                    success: function (response) {
+                        response = JSON.parse(response);
+                        console.log(response);
+                        var events = [];
+                        var recordDates = new Set();
+                        var lateCount = 0;
+                        var presentCount = 0;
+                        var absentCount = 0;
 
-                function noDues(startDate, endDate) {
-                    //  console.log(startDate, endDate);
+                        function filterEventsByMonth(year, month) {
+                            // Reset events and counters for the new month
+                            events = [];
+                            recordDates.clear();
+                            lateCount = 0;
+                            presentCount = 0;
+                            absentCount = 0;
 
-                    $.ajax({
-                        url: Config.api_url,
-                        data: {
-                            operation: "getNoDues",
-                            user_id: id,
-                            start: startDate,
-                            end: endDate,
-                        },
-                        method: "POST",
-                        success: function (response) {
-                            response = JSON.parse(response);
+                            $.each(response.data, function (date, details) {
+                                console.log(date);
+                                var eventDate = new Date(date);
+                                if (eventDate.getFullYear() === year && eventDate.getMonth() === month) {
+                                    recordDates.add(date);
 
-                            $("#nodues-count").html(response.data);
-                            designTiles();
-                        },
-                        error: function (jqXHR, textStatus, errorThrown) {
-                            console.error(textStatus, errorThrown);
-                        },
-                    });
-                }
-
-                function loadData() {
-                    $.ajax({
-                        url: Config.api_url,
-                        data: { operation: "getAdminMeta", id: id },
-                        method: "POST",
-                        success: function (response) {
-                            response = JSON.parse(response);
-                            console.log(response);
-                            $("#Name").html(response.data.Name);
-                            $("#JDate").html("Joined on :" + response.data.Joining_Date);
-                            $("#RTime").html("Reporting Time: " + response.data.Reporting_Time);
-                            $("#total-sal").html(response.meta.basicSalary);
-                            $("#alowed-absent").html(response.meta.allowedWeekOff);
-                            $("#dueabsent").html(response.meta.dueWeekOff);
-                            $("#allowed-late").html(response.meta.allowedLate);
-                            $("#dueLate").html(response.meta.dueLate);
-                            $("#noDuesincentive").html(response.meta.nodesIncentive);
-                        },
-                        error: function (jqXHR, textStatus, errorThrown) {
-                            console.error(textStatus, errorThrown);
-                        },
-                    });
-                }
-
-                function loadCalendar() {
-                    $.ajax({
-                        url: Config.api_url,
-                        data: { operation: "getCalendarDataUser", id: id },
-                        method: "POST",
-                        success: function (response) {
-                            response = JSON.parse(response);
-                            console.log(response);
-                            var events = [];
-                            var recordDates = new Set();
-                            var lateCount = 0;
-                            var presentCount = 0;
-                            var absentCount = 0;
-
-                            function filterEventsByMonth(year, month) {
-                                // Reset events and counters for the new month
-                                events = [];
-                                recordDates.clear();
-                                lateCount = 0;
-                                presentCount = 0;
-                                absentCount = 0;
-
-                                $.each(response.data, function (date, details) {
-                                    var eventDate = new Date(date);
-                                    if (eventDate.getFullYear() === year && eventDate.getMonth() === month) {
-                                        recordDates.add(date);
-
-                                        var classNamelogin = details.ontime ? "ontime" : "late";
-                                        var loginEvent = {
-                                            title: "Login: " + details.login_time,
-                                            start: date,
-                                            className: classNamelogin,
-                                            description: details.ontime ? "🙂" : "You are Late 😑",
-                                        };
-                                        events.push(loginEvent);
-
-                                        if (!details.ontime) lateCount++;
-                                        presentCount++;
-
-                                        if (!details.outtime) {
-                                            var logoutEvent = {
-                                                title: "Logout: " + details.logout_time,
-                                                start: date,
-                                                className: "late",
-                                                description: "Logged Out Early 😑",
-                                            };
-                                            events.push(logoutEvent);
-                                        }
-                                    }
-                                });
-
-                                // Calculate Absent days
-                                var allDates = getAllDatesInMonthUpToToday(year, month);
-
-                                console.log(allDates);
-                                console.log(recordDates);
-                                allDates.forEach(function (date) {
-                                    if (!recordDates.has(date)) {
-                                        absentCount++;
-
-                                        events.push({
-                                            title: "Absent",
-                                            start: date,
-                                            className: "absent",
-                                            description: "You were absent 😞",
-                                        });
-                                    }
-                                });
-                                console.log(absentCount);
-                                // Update counts on the page
-                                $("#absent").html("Absent: " + absentCount);
-                                $("#absent-count").html(absentCount);
-                                $("#late").html("Late: " + lateCount);
-                                $("#late-count").html(lateCount);
-                                $("#present").html(presentCount);
-
-                                // Render the calendar with filtered events
-                                calendar.removeAllEvents();
-                                calendar.addEventSource(events);
-                            }
-
-                            function getAllDatesInMonthUpToToday(year, month) {
-                                const today = new Date();
-                                const date = new Date(year, month, 1); // Start date is the 1st of the month
-                                const dates = [];
-
-                                // Loop through the dates in the month and stop when reaching today or the end of the month
-                                while (date.getMonth() === month && date <= today) {
-                                    const formattedDate = formatDate(date);
-                                    dates.push(formattedDate); // Format date as YYYY-MM-DD
-                                    date.setDate(date.getDate() + 1); // Increment the day
-                                }
-
-                                return dates;
-                            }
-
-                            var calendarEl = document.getElementById("calendar");
-                            var calendar = new FullCalendar.Calendar(calendarEl, {
-                                initialView: "dayGridMonth",
-                                events: events, // Initially empty, will be set by filterEventsByMonth
-                                eventContent: function (arg) {
-                                    var title = arg.event.title;
-                                    var description = arg.event.extendedProps.description;
-                                    var content = document.createElement("div");
-                                    content.innerHTML = "<b>" + title + "</b><br>" + description;
-                                    return { domNodes: [content] };
-                                },
-                                validRange: function (nowDate) {
-                                   
-                                    return {
-                                        start: "2024-06-01", // Earliest date (June 2024)
-                                        end: formatDate(nowDate), // Today's date
+                                    var classNamelogin = details.ontime ? "ontime" : "late";
+                                    var loginEvent = {
+                                        title: "Login: " + details.login_time,
+                                        start: date,
+                                        className: classNamelogin,
+                                        description: details.ontime ? "🙂" : "You are Late 😑",
                                     };
-                                },
-                                datesSet: function (dateInfo) {
-                                    var startDate = formatDate(new Date(dateInfo.start.getFullYear(), dateInfo.start.getMonth(), 1)); // First day of the visible month
-                                    var endDate;
+                                    events.push(loginEvent);
+                                    console.log(loginEvent);
 
-                                    // If the visible month is the current month, set the endDate to today
-                                    var today = new Date();
-                                    if (dateInfo.start.getMonth() === today.getMonth() && dateInfo.start.getFullYear() === today.getFullYear()) {
-                                        endDate = formatDate(today);
-                                        console.log(endDate);
+                                    if (!details.ontime) lateCount++;
+                                    presentCount++;
 
-                                    } else {
-                                        // Otherwise, set the endDate to the last day of the visible month
-                                        endDate = formatDate(new Date(dateInfo.start.getFullYear(), dateInfo.start.getMonth() + 1, 0)); // Last day of the visible month
+                                    if (!details.outtime) {
+                                        var logoutEvent = {
+                                            title: "Logout: " + details.logout_time,
+                                            start: date,
+                                            className: "late",
+                                            description: "Logged Out Early 😑",
+                                        };
+                                        events.push(logoutEvent);
                                     }
-
-                                    noDues(startDate, endDate);
-                                    console.log(startDate, endDate);
-
-                                    var currentMonth = dateInfo.view.currentStart.getMonth();
-                                    var currentYear = dateInfo.view.currentStart.getFullYear();
-                                    filterEventsByMonth(currentYear, currentMonth);
-                                },
+                                }
                             });
 
-                            calendar.render();
-                        },
-                        error: function (jqXHR, textStatus, errorThrown) {
-                            console.error(textStatus, errorThrown);
-                        },
-                    });
-                }
+                            // Calculate Absent days
+                            var allDates = getAllDatesInMonthUpToToday(year, month);
 
-                loadData();
-                loadCalendar();
-            });
-        </script>
-    </body>
+                            console.log(allDates);
+                            console.log(recordDates);
+                            allDates.forEach(function (date) {
+                                if (!recordDates.has(date)) {
+                                    absentCount++;
+
+                                    events.push({
+                                        title: "Absent",
+                                        start: date,
+                                        className: "absent",
+                                        description: "You were absent 😞",
+                                    });
+                                }
+                            });
+                            console.log(absentCount);
+                            // Update counts on the page
+                            $("#absent").html("Absent: " + absentCount);
+                            $("#absent-count").html(absentCount);
+                            $("#late").html("Late: " + lateCount);
+                            $("#late-count").html(lateCount);
+                            $("#present").html(presentCount);
+
+                            // Render the calendar with filtered events
+                            calendar.removeAllEvents();
+                            calendar.addEventSource(events);
+                            console.log("Events added to calendar:", events);
+                        }
+
+                        function getAllDatesInMonthUpToToday(year, month) {
+                            const today = new Date(); // Today's full date
+                            today.setHours(0, 0, 0, 0); // Reset time to 00:00:00 to avoid discrepancies
+
+                            const date = new Date(year, month, 1); // Start date is the 1st of the month
+                            const dates = [];
+
+                            // Loop through the dates in the month and stop when reaching today or the end of the month
+                            while (date.getMonth() === month && date <= today) {
+                                const formattedDate = formatDate(date);
+                                dates.push(formattedDate); // Format date as YYYY-MM-DD
+                                date.setDate(date.getDate() + 1); // Increment the day
+                            }
+
+                            return dates;
+                        }
+
+                        var calendarEl = document.getElementById("calendar");
+                        var calendar = new FullCalendar.Calendar(calendarEl, {
+                            initialView: "dayGridMonth",
+                            events: events, // Initially empty, will be set by filterEventsByMonth
+                            eventContent: function (arg) {
+                                var title = arg.event.title;
+                                var description = arg.event.extendedProps.description;
+                                var content = document.createElement("div");
+                                content.innerHTML = "<b>" + title + "</b><br>" + description;
+                                return { domNodes: [content] };
+                            },
+                            validRange: function (nowDate) {
+                                var today = formatDate(nowDate); // Format today's date
+                                var tomorrow = new Date(nowDate);
+                                tomorrow.setDate(tomorrow.getDate() + 1); // Set to tomorrow
+
+                                var formattedTomorrow = formatDate(tomorrow); // Format tomorrow's date
+
+                                console.log("Valid Range set from 2024-06-01 to", formattedTomorrow); // Check the range
+
+                                return {
+                                    start: "2024-06-01",  // Earliest date (adjust this as necessary)
+                                    end: formattedTomorrow,  // Tomorrow to include today as well
+                                };
+                            },
+
+
+                            datesSet: function (dateInfo) {
+                                var startDate = formatDate(new Date(dateInfo.start.getFullYear(), dateInfo.start.getMonth(), 1)); // First day of the visible month
+                                var endDate;
+
+                                // If the visible month is the current month, set the endDate to today
+                                var today = new Date();
+                                if (dateInfo.start.getMonth() === today.getMonth() && dateInfo.start.getFullYear() === today.getFullYear()) {
+                                    endDate = formatDate(today);
+                                    console.log(endDate);
+
+                                } else {
+                                    // Otherwise, set the endDate to the last day of the visible month
+                                    endDate = formatDate(new Date(dateInfo.start.getFullYear(), dateInfo.start.getMonth() + 1, 0)); // Last day of the visible month
+                                }
+
+                                noDues(startDate, endDate);
+                                console.log(startDate, endDate);
+
+                                var currentMonth = dateInfo.view.currentStart.getMonth();
+                                var currentYear = dateInfo.view.currentStart.getFullYear();
+                                filterEventsByMonth(currentYear, currentMonth);
+                            },
+                        });
+
+                        calendar.render();
+                    },
+                    error: function (jqXHR, textStatus, errorThrown) {
+                        console.error(textStatus, errorThrown);
+                    },
+                });
+            }
+
+            loadData();
+            loadCalendar();
+        });
+    </script>
+</body>
+
 </html>

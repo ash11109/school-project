@@ -19,6 +19,45 @@ likeDislikeButtons.forEach(button => {
   });
 });
 
+document.getElementById("submit-1").addEventListener("click", function () {
+  handleFeedback("details-1");
+});
+
+document.getElementById("submit-2").addEventListener("click", function () {
+  handleFeedback("details-2");
+});
+
+// Handle feedback submission
+function handleFeedback(detailsId) {
+  const detailsContainer = document.getElementById(detailsId);
+
+  // Get feedback value (like/dislike)
+  const activeFeedback = detailsContainer.querySelector(".rating .active");
+  const feedbackValue = activeFeedback ? activeFeedback.dataset.feedback : null;
+
+  // Get feedback text
+  const feedbackText = detailsContainer.querySelector(".feedback-text").value.trim();
+
+  // Validate inputs
+  if (!feedbackValue) {
+      alert(`Please select feedback for ${detailsId}`);
+      return;
+  }
+
+  // Submit feedback
+  submitFeedback(detailsId, feedbackValue, feedbackText);
+}
+
+function submitFeedback(detailsId, feedbackValue, feedbackText) {
+  console.log(`Submitting Feedback for ${detailsId}`);
+  console.log(`Feedback Value: ${feedbackValue}`);
+  console.log(`Feedback Text: ${feedbackText}`);
+
+  // Call API twice for value and text
+  updateQAdb(`Feedback Value`, feedbackValue);
+  updateQAdb(`Feedback Text`, feedbackText);
+}
+
 function loadQA(){
   link = localStorage.getItem("AI_QA_link");
   type = localStorage.getItem("AI_QA_Intrested_IN");

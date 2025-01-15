@@ -1,4 +1,38 @@
 
+async function getempStatuscount() {
+    try {
+        const formData = new FormData();
+        formData.append("operation", "getempStatuscount");
+
+        // Send the request using fetch
+        const response = await fetch(Config.api_url, {
+            method: "POST", // Assuming POST request
+            body: formData,
+        });
+
+        if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+
+        const responseData = await response.json();
+
+        if (responseData) {
+            const data = responseData.data;
+                $("#noti5").html(data['Absconded']);
+                $("#noti2").html(data["Active"]);
+                $("#noti1").html(data["All"]);
+                $("#noti3").html(data['Fired']);
+                $("#noti4").html(data["Suspended"]);
+                $("#noti6").html(data["Resigned"]);
+        } else {
+            alert("Failed to get data");
+        }
+    } catch (error) {
+        alert(`An error occurred: ${error.message}`);
+    }
+}
+
+
 
 function loadQA(link,type,id){
  localStorage.setItem("AI_QA_link",link);
@@ -285,7 +319,7 @@ function changeModalName(name){
     }else{
     document.getElementById("reuableModalLabel").innerHTML = "Update Employee";
     document.getElementById("resuableModalFooter").innerHTML = ` <button type="button" class="btn btn-secondary close" data-dismiss="modal">Close</button>
-                                                          <button type="button" class="btn btn-primary" onclick="updateAdminmeta()">Update</button>`;
+                                                          <button type="button" class="btn btn-primary" onclick="uploadImage()">Update</button>`;
     }
 }
 async function checkinactivenumbers(id) {
@@ -339,6 +373,21 @@ function populateAdminSelect(response) {
 
             selectBox.appendChild(option);
         });
+
+         // Add the selectedAdmin as an additional option (if not already in the list)
+         response.selectedAdmin.forEach(selectedAdmin => {
+            const exists = Array.from(selectBox.options).some(
+                option => option.value === selectedAdmin.Admin_ID
+            );
+            if (!exists) {
+                const option = document.createElement("option");
+                option.value = selectedAdmin.Admin_ID;
+                option.textContent = `${selectedAdmin.Name} (${selectedAdmin.Mobile}) ${selectedAdmin.Type}`;
+                option.selected = true; // Make this option selected
+                selectBox.appendChild(option);
+            }
+        });
+
         selectBox.addEventListener("change", function() {
             const selectedId = this.value;
             getAdminDetails(selectedId);  // Call getAdminDetails with the selected Admin_ID
@@ -351,34 +400,7 @@ function populateAdminSelect(response) {
 }
 async function getAdminMeta(id, emp_id) {
     $("#selectBoxStatus").val(0);
-    $("#admin_name").val("");
-    $("#joined_date").val("");
-    $("#reporting_time").val("");
-    $("#relieving_date").val("");
-    $("#attendence_status").val("");
-    $("#basic_salary").val("");
-    $("#allowed_week_off").val("");
-    $("#due_week_off").val("");
-    $("#allowed_late").val("");
-    $("#due_late").val("");
-    $("#number_of_nodes").val("");
-    $("#nodes_incentive").val("");
-    $("#number_of_demos").val("");
-    $("#demos_incentive").val("");
-    $("#user_phone_number").val("");
-    $("#user_email").val("");
-    $("#address_present").val("");
-    $("#address_permanent").val("");
-    $("#alt_contact_person_1").val("");
-    $("#alt_number_1").val("");
-    $("#alt_contact_person_2").val("");
-    $("#alt_number_2").val("");
-    $("#alt_contact_person_3").val("");
-    $("#alt_number_3").val("");
-    $("#fileurl").val("");
-    $("#user_ac").val("");
-    $("#user_ifsc").val("");
-    $("#user_upi").val("");
+    $('#metaform')[0].reset();
     clearFileInput();
     $("#lt-select option").prop("selected", false);
     $("#lt-select").selectpicker("refresh");
@@ -398,7 +420,7 @@ async function getAdminMeta(id, emp_id) {
             throw new Error(data.message || "Error fetching data");
         }
 
-        console.log(data);
+        
 
         if (data.success) {
             $("#adminEMP_id").val(emp_id);
@@ -444,52 +466,88 @@ async function getAdminMeta(id, emp_id) {
 
             $("#lt-select").selectpicker("refresh");
 
-            const urls = data.meta.fileurl.split(",");
-
-            // Generate image previews
-            generateImagePreviews(urls);
+            
+            generateImagePreviews(data.meta.fileurl);
         } else {
             $("#admin_id").val(id);
             $("#admin_name").val(name);
         }
     } catch (error) {
-        const msg = displayerror(error);
-        alert(msg);
+       displayerror(error);
+       // alert(msg);
     }
 
-    function generateImagePreviews(urls) {
-        $("#image-preview-container").empty(); // Clear existing previews
-        if (urls.length === 0) {
-            $("#image-preview-container").html("<p>No images</p>");
+    function generateImagePreviews(Urls) {
+        // Split the input string into an array of URLs
+        const fileUrls = Urls.split(";");
+        const imagePreviewContainer = document.getElementById("image-preview-container");
+        const imageInput = document.getElementById("fileurl"); // Assuming this is your input box
+        console.log(fileUrls);
+    
+        // Clear the preview container
+        imagePreviewContainer.innerHTML = "";
+    
+        // Filter out any empty URLs and trim them
+        const validFileUrls = fileUrls.filter(url => url.trim() !== "");
+    
+        if (validFileUrls.length === 0) {
+            // If no valid URLs are found, display "No images found"
+            const noImagesFoundMessage = document.createElement("p");
+            noImagesFoundMessage.textContent = "No images found";
+            noImagesFoundMessage.style.fontStyle = "italic";
+            noImagesFoundMessage.style.color = "gray";
+            imagePreviewContainer.appendChild(noImagesFoundMessage);
         } else {
-            urls.forEach(function (url, index) {
-                const imagePreview = `
-                    <div class="image-preview" style="display:inline-block; position:relative; margin:5px;">
-                        <img src="${url}" alt="Image" style="width: 100px; height: 100px; object-fit: cover;">
-                        <button class="remove-image" type="button" style="position: absolute; top: 0; right: 0; background: red; color: white; border: none; cursor: pointer;" data-index="${index}">&times;</button>
-                    </div>
-                `;
-               
+            // Otherwise, generate previews for each valid URL
+            validFileUrls.forEach(url => {
+                const imagePreviewWrapper = document.createElement("div");
+                imagePreviewWrapper.style.position = "relative";
+                imagePreviewWrapper.style.display = "inline-block";
+                imagePreviewWrapper.style.marginRight = "5px";
+    
+                // Create a new img element for each image preview
+                const imagePreview = document.createElement("img");
+                imagePreview.src = url.trim(); // Use the URL from fileUrls
+                imagePreview.style.maxWidth = "200px"; // Set a max width for the preview
+                imagePreview.style.marginTop = "5px";
+                imagePreview.classList.add("image-preview");
+    
+                // Create a remove button for each image preview
+                const removeBtn = document.createElement("button");
+                removeBtn.type = "button";
+                removeBtn.innerHTML = "&times;";
+                removeBtn.style.position = "absolute";
+                removeBtn.style.top = "0px";
+                removeBtn.style.right = "0px";
+                removeBtn.style.background = "red";
+                removeBtn.style.color = "white";
+                removeBtn.style.border = "none";
+                removeBtn.style.cursor = "pointer";
+    
+                // Remove button click handler
+                removeBtn.onclick = function () {
+                    imagePreviewWrapper.remove(); // Remove the image and button
+    
+                    // Update the input box by removing the corresponding URL
+                    const currentUrls = imageInput.value.split(";").map(url => url.trim());
+                    const updatedUrls = currentUrls.filter(currentUrl => currentUrl !== url.trim());
+                    imageInput.value = updatedUrls.join(";");
+    
+                    checkAndToggleButtons(); // Update button visibility
+                };
+    
+                // Append the image preview and the remove button to the wrapper
+                imagePreviewWrapper.appendChild(imagePreview);
+                imagePreviewWrapper.appendChild(removeBtn);
+    
+                // Append the wrapper to the preview container
+                imagePreviewContainer.appendChild(imagePreviewWrapper);
             });
-            $("#image-preview-container").append(imagePreview);
         }
+    
+        checkAndToggleButtons(); // Update button visibility based on the current state
     }
-
-    // Delegate the event to handle dynamically generated remove buttons
-    $(document).on("click", ".remove-image", function (event) {
-        event.preventDefault(); // Prevent the default action
-
-        const indexToRemove = $(this).data("index");
-
-        // Remove the corresponding URL from the array
-        urls.splice(indexToRemove, 1);
-
-        // Update the textarea value
-        $("#fileurl").val(urls.join(","));
-
-        // Regenerate the image previews
-        generateImagePreviews(urls);
-    });
+    
 }
 
 async function allCaller() {
@@ -1036,22 +1094,129 @@ async function taskAssignMail(id, description) {
     }
 }
 
+async function handleFileSelecthr(event) {
+    const acceptedImageTypes = ["image/jpeg", "image/png", "image/gif", "image/webp"];
+    const imagePreviewContainer = document.getElementById("image-preview-container");
+    const imageInput = document.getElementById("fileurl"); // Assuming this is your input box
+
+    // Add newly selected files to the existing array, avoiding duplicates
+    const newFiles = Array.from(event.target.files);
+    newFiles.forEach(file => {
+        if (!selectedFiles.some(existingFile => existingFile.name === file.name)) {
+            selectedFiles.push(file);
+        }
+    });
+
+    let validFiles = true;
+
+    newFiles.forEach(file => {
+        if (acceptedImageTypes.includes(file.type)) {
+            // Show a preview of each new image
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                // Create a new div for each image preview
+                const imagePreviewWrapper = document.createElement("div");
+                imagePreviewWrapper.style.position = "relative";
+                imagePreviewWrapper.style.display = "inline-block";
+                imagePreviewWrapper.style.marginRight = "5px";
+                imagePreviewWrapper.dataset.fileName = file.name;
+
+                // Create a new img element for each image preview
+                const imagePreview = document.createElement("img");
+                imagePreview.src = e.target.result;
+                imagePreview.style.maxWidth = "200px"; // Set a max width for the preview
+                imagePreview.style.marginTop = "5px";
+                imagePreview.classList.add("image-preview");
+
+                // Create a remove button for each image preview
+                const removeBtn = document.createElement("button");
+                removeBtn.type = "button";
+                removeBtn.innerHTML = "&times;";
+                removeBtn.style.position = "absolute";
+                removeBtn.style.top = "0px";
+                removeBtn.style.right = "0px";
+                removeBtn.style.background = "red";
+                removeBtn.style.color = "white";
+                removeBtn.style.border = "none";
+                removeBtn.style.cursor = "pointer";
+                removeBtn.onclick = function () {
+                    imagePreviewWrapper.remove(); // Remove the image and button
+    
+                    // Remove the file from selectedFiles
+                    selectedFiles = selectedFiles.filter(existingFile => existingFile.name !== file.name);
+
+                    // Update the input box by removing the corresponding URL
+                    const currentUrls = imageInput.value.split(";").map(url => url.trim());
+                    const updatedUrls = currentUrls.filter(currentUrl => currentUrl !== url.trim());
+                    imageInput.value = updatedUrls.join(";");
+    
+                    checkAndToggleButtons(); // Update button visibility
+                };
+
+                // Append the image preview and the remove button to the wrapper
+                imagePreviewWrapper.appendChild(imagePreview);
+                imagePreviewWrapper.appendChild(removeBtn);
+
+                // Append the wrapper to the preview container
+                imagePreviewContainer.appendChild(imagePreviewWrapper);
+            };
+            reader.readAsDataURL(file); // Read the file and generate a data URL for preview
+        } else {
+            validFiles = false;
+        }
+    });
+
+    checkAndToggleButtons(validFiles); // Show or hide buttons based on file validity
+}
+
+function checkAndToggleButtons(validFiles) {
+    const removeImageBtn = document.getElementById("removeImageBtn");
+    if (validFiles && selectedFiles.length > 0) {
+        removeImageBtn.style.display = "inline-block";
+    } else {
+        removeImageBtn.style.display = "none";
+    }
+}
+
+function updateFileUrl(imageUrlsString) {
+    const fileUrlInput = document.getElementById("fileurl");
+
+    // Get the current value of the input field
+    let existingUrls = fileUrlInput.value;
+
+    // If the input is not empty, append a semicolon before adding new URLs
+    if (existingUrls) {
+        existingUrls += ";";
+    }
+
+    // Append the new URLs
+    fileUrlInput.value = existingUrls + imageUrlsString;
+}
+
 
 async function uploadImage() {
-    if (!selectedFile) return; // If no file is selected, don't proceed
+    if (selectedFiles.length === 0)
+    {
+        updateAdminmeta();
+        return;
+    }
 
-    $(".loader").show();
+    $(".loader").show(); // Show loader while uploading
 
     try {
-        // Resize and upload the image
-        const resizedFile = await resizeAndUpload(selectedFile);
-        console.log("Resized File:", resizedFile);
-
         const formData = new FormData();
-        formData.append("image", resizedFile);
-        formData.append("operation", "ImageUploadhr"); // Include operation
 
-        // Using fetch to upload the image
+        // Add each selected file to the FormData
+        for (let file of selectedFiles) {
+            const resizedFile = await resizeAndUpload(file); // Resize each file (if needed)
+            console.log("Resized File:", resizedFile);
+
+            formData.append("image[]", resizedFile);
+        }
+
+        formData.append("operation", "ImageUploadhr"); // Include operation in the form data
+
+        // Using fetch to upload the image(s)
         const response = await fetch(Config.api_url, {
             method: "POST",
             body: formData,
@@ -1063,26 +1228,31 @@ async function uploadImage() {
 
         const responseData = await response.json();
         console.log(responseData);
-        $(".loader").hide();
+        $(".loader").hide(); // Hide loader after the response
 
         if (responseData.success === true) {
-            console.log(responseData.imageUrl);
-            $("#fileurl").val((i, val) => val.trim() + (val.trim() ? " " : "") + responseData.imageUrl);
-            $(".success-msg").text("Upload success").show();
+         
+            // Join the image URLs into a string with a pipe separator
+            const imageUrlsString = responseData.imageUrls.join(';'); // Joining URLs by pipe (`|`)
+
+            updateFileUrl(imageUrlsString);
+
+            updateAdminmeta();
+
         } else {
-            // Handle error in response from server
+            // Handle error in response from the server
             console.error("Upload error:", responseData.error);
             $(".error-msg").text("Upload failed").show();
             alert("Upload failed: " + responseData.error);
         }
     } catch (error) {
-        $(".loader").hide();
+        $(".loader").hide(); // Hide loader in case of error
         console.error("Error during image processing:", error);
         $(".error-msg").text("Image processing failed").show();
-        // Using displayerror function to show the error
         displayerror(`An error occurred: ${error.message}`);
     }
 }
+
 
 async function handleFileSelect(event) {
     const file = event.target.files[0];
@@ -1291,14 +1461,17 @@ async function getMembers() {
         );
 
         // Populate TL options
-        data.TL.forEach(function (option) {
-            $("#tl-select").append(
-                $("<option>", {
-                    value: option.Admin_ID,
-                    text: option.Name + " - " + option.Type,
-                })
-            );
+        const tlSelect = document.getElementById("tl-select"); // Cache the element reference
+        const fragment = document.createDocumentFragment(); // Use a document fragment for batch DOM updates
+        
+        data.TL.forEach((option) => {
+            const opt = document.createElement("option");
+            opt.value = option.Admin_ID;
+            opt.textContent = `${option.Name} - ${option.Type}`;
+            fragment.appendChild(opt);
         });
+        
+        tlSelect.appendChild(fragment); // Append all options at once
 
         // Refresh select picker
         $("#mb-select").selectpicker("refresh");
@@ -1579,6 +1752,32 @@ async function getcpls(type) {
     // Show the loader
     $(".loader").show();
 
+     // Mappings specific to this function
+     const expenseForMapping = {
+        "1": "Academy",
+        "2": "Agency",
+        "3": "My Galla"
+    };
+
+    const expensePurposeMapping = {
+        "1": "Marketing",
+        "2": "Salary",
+        "3": "Rent",
+        "4": "Other"
+    };
+
+    const fromAccountMapping = {
+        "1": "GreenTech India",
+        "2": "Axis (Vikash)",
+        "3": "Kotak (Vikash)",
+        "4": "Other",
+        "5": "Cash",
+        "6": "My Galla HDFC",
+        "7": "Kalam Foundation Axis Bank"
+    };
+
+    const renderExpenseType = (value, mapping) => mapping[value] || value || "";
+
     try {
         const response = await fetch(Config.api_url, {
             method: "POST",
@@ -1639,41 +1838,15 @@ async function getcpls(type) {
                     { data: "DOR" },
                     {
                         data: null,
-                        render: (data, type, row) => {
-                            switch (row["EXP_For"]) {
-                                case "1": return "Academy";
-                                case "2": return "Agency";
-                                case "3": return "My Galla";
-                                default: return row["EXP_For"] || "";
-                            }
-                        },
+                        render: (data, type, row) => renderExpenseType(row["EXP_For"], expenseForMapping),
                     },
                     {
                         data: null,
-                        render: (data, type, row) => {
-                            switch (row["Expense_Purpose"]) {
-                                case "1": return "Marketing";
-                                case "2": return "Salary";
-                                case "3": return "Rent";
-                                case "4": return "Other";
-                                default: return row["Expense_Purpose"] || "";
-                            }
-                        },
+                        render: (data, type, row) => renderExpenseType(row["Expense_Purpose"], expensePurposeMapping),
                     },
                     {
                         data: null,
-                        render: (data, type, row) => {
-                            switch (row["From_Account"]) {
-                                case "1": return "GreenTech India";
-                                case "2": return "Axis (Vikash)";
-                                case "3": return "Kotak (Vikash)";
-                                case "4": return "Other";
-                                case "5": return "Cash";
-                                case "6": return "My Galla HDFC";
-                                case "7": return "Kalam Foundation Axis Bank";
-                                default: return row["From_Account"] || "";
-                            }
-                        },
+                        render: (data, type, row) => renderExpenseType(row["From_Account"], fromAccountMapping),
                     },
                     {
                         data: null,
@@ -1699,11 +1872,7 @@ async function getcpls(type) {
     }
 }
 
-async function fetchExpenseReportcomb(start1, end1, start2, end2) {
-    const loader = $(".loader");
-
-    // Helper function to fetch reports for a specific date range
-    async function fetchAllReports(start, end) {
+async function fetchAllReports(start, end) {
         loader.show();
 
         const endpoints = [
@@ -1736,6 +1905,10 @@ async function fetchExpenseReportcomb(start1, end1, start2, end2) {
             loader.hide();
         }
     }
+
+async function fetchExpenseReportcomb(start1, end1, start2, end2) {
+    const loader = $(".loader");
+
 
     try {
         // Fetch data for the first date range
@@ -2004,165 +2177,136 @@ async function checkLate(id) {
 
 async function addAdminmeta() {
     $(".loader").show();
-    var id = $("#edit_number").val();
-    var username = $("#admin_name").val();
-    var password = $("#edit_passwordCaller").val();
-    var mobile = $("#edit_mobileCaller").val();
-    var type = $("#edit_type").val();
-    var joined_date = $("#joined_date").val();
-    var reporting_time = $("#reporting_time").val();
-    var attendence_status = $("#attendence_status").val();
-    var basicSalary = $("#basic_salary").val();
-    var allowedWeekOff = $("#allowed_week_off").val();
-    var dueWeekOff = $("#due_week_off").val();
-    var allowedLate = $("#allowed_late").val();
-    var dueLate = $("#due_late").val();
-    var numberOfNodes = $("#number_of_nodes").val();
-    var nodesIncentive = $("#nodes_incentive").val();
-    var numberOfDemos = $("#number_of_demos").val();
-    var demosIncentive = $("#demos_incentive").val();
-    var userac = $("#user_ac").val();
-    var userifsc = $("#user_ifsc").val();
-    var userupi = $("#user_upi").val();
-    var userPhoneNumber = $("#user_phone_number").val();
-    var userEmail = $("#user_email").val();
-    var addressPresent = $("#address_present").val();
-    var addressPermanent = $("#address_permanent").val();
-    var altContactPerson1 = $("#alt_contact_person_1").val();
-    var altNumber1 = $("#alt_number_1").val();
-    var altContactPerson2 = $("#alt_contact_person_2").val();
-    var altNumber2 = $("#alt_number_2").val();
-    var altContactPerson3 = $("#alt_contact_person_3").val();
-    var altNumber3 = $("#alt_number_3").val();
-    var fileurl = $("#fileurl").val();
+
+    // Map keys to their corresponding element IDs
+    const fieldMap = {
+        id: "edit_number",
+        username: "admin_name",
+        password: "edit_passwordCaller",
+        mobile: "edit_mobileCaller",
+        type: "edit_type",
+        joined_date: "joined_date",
+        reporting_time: "reporting_time",
+        attendence_status: "attendence_status",
+        basicSalary: "basic_salary",
+        allowedWeekOff: "allowed_week_off",
+        dueWeekOff: "due_week_off",
+        allowedLate: "allowed_late",
+        dueLate: "due_late",
+        numberOfNodes: "number_of_nodes",
+        nodesIncentive: "nodes_incentive",
+        numberOfDemos: "number_of_demos",
+        demosIncentive: "demos_incentive",
+        userac: "user_ac",
+        userifsc: "user_ifsc",
+        userupi: "user_upi",
+        userPhoneNumber: "user_phone_number",
+        userEmail: "user_email",
+        addressPresent: "address_present",
+        addressPermanent: "address_permanent",
+        altContactPerson1: "alt_contact_person_1",
+        altNumber1: "alt_number_1",
+        altContactPerson2: "alt_contact_person_2",
+        altNumber2: "alt_number_2",
+        altContactPerson3: "alt_contact_person_3",
+        altNumber3: "alt_number_3",
+        fileurl: "fileurl",
+    };
+
+    // Dynamically collect form data
+    const formData = {};
+    for (const [key, id] of Object.entries(fieldMap)) {
+        formData[key] = $(`#${id}`).val();
+    }
+    formData.operation = "addAdminmeta"; // Add operation manually
 
     try {
+        // Send request using fetch
         const response = await fetch(Config.api_url, {
             method: "POST",
             headers: {
                 "Content-Type": "application/x-www-form-urlencoded",
             },
-            body: new URLSearchParams({
-                operation: "addAdminmeta",
-                id: id,
-                username: username,
-                password: password,
-                mobile: mobile,
-                type: type,
-                joined_date: joined_date,
-                reporting_time: reporting_time,
-                attendence_status: attendence_status,
-                basicSalary: basicSalary,
-                allowedWeekOff: allowedWeekOff,
-                dueWeekOff: dueWeekOff,
-                allowedLate: allowedLate,
-                dueLate: dueLate,
-                numberOfNodes: numberOfNodes,
-                nodesIncentive: nodesIncentive,
-                numberOfDemos: numberOfDemos,
-                demosIncentive: demosIncentive,
-                // New fields
-                userPhoneNumber: userPhoneNumber,
-                userEmail: userEmail,
-                addressPresent: addressPresent,
-                addressPermanent: addressPermanent,
-                altContactPerson1: altContactPerson1,
-                altNumber1: altNumber1,
-                altContactPerson2: altContactPerson2,
-                altNumber2: altNumber2,
-                altContactPerson3: altContactPerson3,
-                altNumber3: altNumber3,
-                fileurl: fileurl,
-                userac: userac,
-                userifsc: userifsc,
-                userupi: userupi,
-            }),
+            body: new URLSearchParams(formData),
         });
 
-        // Check if the response is successful
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
+        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
 
         const data = await response.json();
-        
-        // Handle the success/failure based on the response
+
         alert(data.message);
-        if (data.success == true) {
+        if (data.success) {
             $(".loader").hide();
             allCaller();
             $(".close").click();
-            // Clear the form fields
-            $("#admin_name").val("");
-            $("#joined_date").val("");
-            $("#reporting_time").val("");
-            $("#attendence_status").val("");
-            // Clear new fields
-            $("#user_phone_number").val("");
-            $("#user_email").val("");
-            $("#address_present").val("");
-            $("#address_permanent").val("");
-            $("#alt_contact_person_1").val("");
-            $("#alt_number_1").val("");
-            $("#alt_contact_person_2").val("");
-            $("#alt_number_2").val("");
-            $("#alt_contact_person_3").val("");
-            $("#alt_number_3").val("");
-            $("#fileurl").val("");
-            $("#user_ac").val("");
-            $("#user_ifsc").val("");
-            $("#user_upi").val("");
+            clearFormFields(Object.values(fieldMap)); // Clear form fields
         }
     } catch (error) {
-        // Display error using the displayError function
         $(".loader").hide();
         displayError(error.message);
     }
 }
+
+// Utility function to clear form fields
+async function clearFormFields(fieldIds) {
+    fieldIds.forEach((id) => {
+        $(`#${id}`).val("");
+    });
+}
+
 
 async function updateAdminmeta() {
     $(".loader").show();
-    var ischecked = $("#selectBoxStatus").val();
-    var emp_id = $("#adminEMP_id").val();
-    var id = $("#admin_id").val();
-    var username = $("#admin_name").val();
-    var mobile = $("#edit_mobileCaller").val();
-    var password = $("#edit_passwordCaller").val();
-    var joined_date = $("#joined_date").val();
-    var reporting_time = $("#reporting_time").val();
-    var relieving_date = $("#relieving_date").val();
-    var attendence_status = $("#attendence_status").val();
-    var basicSalary = $("#basic_salary").val();
-    var allowedWeekOff = $("#allowed_week_off").val();
-    var dueWeekOff = $("#due_week_off").val();
-    var allowedLate = $("#allowed_late").val();
-    var dueLate = $("#due_late").val();
-    var numberOfNodes = $("#number_of_nodes").val();
-    var nodesIncentive = $("#nodes_incentive").val();
-    var numberOfDemos = $("#number_of_demos").val();
-    var demosIncentive = $("#demos_incentive").val();
 
-    // New fields
-    var userac = $("#user_ac").val();
-    var userifsc = $("#user_ifsc").val();
-    var userupi = $("#user_upi").val();
-    var userPhoneNumber = $("#user_phone_number").val();
-    var userEmail = $("#user_email").val();
-    var addressPresent = $("#address_present").val();
-    var addressPermanent = $("#address_permanent").val();
-    var altContactPerson1 = $("#alt_contact_person_1").val();
-    var altNumber1 = $("#alt_number_1").val();
-    var altContactPerson2 = $("#alt_contact_person_2").val();
-    var altNumber2 = $("#alt_number_2").val();
-    var altContactPerson3 = $("#alt_contact_person_3").val();
-    var altNumber3 = $("#alt_number_3").val();
-    var fileurl = $("#fileurl").val();
+    // Map keys to their corresponding element IDs
+    const fieldMap = {
+        ischecked: "selectBoxStatus",
+        emp_id: "adminEMP_id",
+        id: "admin_id",
+        username: "admin_name",
+        mobile: "edit_mobileCaller",
+        password: "edit_passwordCaller",
+        joined_date: "joined_date",
+        reporting_time: "reporting_time",
+        relieving_date: "relieving_date",
+        attendence_status: "attendence_status",
+        basicSalary: "basic_salary",
+        allowedWeekOff: "allowed_week_off",
+        dueWeekOff: "due_week_off",
+        allowedLate: "allowed_late",
+        dueLate: "due_late",
+        numberOfNodes: "number_of_nodes",
+        nodesIncentive: "nodes_incentive",
+        numberOfDemos: "number_of_demos",
+        demosIncentive: "demos_incentive",
+        userac: "user_ac",
+        userifsc: "user_ifsc",
+        userupi: "user_upi",
+        userPhoneNumber: "user_phone_number",
+        userEmail: "user_email",
+        addressPresent: "address_present",
+        addressPermanent: "address_permanent",
+        altContactPerson1: "alt_contact_person_1",
+        altNumber1: "alt_number_1",
+        altContactPerson2: "alt_contact_person_2",
+        altNumber2: "alt_number_2",
+        altContactPerson3: "alt_contact_person_3",
+        altNumber3: "alt_number_3",
+        fileurl: "fileurl",
+        leadType: () =>
+            JSON.stringify(
+                $("#lt-select option:selected")
+                    .map((_, el) => $(el).val())
+                    .get()
+            ),
+    };
 
-    var selectedLeadtype = [];
-    // Loop through each selected option
-    $("#lt-select option:selected").each(function () {
-        selectedLeadtype.push($(this).val());
-    });
+    // Dynamically collect form data
+    const formData = {};
+    for (const [key, id] of Object.entries(fieldMap)) {
+        formData[key] = typeof id === "function" ? id() : $(`#${id}`).val();
+    }
+    formData.operation = "updateAdminmeta"; // Add operation manually
 
     try {
         const response = await fetch(Config.api_url, {
@@ -2170,87 +2314,27 @@ async function updateAdminmeta() {
             headers: {
                 "Content-Type": "application/x-www-form-urlencoded",
             },
-            body: new URLSearchParams({
-                operation: "updateAdminmeta",
-                ischecked : ischecked,
-                id: id,
-                emp_id: emp_id,
-                mobile: mobile,
-                password: password,
-                username: username,
-                joined_date: joined_date,
-                relieving_date : relieving_date,
-                reporting_time: reporting_time,
-                attendence_status: attendence_status,
-                basicSalary: basicSalary,
-                allowedWeekOff: allowedWeekOff,
-                dueWeekOff: dueWeekOff,
-                allowedLate: allowedLate,
-                dueLate: dueLate,
-                numberOfNodes: numberOfNodes,
-                nodesIncentive: nodesIncentive,
-                numberOfDemos: numberOfDemos,
-                demosIncentive: demosIncentive,
-                userPhoneNumber: userPhoneNumber,
-                userEmail: userEmail,
-                addressPresent: addressPresent,
-                addressPermanent: addressPermanent,
-                altContactPerson1: altContactPerson1,
-                altNumber1: altNumber1,
-                altContactPerson2: altContactPerson2,
-                altNumber2: altNumber2,
-                altContactPerson3: altContactPerson3,
-                altNumber3: altNumber3,
-                fileurl: fileurl,
-                userac: userac,
-                userifsc: userifsc,
-                userupi: userupi,
-                leadType: JSON.stringify(selectedLeadtype),
-            }),
+            body: new URLSearchParams(formData),
         });
 
-        // Check if the response is successful
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
+        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
 
         const data = await response.json();
-        
-        // Handle the success/failure based on the response
         alert(data.message);
 
-        if (data.success == true) {
+        if (data.success) {
             $(".loader").hide();
             allCaller();
             $(".close").click();
-            // Clear the form fields
-            $("#admin_name").val("");
-            $("#joined_date").val("");
-            $("#reporting_time").val("");
-            $("#attendence_status").val("");
-           $("#relieving_date").val("");
-            // Clear new fields
-            $("#user_phone_number").val("");
-            $("#user_email").val("");
-            $("#address_present").val("");
-            $("#address_permanent").val("");
-            $("#alt_contact_person_1").val("");
-            $("#alt_number_1").val("");
-            $("#alt_contact_person_2").val("");
-            $("#alt_number_2").val("");
-            $("#alt_contact_person_3").val("");
-            $("#alt_number_3").val("");
-            $("#fileurl").val("");
-            $("#user_ac").val("");
-            $("#user_ifsc").val("");
-            $("#user_upi").val("");
+            clearFormFields(Object.values(fieldMap)); // Clear form fields
         }
     } catch (error) {
-        // Display error using the displayError function
         $(".loader").hide();
         displayError(error.message);
     }
 }
+
+
 
 async function searchLeads(query, filename) {
     if (query.length < 3) {
@@ -4219,34 +4303,6 @@ async function resizeAndUpload(file, maxWidth = 600, maxHeight = 600) {
 //     }
 // }
 
-let selectedFile; // Global variable to store the selected file
-
-async function handleFileSelecthr(event) {
-    console.log(event);
-    selectedFile = event.target.files[0];
-
-    // Check if the file is an image using the MIME type
-    const acceptedImageTypes = ["image/jpeg", "image/png", "image/gif", "image/webp"];
-
-    if (selectedFile && acceptedImageTypes.includes(selectedFile.type)) {
-        // Show a preview of the image before uploading
-        const reader = new FileReader();
-        reader.onload = function (e) {
-            const imagePreview = document.getElementById("imagePreview");
-            imagePreview.src = e.target.result;
-            imagePreview.style.display = "block"; // Show the image preview
-
-            document.getElementById("confirmUploadBtn").style.display = "inline-block";
-            document.getElementById("removeImageBtn").style.display = "inline-block";
-        };
-        reader.readAsDataURL(selectedFile); // Read the file and generate a data URL for preview
-    } else {
-        // The selected file is not a valid image, show an error message
-        alert("Please select a valid image file (JPEG, PNG, GIF, or WebP).");
-        // Clear the file input to reset it
-        $(this).val("");
-    }
-}
 
 // async function uploadImage() {
 //     if (!selectedFile) return; // If no file is selected, don't proceed
@@ -7218,32 +7274,32 @@ function updateLeads() {
     }
 }
 
-function getempStatuscount() {
+// function getempStatuscount() {
    
-    $.ajax({
-        url: Config.api_url,
-        data: { operation: "getempStatuscount" },
-        dataType: "json", // Specify the expected response format as JSON
-        success: function (response) {
-            if (response){
-                var data = response.data;
-                $("#noti5").html(data['Absconded']);
-                $("#noti2").html(data["Active"]);
-                $("#noti1").html(data["All"]);
-                $("#noti3").html(data['Fired']);
-                $("#noti4").html(data["Suspended"]);
-                $("#noti6").html(data["Resigned"]);
-            }else{
-                alert("Failed to get data");
-            }
-        },
-        error: function (jqXHR, exception) {
-            var msg = displayerror(jqXHR, exception);
-            alert(msg);
-        },
-        async: false,
-    });
-}
+//     $.ajax({
+//         url: Config.api_url,
+//         data: { operation: "getempStatuscount" },
+//         dataType: "json", // Specify the expected response format as JSON
+//         success: function (response) {
+//             if (response){
+//                 var data = response.data;
+//                 $("#noti5").html(data['Absconded']);
+//                 $("#noti2").html(data["Active"]);
+//                 $("#noti1").html(data["All"]);
+//                 $("#noti3").html(data['Fired']);
+//                 $("#noti4").html(data["Suspended"]);
+//                 $("#noti6").html(data["Resigned"]);
+//             }else{
+//                 alert("Failed to get data");
+//             }
+//         },
+//         error: function (jqXHR, exception) {
+//             var msg = displayerror(jqXHR, exception);
+//             alert(msg);
+//         },
+//         async: false,
+//     });
+// }
 
 
 // function allCaller() {
@@ -7703,14 +7759,10 @@ function showAttendence(id) {
 // }
 
 function clearFileInput() {
-    // Clear the file input
-    var fileInput = document.getElementById("newImageInputhr");
-    fileInput.value = "";
-
-    // Hide the image preview and buttons
-    document.getElementById("imagePreview").style.display = "none";
-    document.getElementById("removeImageBtn").style.display = "none";
-    document.getElementById("confirmUploadBtn").style.display = "none";
+    selectedFiles = [];
+    document.getElementById("image-preview-container").innerHTML = "";
+    document.getElementById("newImageInputhr").value = "";
+    checkAndToggleButtons(false);
 }
 
 // function getAdminDetails(id) {
@@ -7973,11 +8025,11 @@ function getAllStatus(id) {
     }
 
     $("#statustable").DataTable({
-        order: [[1, "asc"]],
+        order: [[1, "desc"]],
         processing: false,
-        serverSide: false,
-        paging: false, // Disable pagination
-        searching: false, // Disable search
+        paging: true,
+        pagingType: "full_numbers",
+        serverSide: true,
         ajax: {
             url: Config.api_url, // Your server-side script to fetch data
             type: "POST",

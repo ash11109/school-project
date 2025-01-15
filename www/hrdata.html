@@ -326,7 +326,10 @@
                                                 <tbody>
                                                     <tr>
                                                         <th style="border: 1px solid black; padding: 10px; text-align: left">Description</th>
-                                                        <th style="border: 1px solid black; padding: 10px; text-align: left">Earning</th>
+                                                        <th style="border: 1px solid black; padding: 10px; text-align: left;">
+                                                            Earning
+                                                            <p style="margin: 0;font-size: 12px;">Working Days + Paid Week Off + Leave Save</p>
+                                                        </th>                                                        
                                                         <th style="border: 1px solid black; padding: 10px; text-align: left">Incentive</th>
                                                         <th style="border: 1px solid black; padding: 10px; text-align: left">Late / Extra Leave</th>
                                                     </tr>
@@ -413,7 +416,7 @@
                                     <option value="2026">2026</option>
                                     <option value="2027">2027</option>
                                     <option value="2028">2028</option>
-                                    
+                                    <option value="2029">2029</option>
                                 </select>
                                 <div class="month-list">
                                     <a href="#" class="month" onclick="handleClick(this,'01')">Jan</a>
@@ -638,7 +641,32 @@
             const Joining_Date =  new Date(adminData.Joining_Date);
 
             // Calculate derived values
-            const Total_dailySalary = Total_Salary / workingDays;
+            // const Total_dailySalary = Total_Salary / 30;
+            // const Paid_Leave_Salary = Math.round(Total_dailySalary * 4);
+            // Working_Salary = Total_Salary - Paid_Leave_Salary;
+            // if(workingDays == 31){
+            //     netPay = Math.round(Total_dailySalary) + Total_Salary;
+            //     Working_Salary = Working_Salary+Math.round(Total_dailySalary);
+            // }else if(workingDays == 30){
+
+            //     netPay = Total_Salary;
+            //     Working_Salary = Working_Salary;
+
+            // }else if(workingDays == 29){
+
+            //     netPay = Total_Salary - Math.round(Total_dailySalary) ;
+            //     Working_Salary = Working_Salary - Math.round(Total_dailySalary);
+
+            // }else if(workingDays == 28){
+                
+            //     netPay = Total_Salary - Math.round(Total_dailySalary*2) ;
+            //     Working_Salary = Working_Salary - Math.round(Total_dailySalary*2);
+
+            // }else{
+            //     netPay = Math.round(Total_dailySalary*workingDays) ;
+            //     Working_Salary = netPay - Paid_Leave_Salary;
+            // }
+            
             let incentiveAmount = 0;
             const leaveSave = Allowed_Week_Off - totalAbsent;
             const latesave = Allowed_Late - lateCount;
@@ -661,10 +689,20 @@
             const extraLeaveAmount = extraLeave > 0 ? extraLeave * Due_Week_Off : 0;
             const savedLeaveAmount = leaveSave * Due_Week_Off;
 
+            const Paid_Leave_Salary = allowedLeaveDays * Due_Week_Off;
+            const actualDays = workingDays - 4;
+            if( actualDays > totalPresent)
+            {
+                 netPay =  totalPresent * Due_Week_Off;
+            }else{
+                 netPay =  actualDays * Due_Week_Off;
+            }
+            
             // Update total calculations
-            let totalWithSavedLeave = Total_Salary + incentiveAmount + savedLeaveAmount;
+            let totalWithSavedLeave = netPay + Paid_Leave_Salary + incentiveAmount + savedLeaveAmount;
             let totalSavedLeavelate = totalWithSavedLeave - extralateAmount;
-            let totalExtraLeavelate = Total_Salary + incentiveAmount - extraLeaveAmount - extralateAmount;
+            let totalExtraLeavelate = netPay + Paid_Leave_Salary + incentiveAmount  - extralateAmount;
+            
 
             const slipMetaData = await getSlipMeta(id, Month, Year);
 
@@ -696,17 +734,17 @@
             console.log(Joining_Date);
             // Handle leave and late calculations
             function recalculateTotals() {
-                totalWithSavedLeave = Total_Salary + incentiveAmount + savedLeaveAmount;
+                totalWithSavedLeave = netPay + Paid_Leave_Salary + incentiveAmount + savedLeaveAmount;
                 totalSavedLeavelate = totalWithSavedLeave - extralateAmount;
-                totalExtraLeavelate = Total_Salary + incentiveAmount - extraLeaveAmount - extralateAmount;
+                totalExtraLeavelate = netPay + Paid_Leave_Salary + incentiveAmount  - extralateAmount;
 
                 // Update relevant fields
                 if (totalAbsent < Allowed_Week_Off) {
-                    $("#earning").html(`Rs ${Total_Salary} + Rs ${incentiveAmount} + Rs ${savedLeaveAmount} (${leaveSave} Leave Save)`);
+                    $("#earning").html(`Rs ${netPay} + ${Paid_Leave_Salary} + Rs ${savedLeaveAmount} (${leaveSave} Leave Save)`);
                     if (lateCount > Allowed_Late) {
                         $("#dues").html(`${extralate} Days Late - Rs ${extralateAmount}`);
                         $("#breakup").html(
-                            `Rs ${Total_Salary} + Rs ${incentiveAmount} + Rs ${savedLeaveAmount} - Rs ${extralateAmount} = Rs ${totalSavedLeavelate} (${numberToWords(
+                            `Rs ${netPay} + Rs ${Paid_Leave_Salary} + Rs ${incentiveAmount} + Rs ${savedLeaveAmount} - Rs ${extralateAmount} = Rs ${totalSavedLeavelate} (${numberToWords(
                                 totalSavedLeavelate
                             )})`
                         );
@@ -714,15 +752,15 @@
                     } else {
                         $("#dues").html(`NA`);
                         $("#breakup").html(
-                            `Rs ${Total_Salary} + Rs ${incentiveAmount} + Rs ${savedLeaveAmount} = Rs ${totalWithSavedLeave} (${numberToWords(totalWithSavedLeave)})`
+                            `Rs ${netPay} + Rs ${incentiveAmount} + Rs ${savedLeaveAmount} = Rs ${totalWithSavedLeave} (${numberToWords(totalWithSavedLeave)})`
                         );
                         $("#temp-total").html(totalWithSavedLeave);
                     }
                 } else {
-                    $("#earning").html(`Rs ${Total_Salary} + Rs ${incentiveAmount}`);
+                    $("#earning").html(`Rs ${netPay} + ${Paid_Leave_Salary} `);
                     $("#dues").html(`${extraLeave} Extra Leave - Rs ${extraLeaveAmount} <br> ${extralate} Days Late - Rs ${extralateAmount}`);
                     $("#breakup").html(
-                        `Rs ${Total_Salary} + Rs ${incentiveAmount} - Rs ${extraLeaveAmount} - Rs ${extralateAmount} = Rs ${totalExtraLeavelate} (${numberToWords(
+                        `Rs ${netPay} + Rs ${Paid_Leave_Salary} + Rs ${incentiveAmount}  - Rs ${extralateAmount} = Rs ${totalExtraLeavelate} (${numberToWords(
                             totalExtraLeavelate
                         )})`
                     );
