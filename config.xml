@@ -1,6 +1,6 @@
 <?xml version='1.0' encoding='utf-8'?>
 <widget id="com.teamka.teamka" version="1.0.5" xmlns="http://www.w3.org/ns/widgets" xmlns:android="http://schemas.android.com/apk/res/android" xmlns:gap="http://phonegap.com/ns/1.0">
-    <name>TEAM KA</name>
+    <name>TEST TEAM KA</name>
     <description> Start Your Business With Kalam Academy </description>
     <author email="support@phonegap.com" href="http://phonegap.com"> Kalam Academy Team </author>
     <content src="index.html" />
