@@ -2496,7 +2496,7 @@ async function fetchMissedCalls() {
                         if (row["status"] == 0) {
                             return "-";
                         } else if (row["status"] == 1) {
-                            return row["Source"];
+                            return row["status_lead"];
                         }
                     },
                 },
@@ -2506,7 +2506,7 @@ async function fetchMissedCalls() {
                         if (row["status"] == 0) {
                             return "-";
                         } else if (row["status"] == 1) {
-                            return row["status_lead"];
+                            return row["Source"]; 
                         }
                     },
                 },

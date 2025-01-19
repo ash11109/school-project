@@ -936,54 +936,69 @@
             }
 
             function getAllStatus(id) {
-                id = parseInt(id);
+    id = parseInt(id);
+    console.log("Getting Status For Lead ID " + id);
+    $(this).closest("tr").toggleClass("table-primary");
+    console.log($(this).closest("tr"));
 
-                if ($.fn.DataTable.isDataTable("#statustable")) {
-                    // DataTable already initialized, destroy it first
-                    $("#statustable").DataTable().destroy();
+    if ($.fn.DataTable.isDataTable("#statustable")) {
+        // DataTable already initialized, destroy it first
+        $("#statustable").DataTable().destroy();
+    }
+
+    $("#statustable").DataTable({
+        order: [[1, "desc"]],
+        processing: false,
+        paging: true,
+        pagingType: "full_numbers",
+        serverSide: true,
+        ajax: {
+            url: Config.api_url, // Your server-side script to fetch data
+            type: "POST",
+            data: { operation: "009-new", id: id },
+        },
+        columns: [
+            { data: "Name" },
+            { data: "DOR" },
+            { data: "Summary_Note" },
+            { data: "Next_Call_Date" },
+            {
+                data: "Call_Recording",
+                render: function (data, type, row) {
+                    var duration = row.Duration_Of_Call;
+                    if (!duration || duration == 0) {
+                        // Return an error message if duration is 0 or empty
+                        return "<div class='alert alert-danger' role='alert'>Audio not available </div>";
+                    }
+
+                    // Render a button to load the audio with duration as a custom attribute
+                    return '<button class="load-audio-btn" data-audio-url="' + data + '" data-duration="' + duration + '">Load Audio</button>';
+                },
+            },
+            { data: "Call_Recording", 
+                render: function (data, type, row) {
+                    var duration = row.Duration_Of_Call;
+                    if (!duration || duration == 0) {
+                        // Return an error message if duration is 0 or empty
+                        return "<div class='alert alert-danger' >Not available </div>";
+                    }
+
+                    return `<button class="btn btn-primary" onclick="loadQA('${data}','${row.Interested_In}',${row.CS_ID})">Call QA</button>`;
                 }
-                $("#leadId").val(id);
-                $("#statustable").DataTable({
-                    order: [[1, "asc"]],
-                    processing: false,
-                    serverSide: false,
-                    paging: false, // Disable pagination
-                    searching: false, // Disable search
-                    ajax: {
-                        url: Config.api_url, // Your server-side script to fetch data
-                        type: "POST",
-                        data: { operation: "009-new", id: id },
-                    },
-                    columns: [
-                        { data: "Name" },
-                        { data: "DOR" },
-                        { data: "Summary_Note" },
-                        { data: "Next_Call_Date" },
-                        {
-                            data: "Call_Recording",
-                            render: function (data, type, row) {
-                                var duration = row.Duration_Of_Call;
-                                if (!duration || duration == 0) {
-                                    // Return an error message if duration is 0 or empty
-                                    return "<div class='alert alert-danger' role='alert'>Audio not available </div>";
-                                }
+            },
+        ],
+    });
+    showMailOption(id);
 
-                                // Render a button to load the audio with duration as a custom attribute
-                                return '<button class="load-audio-btn" data-audio-url="' + data + '" data-duration="' + duration + '">Load Audio</button>';
-                            },
-                        },
-                    ],
-                });
+    // Event handler for clicking the load audio button
+    $("#statustable").on("click", ".load-audio-btn", function () {
+        var audioUrl = $(this).data("audio-url");
 
-                // Event handler for clicking the load audio button
-                $("#statustable").on("click", ".load-audio-btn", function () {
-                    var audioUrl = $(this).data("audio-url");
-
-                    // Replace the button with the audio player
-                    var audioPlayer = '<audio controls autoplay><source src="' + audioUrl + '" type="audio/mpeg">Your browser does not support the audio element.</audio>';
-                    $(this).parent().html(audioPlayer);
-                });
-            }
+        // Replace the button with the audio player
+        var audioPlayer = '<audio controls autoplay><source src="' + audioUrl + '" type="audio/mpeg">Your browser does not support the audio element.</audio>';
+        $(this).parent().html(audioPlayer);
+    });
+}
 
             // Helper function to format seconds into hh:mm:ss (reuse from before)
             function formatSeconds(seconds) {
