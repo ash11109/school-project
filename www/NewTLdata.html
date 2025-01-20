@@ -334,19 +334,20 @@
             }
 
             let responseData = null;
-            function getUsers() {
-                $.ajax({
-                    url: Config.api_url+"?operation=getUsers",
-                    method: "GET",
-                    success: function (response) {
-                        responseData = JSON.parse(response);
-                        callStatsTL();
-                    },
-                    error: function () {
-                        console.error("Error fetching users.");
-                    },
-                });
-            }
+            async function getUsers() {
+    try {
+        const response = await fetch(`${Config.api_url}?operation=getUsers`);
+        if (!response.ok) {
+            throw new Error("Network response was not ok");
+        }
+        const data = await response.json();
+        responseData = data;
+        callStatsTL();
+    } catch (error) {
+        console.error("Error fetching users:", error);
+    }
+}
+
 
             // Function to generate date ranges
             function generateDateRanges(start2, end2) {
@@ -1155,176 +1156,191 @@
                 });
             }
 
-            function addNewStatus() {
-                let callerID;
-                // Check user type
-                if (localStorage.getItem("userType") === "Support") {
-                    callerID = document.getElementById("support-agent").value;
-                } else {
-                    callerID = localStorage.getItem("userID");
-                }
-                // var callerID = localStorage.getItem("userID");
+            async function addNewStatus() {
+    let callerID;
+    // Check user type
+    if (localStorage.getItem("userType") === "Support") {
+        callerID = document.getElementById("support-agent").value;
+    } else {
+        callerID = localStorage.getItem("userID");
+    }
 
-                var leadId = document.getElementById("leadId").value;
-                var next_call_date = document.getElementById("next_call_date").value;
-                var time = document.getElementById("time").value;
-                var summary_note = document.getElementById("summary_note").value;
-                var call_status = document.getElementById("call_status").value;
-                if (next_call_date == "" || summary_note == "") {
-                    document.getElementById("errorDetailsStatus").innerHTML = "Fill the Form Correctly";
-                } else {
-                    document.getElementById("errorDetailsStatus").innerHTML = "";
-                    $(".loader").show();
-                    $.ajax({
-                        url: Config.api_url,
-                        data: {
-                            operation: "008",
-                            leadId: leadId,
-                            next_call_date: next_call_date,
-                            time: time,
-                            summary_note: summary_note,
-                            call_status: call_status,
-                            callerID: callerID,
-                        },
-                        success: function (response) {
-                            console.log("response");
-                            $(".loader").hide();
-                            if (response == 1) {
-                                document.getElementById("leadId").value = "";
-                                document.getElementById("next_call_date").value = "";
-                                document.getElementById("time").value = "";
-                                document.getElementById("summary_note").value = "";
-                                alert("Status Uploaded");
-                                getAllStatus(leadId);
-                            } else {
-                                alert(response);
-                            }
-                        },
-                        error: function (jqXHR, exception) {
-                            var msg = displayerror(jqXHR, exception);
-                            alert(msg);
-                        },
-                    });
-                }
+    var leadId = document.getElementById("leadId").value;
+    var next_call_date = document.getElementById("next_call_date").value;
+    var time = document.getElementById("time").value;
+    var summary_note = document.getElementById("summary_note").value;
+    var call_status = document.getElementById("call_status").value;
+
+    if (next_call_date === "" || summary_note === "") {
+        document.getElementById("errorDetailsStatus").innerHTML = "Fill the Form Correctly";
+    } else {
+        document.getElementById("errorDetailsStatus").innerHTML = "";
+        $(".loader").show();
+
+        const formData = new FormData();
+        formData.append("operation", "008");
+        formData.append("leadId", leadId);
+        formData.append("next_call_date", next_call_date);
+        formData.append("time", time);
+        formData.append("summary_note", summary_note);
+        formData.append("call_status", call_status);
+        formData.append("callerID", callerID);
+
+        try {
+            const response = await fetch(Config.api_url, {
+                method: "POST",
+                body: formData,
+            });
+
+            const result = await response.json();
+
+            $(".loader").hide();
+
+            if (result === 1) {
+                // Clear the input fields
+                document.getElementById("leadId").value = "";
+                document.getElementById("next_call_date").value = "";
+                document.getElementById("time").value = "";
+                document.getElementById("summary_note").value = "";
+
+                alert("Status Uploaded");
+                getAllStatus(leadId);
+            } else {
+                alert(result);
             }
+        } catch (error) {
+            console.error("Error uploading status:", error);
+            alert("An error occurred. Please try again.");
+        }
+    }
+}
 
-            function transferLead(leadId, button) {
-                var $row = $(button).closest("tr");
-                var caller = $row.find(".user-dropdown").val();
 
-                // Disable the dropdown and the specific button
-                $row.find(".user-dropdown").prop("disabled", true);
-                $(button).prop("disabled", true);
+            async function transferLead(leadId, button) {
+    const $row = $(button).closest("tr");
+    const caller = $row.find(".user-dropdown").val();
 
-                $.ajax({
-                    url: Config.api_url,
-                    method: "POST",
-                    data: { operation: "transferleads", caller: caller, id: leadId },
-                    success: function (response) {
-                        var responseData = JSON.parse(response);
-                        console.log(responseData);
-                        if (responseData == 1) {
-                            $(button).html('<i class="fa fa-check" aria-hidden="true"></i> Transfer');
+    // Disable the dropdown and the specific button
+    $row.find(".user-dropdown").prop("disabled", true);
+    $(button).prop("disabled", true);
+
+    const formData = new FormData();
+    formData.append("operation", "transferleads");
+    formData.append("caller", caller);
+    formData.append("id", leadId);
+
+    try {
+        const response = await fetch(Config.api_url, {
+            method: "POST",
+            body: formData,
+        });
+
+        const responseData = await response.json();
+        console.log(responseData);
+
+        if (responseData === 1) {
+            $(button).html('<i class="fa fa-check" aria-hidden="true"></i> Transfer');
+        }
+    } catch (error) {
+        console.error("Error transferring lead:", error);
+    }
+}
+
+
+            async function callTL(id, option) {
+    if ($.fn.DataTable.isDataTable("#callstats")) {
+        // If DataTable is already initialized, destroy it
+        $("#callstats").DataTable().destroy();
+    }
+
+    // Show loader while fetching data
+    $(".loader").show();
+
+    try {
+        const formData = new FormData();
+        formData.append("operation", "007calls");
+        formData.append("startDate", start);
+        formData.append("endDate", end);
+        formData.append("id", id);
+        formData.append("option", option);
+
+        // Fetch data from the server
+        const response = await fetch(Config.api_url, {
+            method: "POST",
+            body: formData,
+        });
+
+        const result = await response.json();
+
+        // Initialize DataTable with the fetched data
+        const table = $("#callstats").DataTable({
+            order: [[0, "asc"]],
+            processing: false,
+            paging: true,
+            pagingType: "full_numbers",
+            serverSide: false, // No server-side processing, we're using local data
+            data: result.data, // Use the fetched data
+            columns: [
+                { data: "0" },
+                { data: "1" },
+                { data: "2" },
+                {
+                    data: null,
+                    render: (data, type, row) => {
+                        return `
+                            ${row[3]}
+                            <br>
+                            <button data-toggle="modal" data-target="#exampleModal4" data-whatever="${row[0]}" onclick="getAllStatus(${row[0]})">Status</button>
+                        `;
+                    }
+                },
+                {
+                    data: null,
+                    render: (data, type, row) => {
+                        const duration = row[5];
+                        if (!duration || duration === 0) {
+                            return "<div class='alert alert-danger' role='alert'>Audio not available </div>";
                         }
-                    },
-                    error: function () {
-                        console.error("Error fetching users.");
-                    },
-                });
-            }
-
-            function callTL(id, option) {
-                if ($.fn.DataTable.isDataTable("#callstats")) {
-                    // If DataTable is already initialized, destroy it
-                    $("#callstats").DataTable().destroy();
+                        return `<button class="load-audio-btn" data-audio-url="${row[4]}" data-duration="${duration}">Load Audio</button>`;
+                    }
+                },
+                {
+                    data: null,
+                    render: (data, type, row) => secondsToHHMMSS(row[5])
+                },
+                { data: "6" },
+                { data: "7" },
+                { data: "8" },
+                { data: "9" },
+                {
+                    data: null,
+                    render: (data, type, row) => {
+                        let dropdownHTML = '<select class="form-select user-dropdown">';
+                        responseData.forEach((user) => {
+                            dropdownHTML += `<option value="${user.Admin_ID}">${user.Name}</option>`;
+                        });
+                        dropdownHTML += "</select>";
+                        return dropdownHTML + `<br><button class="transfer-btn btn btn-info" onclick="transferLead(${row[0]}, this)">Transfer</button>`;
+                    }
                 }
+            ]
+        });
+    } catch (error) {
+        console.error("Error fetching data:", error);
+    } finally {
+        $(".loader").hide();
+    }
 
-                var table = $("#callstats").DataTable({
-                    order: [[0, "asc"]],
-                    processing: false,
-                    paging: true,
-                    pagingType: "full_numbers",
-                    serverSide: true,
-                    ajax: {
-                        url: Config.api_url,
-                        method: "POST",
-                        data: {
-                            operation: "007calls",
-                            startDate: start,
-                            endDate: end,
-                            id: id,
-                            option: option,
-                        },
-                        beforeSend: function () {
-                            $(".loader").show();
-                        },
-                        complete: function () {
-                            $(".loader").hide();
-                        },
-                    },
-                    columns: [
-                        { data: "0" },
-                        { data: "1" },
-                        { data: "2" },
-                        {
-                            data: null,
-                            render: function (data, type, row) {
-                                return (
-                                    row[3] +
-                                    '<br><button data-toggle="modal" data-target="#exampleModal4" data-whatever="' +
-                                    row[0] +
-                                    '" onclick="getAllStatus(' +
-                                    row[0] +
-                                    ')">Status</button>'
-                                );
-                            },
-                        },
-                        {
-                            data: null,
-                            render: function (data, type, row) {
-                                //console.log(row)
-                                var duration = row[5];
-                                if (!duration || duration == 0) {
-                                    // Return an error message if duration is 0 or empty
-                                    return "<div class='alert alert-danger' role='alert'>Audio not available </div>";
-                                }
+    // Event for handling the audio button click
+    $("#callstats").on("click", ".load-audio-btn", function () {
+        const audioUrl = $(this).data("audio-url");
 
-                                // Render a button to load the audio with duration as a custom attribute
-                                return '<button class="load-audio-btn" data-audio-url="' + row[4] + '" data-duration="' + duration + '">Load Audio</button>';
-                            },
-                        },
-                        {
-                            data: null,
-                            render: function (data, type, row) {
-                                return secondsToHHMMSS(row[5]);
-                            },
-                        },
-                        { data: "6" },
-                        { data: "7" },
-                        { data: "8" },
-                        { data: "9" },
-                        {
-                            data: null,
-                            render: function (data, type, row) {
-                                var dropdownHTML = '<select class=" form-select user-dropdown">';
-                                responseData.forEach(function (user) {
-                                    dropdownHTML += '<option value="' + user.Admin_ID + '">' + user.Name + "</option>";
-                                });
-                                dropdownHTML += "</select>";
-                                return dropdownHTML + '<br><button class="transfer-btn  btn btn-info" onclick="transferLead(' + row[0] + ', this)">Transfer</button>';
-                            },
-                        },
-                    ],
-                });
+        // Replace the button with the audio player
+        const audioPlayer = `<audio controls autoplay><source src="${audioUrl}" type="audio/mpeg">Your browser does not support the audio element.</audio>`;
+        $(this).parent().html(audioPlayer);
+    });
+}
 
-                $("#callstats").on("click", ".load-audio-btn", function () {
-                    var audioUrl = $(this).data("audio-url");
-
-                    // Replace the button with the audio player
-                    var audioPlayer = '<audio controls autoplay><source src="' + audioUrl + '" type="audio/mpeg">Your browser does not support the audio element.</audio>';
-                    $(this).parent().html(audioPlayer);
-                });
-            }
         </script>
     </body>
 </html>

@@ -188,6 +188,7 @@
                                     </button>
                                 </div>
                                 <div class="modal-body">
+                                    <form id="paymentForm">
                                     <div class="d-flex payment-info gap-2 flex-column align-items-center justify-content-center">
                                         <div id="Admin_ID" hidden></div>
                                         <div class="details">
@@ -256,6 +257,7 @@
                                             <div id="info-pay-btn"> </div>
                                         </div>
                                     </div>
+                                </form>
                                 </div>
 
                                 <p id="errorDetailsDate1" style="text-align: right; color: crimson"></p>
@@ -1232,6 +1234,8 @@
         }
 
         async function getPaymentInfo(id, Amount, month, year, date) {
+            //clear payment form
+            $("#paymentForm").trigger("reset");
             const slipMetaData = await getSlipMeta(id, month, year);
             $.ajax({
                 url: Config.api_url,

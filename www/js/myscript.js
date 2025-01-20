@@ -1,4 +1,3 @@
-
 async function getempStatuscount() {
     try {
         const formData = new FormData();
@@ -18,12 +17,12 @@ async function getempStatuscount() {
 
         if (responseData) {
             const data = responseData.data;
-                $("#noti5").html(data['Absconded']);
-                $("#noti2").html(data["Active"]);
-                $("#noti1").html(data["All"]);
-                $("#noti3").html(data['Fired']);
-                $("#noti4").html(data["Suspended"]);
-                $("#noti6").html(data["Resigned"]);
+            $("#noti5").html(data["Absconded"]);
+            $("#noti2").html(data["Active"]);
+            $("#noti1").html(data["All"]);
+            $("#noti3").html(data["Fired"]);
+            $("#noti4").html(data["Suspended"]);
+            $("#noti6").html(data["Resigned"]);
         } else {
             alert("Failed to get data");
         }
@@ -32,13 +31,11 @@ async function getempStatuscount() {
     }
 }
 
-
-
-function loadQA(link,type,id){
- localStorage.setItem("AI_QA_link",link);
- localStorage.setItem("AI_QA_Intrested_IN",type);
- localStorage.setItem("AI_QA_CS_ID",id);
- window.open("./QA/callquality.html",'_blank');
+function loadQA(link, type, id) {
+    localStorage.setItem("AI_QA_link", link);
+    localStorage.setItem("AI_QA_Intrested_IN", type);
+    localStorage.setItem("AI_QA_CS_ID", id);
+    window.open("./QA/callquality.html", "_blank");
 }
 
 // Function to fetch data from the API
@@ -49,30 +46,29 @@ function fetchData() {
     const yesterdayDate = new Date();
     yesterdayDate.setDate(yesterdayDate.getDate() - 1); // Subtract 1 day to get yesterday
     const yesterdayDateFormatted = formatDate(yesterdayDate); // formatted yesterday date
-    
+
     const thirtyDaysBack = new Date();
     thirtyDaysBack.setDate(thirtyDaysBack.getDate() - 30); // Subtract 30 days
     const thirtyDaysBackDate = formatDate(thirtyDaysBack); // formatted 30 days back date
-    
+
     const sixtyDaysBack = new Date();
     sixtyDaysBack.setDate(sixtyDaysBack.getDate() - 60); // Subtract 60 days
     const sixtyDaysBackDate = formatDate(sixtyDaysBack); // formatted 60 days back date
 
-
     // Fetch data for today, yesterday, 30 days back, and 60 days back
     Promise.all([
-        fetchDataForDateRange(id, todayDate,todayDate),  // Today
-        fetchDataForDateRange(id, yesterdayDateFormatted,yesterdayDateFormatted),  // Yesterday
-        fetchDataForDateRange(id, thirtyDaysBackDate, todayDate),  // 30 days back vs today
-        fetchDataForDateRange(id, sixtyDaysBackDate, thirtyDaysBackDate)  // 60 days back vs 30 days back
+        fetchDataForDateRange(id, todayDate, todayDate), // Today
+        fetchDataForDateRange(id, yesterdayDateFormatted, yesterdayDateFormatted), // Yesterday
+        fetchDataForDateRange(id, thirtyDaysBackDate, todayDate), // 30 days back vs today
+        fetchDataForDateRange(id, sixtyDaysBackDate, thirtyDaysBackDate), // 60 days back vs 30 days back
     ])
-    .then(([todayData, yesterdayData, thirtyDaysBackData, sixtyDaysBackData]) => {
-        // Compare and populate the data
-        compareAndPopulateData(todayData, yesterdayData, thirtyDaysBackData, sixtyDaysBackData);
-    })
-    .catch(error => {
-        console.error('Error fetching data:', error);
-    });
+        .then(([todayData, yesterdayData, thirtyDaysBackData, sixtyDaysBackData]) => {
+            // Compare and populate the data
+            compareAndPopulateData(todayData, yesterdayData, thirtyDaysBackData, sixtyDaysBackData);
+        })
+        .catch((error) => {
+            console.error("Error fetching data:", error);
+        });
 }
 
 // Function to fetch data for a date range (start and end date)
@@ -81,30 +77,30 @@ function fetchDataForDateRange(id, startDate, endDate) {
     const data = new URLSearchParams(); // Create URLSearchParams object to encode data
 
     // Append the parameters to the URLSearchParams object
-    data.append('operation', 'test1');
-    data.append('id', id);
-    data.append('start_date', startDate); // Pass the start date
-    data.append('end_date', endDate); // Pass the end date
+    data.append("operation", "test1");
+    data.append("id", id);
+    data.append("start_date", startDate); // Pass the start date
+    data.append("end_date", endDate); // Pass the end date
 
     // Use fetch with POST method and URL-encoded data
     return fetch(url, {
-        method: 'POST',
+        method: "POST",
         headers: {
-            'Content-Type': 'application/x-www-form-urlencoded'
+            "Content-Type": "application/x-www-form-urlencoded",
         },
-        body: data.toString()
+        body: data.toString(),
     })
-    .then(response => response.json())
-    .then(result => {
-        console.log(result);
-        return filterAndCalculateData(result.data, result.breakTime,result.leadCount,result.totalPending);
-    });
+        .then((response) => response.json())
+        .then((result) => {
+            console.log(result);
+            return filterAndCalculateData(result.data, result.breakTime, result.leadCount, result.totalPending);
+        });
 }
 
 // Function to filter and calculate the data
-function filterAndCalculateData(rawData, breakTime,leadCount,totalPending) {
+function filterAndCalculateData(rawData, breakTime, leadCount, totalPending) {
     // Initialize variables for calculations
-    const currentDate = new Date().toISOString().split('T')[0];
+    const currentDate = new Date().toISOString().split("T")[0];
 
     let countNotConnected = 0;
     let countConnected = 0;
@@ -114,9 +110,9 @@ function filterAndCalculateData(rawData, breakTime,leadCount,totalPending) {
     let monster = 0;
     let totalCallDuration = 0;
 
-    rawData.forEach(call => {
+    rawData.forEach((call) => {
         // Count Connected / Not Connected
-        if (['Switched Off', 'Not Received', 'Out Of Service', 'Incoming Off', 'Call Busy'].includes(call.Call_Status)) {
+        if (["Switched Off", "Not Received", "Out Of Service", "Incoming Off", "Call Busy"].includes(call.Call_Status)) {
             countNotConnected++;
         } else {
             countConnected++;
@@ -134,25 +130,20 @@ function filterAndCalculateData(rawData, breakTime,leadCount,totalPending) {
         totalCallDuration += parseInt(call.Duration_Of_Call);
 
         // Count demo done (check both Summary_Note and Call_Status)
-        if (
-            (call.Summary_Note && call.Summary_Note.toLowerCase().includes('demo done')) ||
-            call.Call_Status === 'Demo Done'
-        ) {
+        if ((call.Summary_Note && call.Summary_Note.toLowerCase().includes("demo done")) || call.Call_Status === "Demo Done") {
             demoCount++;
         }
 
-        if (call.Next_Call_Date == '2020-01-01') {
+        if (call.Next_Call_Date == "2020-01-01") {
             monster++;
         }
-
-        
     });
 
     // Convert total call duration to HH:MM:SS format
     //const durationDisplay = new Date(totalCallDuration * 1000).toISOString().substr(11, 8);
-    const leadToDemo = (!leadCount || !demoCount) ? 0 : Math.round(leadCount / demoCount);
+    const leadToDemo = !leadCount || !demoCount ? 0 : Math.round(leadCount / demoCount);
 
-     console.log(leadToDemo);
+    console.log(leadToDemo);
     return {
         breakTime,
         leadCount,
@@ -164,12 +155,12 @@ function filterAndCalculateData(rawData, breakTime,leadCount,totalPending) {
         demoCount,
         monster,
         notrecoded,
-        totalPending
+        totalPending,
     };
 }
 function compareAndPopulateData(todayData, yesterdayData, thirtyDaysBackData, sixtyDaysBackData) {
     // Helper function to update HTML content (customizable)
-    
+
     function updateHtml(id, label, value, arrow, diffText) {
         // Customize this logic to control how content is displayed
         $(id).html(`${label}: ${value} ${arrow} ${diffText}`);
@@ -179,164 +170,153 @@ function compareAndPopulateData(todayData, yesterdayData, thirtyDaysBackData, si
     function secondsToTime(seconds) {
         const isNegative = seconds < 0;
         seconds = Math.abs(seconds);
-    
+
         const hours = Math.floor(seconds / 3600);
         const minutes = Math.floor((seconds % 3600) / 60);
         const sec = seconds % 60;
-    
-        const timeStr = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${sec.toString().padStart(2, '0')}`;
-    
+
+        const timeStr = `${hours.toString().padStart(2, "0")}:${minutes.toString().padStart(2, "0")}:${sec.toString().padStart(2, "0")}`;
+
         return isNegative ? `-${timeStr}` : timeStr;
     }
-    
 
     // Compare and append the result for Today
     const elements = [
-        { id: '#tot-dial .today', todayValue: todayData.callToday, yesterdayValue: yesterdayData.callToday },
-        { id: '#totalLeads .today', todayValue: todayData.leadCount, yesterdayValue: yesterdayData.leadCount },
-        { id: '#demoRatio .today', todayValue: todayData.leadToDemo, yesterdayValue: yesterdayData.leadToDemo },
-        { id: '#tot-concted .today', todayValue: todayData.countConnected, yesterdayValue: yesterdayData.countConnected },
-        { id: '#tot-not-concted .today', todayValue: todayData.countNotConnected, yesterdayValue: yesterdayData.countNotConnected , reverseColor: true},
-        { id: '#call-durt .today', todayValue: todayData.totalCallDuration, yesterdayValue: yesterdayData.totalCallDuration, isTime: true },
-        { id: '#demo .today', todayValue: todayData.demoCount, yesterdayValue: yesterdayData.demoCount },
-        { id: '#follow .today', todayValue: todayData.totalPending, yesterdayValue: yesterdayData.totalPending , reverseColor: true },
-        { id: '#monster .today', todayValue: todayData.monster, yesterdayValue: yesterdayData.monster , reverseColor: true },
-        { id: '#nrced .today', todayValue: todayData.notrecoded, yesterdayValue: yesterdayData.notrecoded , reverseColor: true },
-        { id: '#brk-time .today', todayValue: todayData.breakTime, yesterdayValue: yesterdayData.breakTime, isTime: true, reverseColor: true },
+        { id: "#tot-dial .today", todayValue: todayData.callToday, yesterdayValue: yesterdayData.callToday },
+        { id: "#totalLeads .today", todayValue: todayData.leadCount, yesterdayValue: yesterdayData.leadCount },
+        { id: "#demoRatio .today", todayValue: todayData.leadToDemo, yesterdayValue: yesterdayData.leadToDemo },
+        { id: "#tot-concted .today", todayValue: todayData.countConnected, yesterdayValue: yesterdayData.countConnected },
+        { id: "#tot-not-concted .today", todayValue: todayData.countNotConnected, yesterdayValue: yesterdayData.countNotConnected, reverseColor: true },
+        { id: "#call-durt .today", todayValue: todayData.totalCallDuration, yesterdayValue: yesterdayData.totalCallDuration, isTime: true },
+        { id: "#demo .today", todayValue: todayData.demoCount, yesterdayValue: yesterdayData.demoCount },
+        { id: "#follow .today", todayValue: todayData.totalPending, yesterdayValue: yesterdayData.totalPending, reverseColor: true },
+        { id: "#monster .today", todayValue: todayData.monster, yesterdayValue: yesterdayData.monster, reverseColor: true },
+        { id: "#nrced .today", todayValue: todayData.notrecoded, yesterdayValue: yesterdayData.notrecoded, reverseColor: true },
+        { id: "#brk-time .today", todayValue: todayData.breakTime, yesterdayValue: yesterdayData.breakTime, isTime: true, reverseColor: true },
     ];
 
-    elements.forEach(item => {
+    elements.forEach((item) => {
         const todayValue = item.isTime ? secondsToTime(item.todayValue) : item.todayValue;
         const yesterdayValue = item.isTime ? secondsToTime(item.yesterdayValue) : item.yesterdayValue;
-    
+
         const diffTodayYesterday = item.todayValue - item.yesterdayValue;
-    
+
         const isReverse = item.reverseColor || false; // Default to false if not set
-    
-        let arrowTodayYesterday = '';
-        let diffTextTodayYesterday = '';
-    
+
+        let arrowTodayYesterday = "";
+        let diffTextTodayYesterday = "";
+
         if (diffTodayYesterday > 0) {
-            arrowTodayYesterday = `<i class="fa fa-arrow-up text-${isReverse ? 'danger' : 'success'}"></i>`;
+            arrowTodayYesterday = `<i class="fa fa-arrow-up text-${isReverse ? "danger" : "success"}"></i>`;
             diffTextTodayYesterday = `(+${item.isTime ? secondsToTime(diffTodayYesterday) : diffTodayYesterday})`;
         } else if (diffTodayYesterday < 0) {
-            arrowTodayYesterday = `<i class="fa fa-arrow-down text-${isReverse ? 'success' : 'danger'}"></i>`;
+            arrowTodayYesterday = `<i class="fa fa-arrow-down text-${isReverse ? "success" : "danger"}"></i>`;
             diffTextTodayYesterday = `(${item.isTime ? secondsToTime(diffTodayYesterday) : diffTodayYesterday})`;
         } else {
             diffTextTodayYesterday = '<i class="fa fa-circle text-muted"></i>';
         }
-    
-        updateHtml(item.id, 'Today', todayValue, arrowTodayYesterday, diffTextTodayYesterday);
+
+        updateHtml(item.id, "Today", todayValue, arrowTodayYesterday, diffTextTodayYesterday);
     });
-    
-    
 
     // Compare and append the result for 30 Days
     const elements30Days = [
-        { id: '#tot-dial .month', thirtyValue: thirtyDaysBackData.callToday, sixtyValue: sixtyDaysBackData.callToday },
-        { id: '#totalLeads .month', thirtyValue: thirtyDaysBackData.leadCount, sixtyValue: sixtyDaysBackData.leadCount },
-        { id: '#demoRatio .month', thirtyValue: thirtyDaysBackData.leadToDemo, sixtyValue: sixtyDaysBackData.leadToDemo },
-        { id: '#tot-concted .month', thirtyValue: thirtyDaysBackData.countConnected, sixtyValue: sixtyDaysBackData.countConnected },
-        { id: '#tot-not-concted .month', thirtyValue: thirtyDaysBackData.countNotConnected, sixtyValue: sixtyDaysBackData.countNotConnected , reverseColor: true},
-        { id: '#call-durt .month', thirtyValue: thirtyDaysBackData.totalCallDuration, sixtyValue: sixtyDaysBackData.totalCallDuration, isTime: true },
-        { id: '#demo .month', thirtyValue: thirtyDaysBackData.demoCount, sixtyValue: sixtyDaysBackData.demoCount },
-        { id: '#follow .month', thirtyValue: thirtyDaysBackData.totalPending, sixtyValue: sixtyDaysBackData.totalPending , reverseColor: true},
-        { id: '#monster .month', thirtyValue: thirtyDaysBackData.monster, sixtyValue: sixtyDaysBackData.monster , reverseColor: true},
-        { id: '#nrced .month', thirtyValue: thirtyDaysBackData.notrecoded, sixtyValue: sixtyDaysBackData.notrecoded , reverseColor: true},
-        { id: '#brk-time .month', thirtyValue: thirtyDaysBackData.breakTime, sixtyValue: sixtyDaysBackData.breakTime, isTime: true , reverseColor: true},
+        { id: "#tot-dial .month", thirtyValue: thirtyDaysBackData.callToday, sixtyValue: sixtyDaysBackData.callToday },
+        { id: "#totalLeads .month", thirtyValue: thirtyDaysBackData.leadCount, sixtyValue: sixtyDaysBackData.leadCount },
+        { id: "#demoRatio .month", thirtyValue: thirtyDaysBackData.leadToDemo, sixtyValue: sixtyDaysBackData.leadToDemo },
+        { id: "#tot-concted .month", thirtyValue: thirtyDaysBackData.countConnected, sixtyValue: sixtyDaysBackData.countConnected },
+        { id: "#tot-not-concted .month", thirtyValue: thirtyDaysBackData.countNotConnected, sixtyValue: sixtyDaysBackData.countNotConnected, reverseColor: true },
+        { id: "#call-durt .month", thirtyValue: thirtyDaysBackData.totalCallDuration, sixtyValue: sixtyDaysBackData.totalCallDuration, isTime: true },
+        { id: "#demo .month", thirtyValue: thirtyDaysBackData.demoCount, sixtyValue: sixtyDaysBackData.demoCount },
+        { id: "#follow .month", thirtyValue: thirtyDaysBackData.totalPending, sixtyValue: sixtyDaysBackData.totalPending, reverseColor: true },
+        { id: "#monster .month", thirtyValue: thirtyDaysBackData.monster, sixtyValue: sixtyDaysBackData.monster, reverseColor: true },
+        { id: "#nrced .month", thirtyValue: thirtyDaysBackData.notrecoded, sixtyValue: sixtyDaysBackData.notrecoded, reverseColor: true },
+        { id: "#brk-time .month", thirtyValue: thirtyDaysBackData.breakTime, sixtyValue: sixtyDaysBackData.breakTime, isTime: true, reverseColor: true },
     ];
 
-    elements30Days.forEach(item => {
+    elements30Days.forEach((item) => {
         const thirtyValue = item.isTime ? secondsToTime(item.thirtyValue) : item.thirtyValue;
         const sixtyValue = item.isTime ? secondsToTime(item.sixtyValue) : item.sixtyValue;
-    
+
         const diff30vs30 = item.thirtyValue - item.sixtyValue;
-    
+
         const isReverse = item.reverseColor || false; // Default to false if not set
-    
-        let arrow30vs30 = '';
-        let diffText30vs30 = '';
-    
+
+        let arrow30vs30 = "";
+        let diffText30vs30 = "";
+
         if (diff30vs30 > 0) {
-            arrow30vs30 = `<i class="fa fa-arrow-up text-${isReverse ? 'danger' : 'success'}"></i>`;
+            arrow30vs30 = `<i class="fa fa-arrow-up text-${isReverse ? "danger" : "success"}"></i>`;
             diffText30vs30 = `(+${item.isTime ? secondsToTime(diff30vs30) : diff30vs30})`;
         } else if (diff30vs30 < 0) {
-            arrow30vs30 = `<i class="fa fa-arrow-down text-${isReverse ? 'success' : 'danger'}"></i>`;
+            arrow30vs30 = `<i class="fa fa-arrow-down text-${isReverse ? "success" : "danger"}"></i>`;
             diffText30vs30 = `(${item.isTime ? secondsToTime(diff30vs30) : diff30vs30})`;
         } else {
             diffText30vs30 = '<i class="fa fa-circle text-muted"></i>';
         }
-    
-        updateHtml(item.id, '30 Days', thirtyValue, arrow30vs30, diffText30vs30);
+
+        updateHtml(item.id, "30 Days", thirtyValue, arrow30vs30, diffText30vs30);
     });
-    
-    
 }
 
-
-
-function changeModalName(name){
-
-    if(name == "Add"){
-    $("#admin_id").val("");
-    $("#adminEMP_id").val("");
-    $("#admin_name").val("");
-    $("#joined_date").val("");
-    $("#reporting_time").val("");
-    $("#attendence_status").val("");
-    $("#basic_salary").val("");
-    $("#allowed_week_off").val("");
-    $("#due_week_off").val("");
-    $("#allowed_late").val("");
-    $("#due_late").val("");
-    $("#relieving_date").val("");
-    $("#number_of_nodes").val("");
-    $("#nodes_incentive").val("");
-    $("#number_of_demos").val("");
-    $("#demos_incentive").val("");
-    $("#user_phone_number").val("");
-    $("#user_email").val("");
-    $("#address_present").val("");
-    $("#address_permanent").val("");
-    $("#alt_contact_person_1").val("");
-    $("#alt_number_1").val("");
-    $("#alt_contact_person_2").val("");
-    $("#alt_number_2").val("");
-    $("#alt_contact_person_3").val("");
-    $("#alt_number_3").val("");
-    $("#fileurl").val("");
-    $("#user_ac").val("");
-    $("#user_ifsc").val("");
-    $("#user_upi").val("");
-    clearFileInput();
-    $("#lt-select option").prop("selected", false);
-    $("#lt-select").selectpicker("refresh");
-
+function changeModalName(name) {
+    if (name == "Add") {
+        $("#admin_id").val("");
+        $("#adminEMP_id").val("");
+        $("#admin_name").val("");
+        $("#joined_date").val("");
+        $("#reporting_time").val("");
+        $("#attendence_status").val("");
+        $("#basic_salary").val("");
+        $("#allowed_week_off").val("");
+        $("#due_week_off").val("");
+        $("#allowed_late").val("");
+        $("#due_late").val("");
+        $("#relieving_date").val("");
+        $("#number_of_nodes").val("");
+        $("#nodes_incentive").val("");
+        $("#number_of_demos").val("");
+        $("#demos_incentive").val("");
+        $("#user_phone_number").val("");
+        $("#user_email").val("");
+        $("#address_present").val("");
+        $("#address_permanent").val("");
+        $("#alt_contact_person_1").val("");
+        $("#alt_number_1").val("");
+        $("#alt_contact_person_2").val("");
+        $("#alt_number_2").val("");
+        $("#alt_contact_person_3").val("");
+        $("#alt_number_3").val("");
+        $("#fileurl").val("");
+        $("#user_ac").val("");
+        $("#user_ifsc").val("");
+        $("#user_upi").val("");
+        clearFileInput();
+        $("#lt-select option").prop("selected", false);
+        $("#lt-select").selectpicker("refresh");
 
         document.getElementById("reuableModalLabel").innerHTML = "Add Employee";
         document.getElementById("resuableModalFooter").innerHTML = ` <button type="button" class="btn btn-secondary close" data-dismiss="modal">Close</button>
                                 <button type="button" class="btn btn-primary" onclick="addAdminmeta()">Add</button>`;
-    }else{
-    document.getElementById("reuableModalLabel").innerHTML = "Update Employee";
-    document.getElementById("resuableModalFooter").innerHTML = ` <button type="button" class="btn btn-secondary close" data-dismiss="modal">Close</button>
+    } else {
+        document.getElementById("reuableModalLabel").innerHTML = "Update Employee";
+        document.getElementById("resuableModalFooter").innerHTML = ` <button type="button" class="btn btn-secondary close" data-dismiss="modal">Close</button>
                                                           <button type="button" class="btn btn-primary" onclick="uploadImage()">Update</button>`;
     }
 }
 async function checkinactivenumbers(id) {
     // Reset input fields
-    
 
     // Prepare the data for the request
     const data = new URLSearchParams();
-    data.append('operation', 'checkinactivenumbers');
-    data.append('id', id);
-    
+    data.append("operation", "checkinactivenumbers");
+    data.append("id", id);
 
     try {
         // Use fetch API with await
         const response = await fetch(Config.api_url, {
-            method: 'POST',
-            body: data
+            method: "POST",
+            body: data,
         });
 
         // Check if the response is ok (status 200-299)
@@ -346,13 +326,11 @@ async function checkinactivenumbers(id) {
 
         // Parse the JSON response
         const responseData = await response.json();
-        
-        populateAdminSelect(responseData)
-    
+
+        populateAdminSelect(responseData);
     } catch (error) {
         // Handle errors using displayerror function
-         displayerror(error);
-        
+        displayerror(error);
     }
 }
 function populateAdminSelect(response) {
@@ -361,7 +339,7 @@ function populateAdminSelect(response) {
     console.log(response);
     // Check if the response is successful
     if (response.success === "true") {
-        response.admins.forEach(admin => {
+        response.admins.forEach((admin) => {
             const option = document.createElement("option");
             option.value = admin.Admin_ID;
             option.textContent = `${admin.Name} (${admin.Mobile}) ${admin.Type}`;
@@ -374,11 +352,9 @@ function populateAdminSelect(response) {
             selectBox.appendChild(option);
         });
 
-         // Add the selectedAdmin as an additional option (if not already in the list)
-         response.selectedAdmin.forEach(selectedAdmin => {
-            const exists = Array.from(selectBox.options).some(
-                option => option.value === selectedAdmin.Admin_ID
-            );
+        // Add the selectedAdmin as an additional option (if not already in the list)
+        response.selectedAdmin.forEach((selectedAdmin) => {
+            const exists = Array.from(selectBox.options).some((option) => option.value === selectedAdmin.Admin_ID);
             if (!exists) {
                 const option = document.createElement("option");
                 option.value = selectedAdmin.Admin_ID;
@@ -388,9 +364,9 @@ function populateAdminSelect(response) {
             }
         });
 
-        selectBox.addEventListener("change", function() {
+        selectBox.addEventListener("change", function () {
             const selectedId = this.value;
-            getAdminDetails(selectedId);  // Call getAdminDetails with the selected Admin_ID
+            getAdminDetails(selectedId); // Call getAdminDetails with the selected Admin_ID
             console.log("Changed");
             $("#selectBoxStatus").val(1);
         });
@@ -400,7 +376,7 @@ function populateAdminSelect(response) {
 }
 async function getAdminMeta(id, emp_id) {
     $("#selectBoxStatus").val(0);
-    $('#metaform')[0].reset();
+    $("#metaform")[0].reset();
     clearFileInput();
     $("#lt-select option").prop("selected", false);
     $("#lt-select").selectpicker("refresh");
@@ -419,8 +395,6 @@ async function getAdminMeta(id, emp_id) {
         if (!response.ok) {
             throw new Error(data.message || "Error fetching data");
         }
-
-        
 
         if (data.success) {
             $("#adminEMP_id").val(emp_id);
@@ -466,15 +440,14 @@ async function getAdminMeta(id, emp_id) {
 
             $("#lt-select").selectpicker("refresh");
 
-            
             generateImagePreviews(data.meta.fileurl);
         } else {
             $("#admin_id").val(id);
             $("#admin_name").val(name);
         }
     } catch (error) {
-       displayerror(error);
-       // alert(msg);
+        displayerror(error);
+        // alert(msg);
     }
 
     function generateImagePreviews(Urls) {
@@ -483,13 +456,13 @@ async function getAdminMeta(id, emp_id) {
         const imagePreviewContainer = document.getElementById("image-preview-container");
         const imageInput = document.getElementById("fileurl"); // Assuming this is your input box
         console.log(fileUrls);
-    
+
         // Clear the preview container
         imagePreviewContainer.innerHTML = "";
-    
+
         // Filter out any empty URLs and trim them
-        const validFileUrls = fileUrls.filter(url => url.trim() !== "");
-    
+        const validFileUrls = fileUrls.filter((url) => url.trim() !== "");
+
         if (validFileUrls.length === 0) {
             // If no valid URLs are found, display "No images found"
             const noImagesFoundMessage = document.createElement("p");
@@ -499,19 +472,19 @@ async function getAdminMeta(id, emp_id) {
             imagePreviewContainer.appendChild(noImagesFoundMessage);
         } else {
             // Otherwise, generate previews for each valid URL
-            validFileUrls.forEach(url => {
+            validFileUrls.forEach((url) => {
                 const imagePreviewWrapper = document.createElement("div");
                 imagePreviewWrapper.style.position = "relative";
                 imagePreviewWrapper.style.display = "inline-block";
                 imagePreviewWrapper.style.marginRight = "5px";
-    
+
                 // Create a new img element for each image preview
                 const imagePreview = document.createElement("img");
                 imagePreview.src = url.trim(); // Use the URL from fileUrls
                 imagePreview.style.maxWidth = "200px"; // Set a max width for the preview
                 imagePreview.style.marginTop = "5px";
                 imagePreview.classList.add("image-preview");
-    
+
                 // Create a remove button for each image preview
                 const removeBtn = document.createElement("button");
                 removeBtn.type = "button";
@@ -523,37 +496,36 @@ async function getAdminMeta(id, emp_id) {
                 removeBtn.style.color = "white";
                 removeBtn.style.border = "none";
                 removeBtn.style.cursor = "pointer";
-    
+
                 // Remove button click handler
                 removeBtn.onclick = function () {
                     imagePreviewWrapper.remove(); // Remove the image and button
-    
+
                     // Update the input box by removing the corresponding URL
-                    const currentUrls = imageInput.value.split(";").map(url => url.trim());
-                    const updatedUrls = currentUrls.filter(currentUrl => currentUrl !== url.trim());
+                    const currentUrls = imageInput.value.split(";").map((url) => url.trim());
+                    const updatedUrls = currentUrls.filter((currentUrl) => currentUrl !== url.trim());
                     imageInput.value = updatedUrls.join(";");
-    
+
                     checkAndToggleButtons(); // Update button visibility
                 };
-    
+
                 // Append the image preview and the remove button to the wrapper
                 imagePreviewWrapper.appendChild(imagePreview);
                 imagePreviewWrapper.appendChild(removeBtn);
-    
+
                 // Append the wrapper to the preview container
                 imagePreviewContainer.appendChild(imagePreviewWrapper);
             });
         }
-    
+
         checkAndToggleButtons(); // Update button visibility based on the current state
     }
-    
 }
 
 async function allCaller() {
     // Create the table structure
     $(".loader").show();
-    const content =`
+    const content = `
         <h1>All Members</h1>
         
         <div class='container' style='overflow-x:scroll;'>
@@ -596,19 +568,19 @@ async function allCaller() {
             $("#table2").DataTable().destroy();
         }
         await getempStatuscount();
-        
+
         try {
             const response = await fetch(Config.api_url, {
                 method: "POST",
                 body: new URLSearchParams({
                     operation: "005",
-                    option: option // Pass the dynamic option value
+                    option: option, // Pass the dynamic option value
                 }),
             });
             const data = await response.json();
 
             if (!response.ok) {
-                throw new Error(data.message || 'Error fetching data');
+                throw new Error(data.message || "Error fetching data");
             }
             $(".loader").hide();
             $("#table2").DataTable({
@@ -666,8 +638,7 @@ async function allCaller() {
         } catch (error) {
             // Handle errors using displayerror function
             $(".loader").hide();
-             displayerror(error);
-            
+            displayerror(error);
         }
     }
 
@@ -697,14 +668,14 @@ async function getAdminDetails(id) {
 
     // Prepare the data for the request
     const data = new URLSearchParams();
-    data.append('operation', 'getAdminDetails');
-    data.append('id', id);
+    data.append("operation", "getAdminDetails");
+    data.append("id", id);
 
     try {
         // Use fetch API with await
         const response = await fetch(Config.api_url, {
-            method: 'POST',
-            body: data
+            method: "POST",
+            body: data,
         });
 
         // Check if the response is ok (status 200-299)
@@ -725,8 +696,7 @@ async function getAdminDetails(id) {
         }
     } catch (error) {
         // Handle errors using displayerror function
-         displayerror(error);
-        
+        displayerror(error);
     }
 }
 
@@ -760,7 +730,7 @@ async function getTHStats() {
         });
 
         if (!response.ok) {
-            throw new Error('Error fetching data');
+            throw new Error("Error fetching data");
         }
 
         const data = await response.json();
@@ -792,8 +762,6 @@ function formatDate(date) {
 }
 
 async function getSupportStats() {
-    
-
     const currentDate = new Date();
     const startDate = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
     const endDate = currentDate;
@@ -817,7 +785,7 @@ async function getSupportStats() {
         });
 
         if (!response.ok) {
-            throw new Error('Error fetching data');
+            throw new Error("Error fetching data");
         }
 
         const data = await response.json();
@@ -842,7 +810,7 @@ async function getSupport() {
         });
 
         if (!response.ok) {
-            throw new Error('Error fetching data');
+            throw new Error("Error fetching data");
         }
 
         const data = await response.json();
@@ -1101,15 +1069,15 @@ async function handleFileSelecthr(event) {
 
     // Add newly selected files to the existing array, avoiding duplicates
     const newFiles = Array.from(event.target.files);
-    newFiles.forEach(file => {
-        if (!selectedFiles.some(existingFile => existingFile.name === file.name)) {
+    newFiles.forEach((file) => {
+        if (!selectedFiles.some((existingFile) => existingFile.name === file.name)) {
             selectedFiles.push(file);
         }
     });
 
     let validFiles = true;
 
-    newFiles.forEach(file => {
+    newFiles.forEach((file) => {
         if (acceptedImageTypes.includes(file.type)) {
             // Show a preview of each new image
             const reader = new FileReader();
@@ -1141,15 +1109,15 @@ async function handleFileSelecthr(event) {
                 removeBtn.style.cursor = "pointer";
                 removeBtn.onclick = function () {
                     imagePreviewWrapper.remove(); // Remove the image and button
-    
+
                     // Remove the file from selectedFiles
-                    selectedFiles = selectedFiles.filter(existingFile => existingFile.name !== file.name);
+                    selectedFiles = selectedFiles.filter((existingFile) => existingFile.name !== file.name);
 
                     // Update the input box by removing the corresponding URL
-                    const currentUrls = imageInput.value.split(";").map(url => url.trim());
-                    const updatedUrls = currentUrls.filter(currentUrl => currentUrl !== url.trim());
+                    const currentUrls = imageInput.value.split(";").map((url) => url.trim());
+                    const updatedUrls = currentUrls.filter((currentUrl) => currentUrl !== url.trim());
                     imageInput.value = updatedUrls.join(";");
-    
+
                     checkAndToggleButtons(); // Update button visibility
                 };
 
@@ -1193,10 +1161,8 @@ function updateFileUrl(imageUrlsString) {
     fileUrlInput.value = existingUrls + imageUrlsString;
 }
 
-
 async function uploadImage() {
-    if (selectedFiles.length === 0)
-    {
+    if (selectedFiles.length === 0) {
         updateAdminmeta();
         return;
     }
@@ -1231,14 +1197,12 @@ async function uploadImage() {
         $(".loader").hide(); // Hide loader after the response
 
         if (responseData.success === true) {
-         
             // Join the image URLs into a string with a pipe separator
-            const imageUrlsString = responseData.imageUrls.join(';'); // Joining URLs by pipe (`|`)
+            const imageUrlsString = responseData.imageUrls.join(";"); // Joining URLs by pipe (`|`)
 
             updateFileUrl(imageUrlsString);
 
             updateAdminmeta();
-
         } else {
             // Handle error in response from the server
             console.error("Upload error:", responseData.error);
@@ -1252,7 +1216,6 @@ async function uploadImage() {
         displayerror(`An error occurred: ${error.message}`);
     }
 }
-
 
 async function handleFileSelect(event) {
     const file = event.target.files[0];
@@ -1304,8 +1267,6 @@ async function handleFileSelect(event) {
         $(this).val(""); // Reset the file input
     }
 }
-
-
 
 // async function callerDataToday() {
 //     const id = localStorage.getItem("userID");
@@ -1417,14 +1378,13 @@ async function addMember() {
         }
 
         const result = await response.text(); // Assuming response is plain text ("1" on success)
-        
+
         if (result === "1") {
             alert("Data Inserted successfully");
             $(".close").click();
         } else {
             displayerror("Failed to add members. Please try again.");
         }
-
     } catch (error) {
         console.error("Error adding members:", error);
         displayerror(`An error occurred: ${error.message}`);
@@ -1463,20 +1423,19 @@ async function getMembers() {
         // Populate TL options
         const tlSelect = document.getElementById("tl-select"); // Cache the element reference
         const fragment = document.createDocumentFragment(); // Use a document fragment for batch DOM updates
-        
+
         data.TL.forEach((option) => {
             const opt = document.createElement("option");
             opt.value = option.Admin_ID;
             opt.textContent = `${option.Name} - ${option.Type}`;
             fragment.appendChild(opt);
         });
-        
+
         tlSelect.appendChild(fragment); // Append all options at once
 
         // Refresh select picker
         $("#mb-select").selectpicker("refresh");
         $("#tl-select").selectpicker("refresh");
-
     } catch (error) {
         console.error("Error fetching team members:", error);
         displayerror(`An error occurred: ${error.message}`);
@@ -1532,7 +1491,6 @@ async function showTeam() {
                 },
             ],
         });
-
     } catch (error) {
         console.error("Error fetching team data:", error);
         displayerror(`An error occurred: ${error.message}`);
@@ -1608,7 +1566,6 @@ async function getTrancations(type) {
 
         // Initialize DataTable
         $("#tabletransPayment").DataTable({ stateSave: true });
-
     } catch (error) {
         console.error("Error fetching transactions:", error);
         displayerror(`An error occurred: ${error.message}`);
@@ -1686,10 +1643,14 @@ async function getcacAll(type) {
                         data: null,
                         render: (data, type, row) => {
                             switch (row["EXP_For"]) {
-                                case "1": return "Academy";
-                                case "2": return "Agency";
-                                case "3": return "My Galla";
-                                default: return row["EXP_For"] || "";
+                                case "1":
+                                    return "Academy";
+                                case "2":
+                                    return "Agency";
+                                case "3":
+                                    return "My Galla";
+                                default:
+                                    return row["EXP_For"] || "";
                             }
                         },
                     },
@@ -1697,11 +1658,16 @@ async function getcacAll(type) {
                         data: null,
                         render: (data, type, row) => {
                             switch (row["Expense_Purpose"]) {
-                                case "1": return "Marketing";
-                                case "2": return "Salary";
-                                case "3": return "Rent";
-                                case "4": return "Other";
-                                default: return row["Expense_Purpose"] || "";
+                                case "1":
+                                    return "Marketing";
+                                case "2":
+                                    return "Salary";
+                                case "3":
+                                    return "Rent";
+                                case "4":
+                                    return "Other";
+                                default:
+                                    return row["Expense_Purpose"] || "";
                             }
                         },
                     },
@@ -1709,14 +1675,22 @@ async function getcacAll(type) {
                         data: null,
                         render: (data, type, row) => {
                             switch (row["From_Account"]) {
-                                case "1": return "GreenTech India";
-                                case "2": return "Axis (Vikash)";
-                                case "3": return "Kotak (Vikash)";
-                                case "4": return "Other";
-                                case "5": return "Cash";
-                                case "6": return "My Galla HDFC";
-                                case "7": return "Kalam Foundation Axis Bank";
-                                default: return row["From_Account"] || "";
+                                case "1":
+                                    return "GreenTech India";
+                                case "2":
+                                    return "Axis (Vikash)";
+                                case "3":
+                                    return "Kotak (Vikash)";
+                                case "4":
+                                    return "Other";
+                                case "5":
+                                    return "Cash";
+                                case "6":
+                                    return "My Galla HDFC";
+                                case "7":
+                                    return "Kalam Foundation Axis Bank";
+                                default:
+                                    return row["From_Account"] || "";
                             }
                         },
                     },
@@ -1744,7 +1718,6 @@ async function getcacAll(type) {
     }
 }
 
-
 async function getcpls(type) {
     const start = document.getElementById("reportStartDate").value;
     const end = document.getElementById("reportEndDate").value;
@@ -1752,28 +1725,28 @@ async function getcpls(type) {
     // Show the loader
     $(".loader").show();
 
-     // Mappings specific to this function
-     const expenseForMapping = {
-        "1": "Academy",
-        "2": "Agency",
-        "3": "My Galla"
+    // Mappings specific to this function
+    const expenseForMapping = {
+        1: "Academy",
+        2: "Agency",
+        3: "My Galla",
     };
 
     const expensePurposeMapping = {
-        "1": "Marketing",
-        "2": "Salary",
-        "3": "Rent",
-        "4": "Other"
+        1: "Marketing",
+        2: "Salary",
+        3: "Rent",
+        4: "Other",
     };
 
     const fromAccountMapping = {
-        "1": "GreenTech India",
-        "2": "Axis (Vikash)",
-        "3": "Kotak (Vikash)",
-        "4": "Other",
-        "5": "Cash",
-        "6": "My Galla HDFC",
-        "7": "Kalam Foundation Axis Bank"
+        1: "GreenTech India",
+        2: "Axis (Vikash)",
+        3: "Kotak (Vikash)",
+        4: "Other",
+        5: "Cash",
+        6: "My Galla HDFC",
+        7: "Kalam Foundation Axis Bank",
     };
 
     const renderExpenseType = (value, mapping) => mapping[value] || value || "";
@@ -1873,42 +1846,41 @@ async function getcpls(type) {
 }
 
 async function fetchAllReports(start, end) {
-        loader.show();
+    loader.show();
 
-        const endpoints = [
-            { operation: "expenseReport", start, end },
-            { operation: "expenseReport-2", start, end },
-            { operation: "expenseReport-3", start, end },
-            { operation: "expenseReport-4", start, end },
-        ];
+    const endpoints = [
+        { operation: "expenseReport", start, end },
+        { operation: "expenseReport-2", start, end },
+        { operation: "expenseReport-3", start, end },
+        { operation: "expenseReport-4", start, end },
+    ];
 
-        try {
-            const promises = endpoints.map((endpoint) =>
-                fetch(Config.api_url, {
-                    method: "POST",
-                    headers: { "Content-Type": "application/x-www-form-urlencoded" },
-                    body: new URLSearchParams(endpoint),
-                }).then((res) => {
-                    if (!res.ok) {
-                        throw new Error(`Failed to fetch ${endpoint.operation}: ${res.statusText}`);
-                    }
-                    return res.json();
-                })
-            );
+    try {
+        const promises = endpoints.map((endpoint) =>
+            fetch(Config.api_url, {
+                method: "POST",
+                headers: { "Content-Type": "application/x-www-form-urlencoded" },
+                body: new URLSearchParams(endpoint),
+            }).then((res) => {
+                if (!res.ok) {
+                    throw new Error(`Failed to fetch ${endpoint.operation}: ${res.statusText}`);
+                }
+                return res.json();
+            })
+        );
 
-            return await Promise.all(promises);
-        } catch (error) {
-            console.error(`Error fetching reports for range ${start} - ${end}:`, error);
-            displayError(error); // Assuming a `displayError` function exists
-            throw error; // Rethrow to propagate error handling
-        } finally {
-            loader.hide();
-        }
+        return await Promise.all(promises);
+    } catch (error) {
+        console.error(`Error fetching reports for range ${start} - ${end}:`, error);
+        displayError(error); // Assuming a `displayError` function exists
+        throw error; // Rethrow to propagate error handling
+    } finally {
+        loader.hide();
     }
+}
 
 async function fetchExpenseReportcomb(start1, end1, start2, end2) {
     const loader = $(".loader");
-
 
     try {
         // Fetch data for the first date range
@@ -1943,55 +1915,57 @@ function addMissedCall() {
     console.log("Trying to add missed calls");
     const id = localStorage.getItem("userID");
 
-    document.addEventListener(
-        "deviceready",
-        async function () {
-            const days = 1; // Fetch logs from the last day
+    if (id) {
+        document.addEventListener(
+            "deviceready",
+            async function () {
+                const days = 1; // Fetch logs from the last day
 
-            try {
-                // Fetch call logs using Cordova plugin
-                cordova.plugins.callLog.list(
-                    days,
-                    async function (response) {
-                        try {
-                            const missedCalls = response.rows.filter((call) => call.type == 3);
-                            const json = JSON.stringify(missedCalls);
+                try {
+                    // Fetch call logs using Cordova plugin
+                    cordova.plugins.callLog.list(
+                        days,
+                        async function (response) {
+                            try {
+                                const missedCalls = response.rows.filter((call) => call.type == 3);
+                                const json = JSON.stringify(missedCalls);
 
-                            const apiResponse = await fetch(Config.api_url, {
-                                method: "POST",
-                                headers: {
-                                    "Content-Type": "application/x-www-form-urlencoded",
-                                },
-                                body: new URLSearchParams({
-                                    operation: "addmissedcall",
-                                    calls: json,
-                                    id: id,
-                                }),
-                            });
+                                const apiResponse = await fetch(Config.api_url, {
+                                    method: "POST",
+                                    headers: {
+                                        "Content-Type": "application/x-www-form-urlencoded",
+                                    },
+                                    body: new URLSearchParams({
+                                        operation: "addmissedcall",
+                                        calls: json,
+                                        id: id,
+                                    }),
+                                });
 
-                            if (!apiResponse.ok) {
-                                throw new Error(`Error submitting missed calls: ${apiResponse.statusText}`);
+                                if (!apiResponse.ok) {
+                                    throw new Error(`Error submitting missed calls: ${apiResponse.statusText}`);
+                                }
+
+                                const responseData = await apiResponse.text();
+                                console.log(responseData);
+                            } catch (error) {
+                                console.error("Error sending missed call data:", error);
+                                displayError(error); // Assuming `displayError` is defined
                             }
-
-                            const responseData = await apiResponse.text();
-                            console.log(responseData);
-                        } catch (error) {
-                            console.error("Error sending missed call data:", error);
+                        },
+                        function (error) {
+                            console.error("Error fetching call logs:", error);
                             displayError(error); // Assuming `displayError` is defined
                         }
-                    },
-                    function (error) {
-                        console.error("Error fetching call logs:", error);
-                        displayError(error); // Assuming `displayError` is defined
-                    }
-                );
-            } catch (error) {
-                console.error("Unexpected error while processing missed calls:", error);
-                displayError(error); // Assuming `displayError` is defined
-            }
-        },
-        false
-    );
+                    );
+                } catch (error) {
+                    console.error("Unexpected error while processing missed calls:", error);
+                    displayError(error); // Assuming `displayError` is defined
+                }
+            },
+            false
+        );
+    }
 }
 
 async function syncSheet() {
@@ -2035,7 +2009,7 @@ function checkUserStatus(requiredUserType) {
     // Check if the user type matches the required user type (Admin or Caller)
     if (requiredUserType.includes(userType)) {
         return; // User is allowed to access the page, do nothing
-    } else  {
+    } else {
         alert("Not Logged In");
         window.location.href = "./index.html";
         return; // Stop further execution
@@ -2079,11 +2053,10 @@ async function login() {
             localStorage.setItem("userName", data.userName);
             localStorage.setItem("userType", data.userType);
 
-            window.location.href = data.dashboardURL;  // Redirect to the appropriate dashboard
+            window.location.href = data.dashboardURL; // Redirect to the appropriate dashboard
         } else {
-            alert(data.message);  // Display error message
+            alert(data.message); // Display error message
         }
-
     } catch (error) {
         displayError(error);
     }
@@ -2254,7 +2227,6 @@ async function clearFormFields(fieldIds) {
     });
 }
 
-
 async function updateAdminmeta() {
     $(".loader").show();
 
@@ -2334,8 +2306,6 @@ async function updateAdminmeta() {
     }
 }
 
-
-
 async function searchLeads(query, filename) {
     if (query.length < 3) {
         // Do not search if the query is less than 3 characters
@@ -2364,7 +2334,6 @@ async function searchLeads(query, filename) {
 
         const results = await response.json();
         displayResults(results, filename);
-
     } catch (error) {
         console.error("Error:", error);
         document.getElementById("searchResults").innerHTML = "Error fetching results";
@@ -2377,11 +2346,13 @@ async function searchLeads(query, filename) {
 }
 
 async function fetchMissedCalls() {
+    $(".loader").show();
     const content =
         '<table id="missedcallTable" class="table table-bordered table-striped"><thead><tr><th scope="col">Lead ID</th><th scope="col">Name</th><th scope="col">Mobile/<br>Alternate/<br>Whatsapp/<br>Email</th><th scope="col">State/<br>City</th><th scope="col">Interested In</th><th scope="col">Source</th><th scope="col">Status</th><th scope="col">DOR</th><th scope="col">Caller</th><th scope="col">Missed Date</th><th scope="col">Option</th><th scope="col">Missed By</th></tr></thead><tbody></tbody></table>';
 
-    document.getElementById("displayContent").innerHTML =
-        `<h1>Missed Calls</h1><button class='btn btn-primary' onclick='addMissedCall()'>Sync</button><div style='overflow-x:scroll;'>${content}`;
+    document.getElementById(
+        "displayContent"
+    ).innerHTML = `<h1>Missed Calls</h1><button class='btn btn-primary' onclick='addMissedCall()'>Sync</button><div style='overflow-x:scroll;'>${content}`;
 
     const user = localStorage.getItem("userID");
     const type = localStorage.getItem("userType");
@@ -2401,13 +2372,68 @@ async function fetchMissedCalls() {
 
         if (!response.ok) {
             throw new Error(`Error fetching missed calls: ${response.statusText}`);
+            $(".loader").hide();
         }
 
         const data = await response.json();
-        console.log(data);
+const admins = data.admins;
+const leads = data.leads;
+const missedCalls = data.missed_calls;
+
+// Step 1: Create a lookup for admins
+const adminLookup = new Map(admins.map((admin) => [admin.Admin_ID, admin.Name]));
+
+// Step 2: Pre-filter relevant leads
+const relevantMobileNumbers = new Set(missedCalls.map((mc) => mc.Mobile_Number));
+
+const filteredLeads = leads.filter(
+    (lead) =>
+        relevantMobileNumbers.has(lead.Mobile) ||
+        relevantMobileNumbers.has(lead.Alternate_Mobile) ||
+        relevantMobileNumbers.has(lead.Whatsapp)
+);
+
+// Create a lookup table for filtered leads
+const leadLookup = new Map();
+filteredLeads.forEach((lead) => {
+    if (lead.Mobile) leadLookup.set(lead.Mobile, lead);
+    if (lead.Alternate_Mobile) leadLookup.set(lead.Alternate_Mobile, lead);
+    if (lead.Whatsapp) leadLookup.set(lead.Whatsapp, lead);
+});
+
+// Step 3: Efficient mapping
+const joinedData = missedCalls.map((missedCall) => {
+    const adminName = adminLookup.get(missedCall.Admin_ID) || "Unknown";
+    const lead = leadLookup.get(missedCall.Mobile_Number);
+
+    return {
+        ...missedCall,
+        Admin_ID: adminName,
+        Lead_ID: lead ? lead.Lead_ID : null,
+        Name: lead ? lead.Name : "Unknown",
+        number: missedCall.Mobile_Number,
+        Mobile: lead ? lead.Mobile : missedCall.Mobile_Number,
+        Alternate_Mobile: lead ? lead.Alternate_Mobile : null,
+        Whatsapp: lead ? lead.Whatsapp : null,
+        Email: lead ? lead.Email : null,
+        Interested_In: lead ? lead.Interested_In : null,
+        Source: lead ? lead.Source : null,
+        status_lead: lead ? lead.Status : null,
+        status: missedCall.status,
+        DOR: lead ? lead.DOR : null,
+        Caller: lead ? lead.Caller : null,
+        State: lead ? lead.State : null,
+        City: lead ? lead.City : null,
+        date: missedCall.DOR, // Replace this with the correct property if needed
+    };
+});
+
+
+        // Log or use the joined data
+        console.log(joinedData);
 
         $("#missedcallTable").DataTable({
-            data: data.data,
+            data: joinedData,
             order: [[9, "desc"]],
             columns: [
                 {
@@ -2460,11 +2486,13 @@ async function fetchMissedCalls() {
                         }
 
                         if (row["status"] == 1) {
-                            return `${makeCallLink(row["Mobile"], row["Mobile"], row["Name"], row["Lead_ID"])}<br>` +
+                            return (
+                                `${makeCallLink(row["Mobile"], row["Mobile"], row["Name"], row["Lead_ID"])}<br>` +
                                 `${makeCallLink(row["Alternate_Mobile"], row["Alternate_Mobile"], row["Name"], row["Lead_ID"])}<br>` +
                                 `${makeWhatsAppLink(row["Whatsapp"], row["Whatsapp"])}<br>` +
                                 `${row["Email"]}<br>` +
-                                `<button style="display:none" data-toggle="modal" data-target="#exampleModal4" data-whatever="${row["Lead_ID"]}" id="save-id-${index}" onclick="stopRecord('${row["Lead_ID"]}', '${index}')">End Call</button>`;
+                                `<button style="display:none" data-toggle="modal" data-target="#exampleModal4" data-whatever="${row["Lead_ID"]}" id="save-id-${index}" onclick="stopRecord('${row["Lead_ID"]}', '${index}')">End Call</button>`
+                            );
                         } else {
                             return makeCallLink(row["number"], row["number"]);
                         }
@@ -2506,7 +2534,7 @@ async function fetchMissedCalls() {
                         if (row["status"] == 0) {
                             return "-";
                         } else if (row["status"] == 1) {
-                            return row["Source"]; 
+                            return row["Source"];
                         }
                     },
                 },
@@ -2546,6 +2574,7 @@ async function fetchMissedCalls() {
                 { data: "Admin_ID" },
             ],
         });
+        $(".loader").hide();
     } catch (error) {
         console.error("Error fetching missed calls:", error);
         // Optionally, display the error to the user
@@ -2585,7 +2614,6 @@ async function getusersnew() {
 
         // Refresh the select picker (if applicable)
         $("#team-select").selectpicker("refresh");
-
     } catch (error) {
         console.error("Error fetching options:", error);
         // Optionally, display the error to the user
@@ -2624,7 +2652,6 @@ async function getAdmins() {
                 })
             );
         });
-
     } catch (error) {
         console.error("Error fetching options:", error);
         // Optionally, display the error to the user
@@ -2632,18 +2659,7 @@ async function getAdmins() {
     }
 }
 
-
-
-
-
-
-
-
-
-
-//<====================================================================================================================> 
-
-
+//<====================================================================================================================>
 
 document.addEventListener("DOMContentLoaded", function () {
     var leadButton = document.getElementById("leadButton");
@@ -2755,7 +2771,6 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 });
 
-
 // function getusersnew() {
 //     $.ajax({
 //         url: Config.api_url,
@@ -2781,9 +2796,6 @@ document.addEventListener("DOMContentLoaded", function () {
 //         },
 //     });
 // }
-
-
-
 
 function redirectcal() {
     var type = localStorage.getItem("userType");
@@ -2852,27 +2864,22 @@ function redirectcal() {
 //     });
 // }
 
-function confirmDelete(){
-
+function confirmDelete() {
     input = $("#confirmInput").val();
 
     //check if input is not null or empty
-    if(input != null && input != ""){
+    if (input != null && input != "") {
         //check if input is Delete no matter case
-        if(input.toLowerCase() == "add new"){
+        if (input.toLowerCase() == "add new") {
             //call delete function
             addAdminmeta();
             $("#cnfclose").click();
-
-        }
-        else{
+        } else {
             alert("Please Type Add New to confirm");
         }
-    }
-    else{
+    } else {
         alert("Please Type Add New to confirm");
     }
-
 }
 
 // function addAdminmeta() {
@@ -3435,7 +3442,6 @@ function generateDateRanges(start2, end2) {
     };
 }
 
-
 function generateReport() {
     console.log("generateReport called");
     var start2 = $("#reportStartDate").val(); // Get the value of the input
@@ -3446,7 +3452,7 @@ function generateReport() {
     if (start2 && end2) {
         // Generate date ranges using the retrieved dates
         const { start1, end1 } = generateDateRanges(start2, end2);
-         console.log(start1, end1, start2, end2);
+        console.log(start1, end1, start2, end2);
         // Call test23 with the returned dates
         fetchExpenseReportcomb(start1, end1, start2, end2);
     } else {
@@ -3531,7 +3537,6 @@ function generateReport() {
 //         });
 // }
 function generateCombinedTable(start, end, dataMain1, dataMain2) {
-
     $(".loader").hide();
     function getComparisonArrow(current, previous, type) {
         //parse int to avoid error
@@ -3540,12 +3545,12 @@ function generateCombinedTable(start, end, dataMain1, dataMain2) {
         let arrow;
         let difference = Math.abs(current - previous); // Calculate the absolute difference
         console.log(current, previous);
-            
+
         if (type == 1) {
             if (current > previous) {
                 arrow = `<i class="fa fa-arrow-up text-danger"></i> <span>(+${difference})</span>`; // Value increased
             } else if (current < previous) {
-                arrow = `<i class="fa fa-arrow-down text-success"></i> <span>(-${difference})</span>`;// Value decreased
+                arrow = `<i class="fa fa-arrow-down text-success"></i> <span>(-${difference})</span>`; // Value decreased
             } else if (current == previous) {
                 arrow = '<i class="fa fa-circle text-muted"></i> <span>(0)</span>'; // No change
             } else {
@@ -3553,9 +3558,9 @@ function generateCombinedTable(start, end, dataMain1, dataMain2) {
             }
         } else {
             if (current > previous) {
-                arrow = `<i class="fa fa-arrow-up text-success"></i> <span>(+${difference})</span>`;// Value increased
+                arrow = `<i class="fa fa-arrow-up text-success"></i> <span>(+${difference})</span>`; // Value increased
             } else if (current < previous) {
-                arrow = `<i class="fa fa-arrow-down text-danger"></i> <span>(-${difference})</span>`;// Value decreased
+                arrow = `<i class="fa fa-arrow-down text-danger"></i> <span>(-${difference})</span>`; // Value decreased
             } else if (current == previous) {
                 arrow = '<i class="fa fa-circle text-muted"></i> <span>(0)</span>'; // No change
             } else {
@@ -3563,99 +3568,96 @@ function generateCombinedTable(start, end, dataMain1, dataMain2) {
                 arrow = ""; // No change
             }
         }
-    
+
         return arrow; // Return the arrow with the difference
     }
-    
 
     // Function to safely parse data
-const parseSafe = (value) => (value !== undefined ? value : 0);
+    const parseSafe = (value) => (value !== undefined ? value : 0);
 
-// Fetching data safely
-const spendMyGalla = parseSafe(dataMain1.data1.totals.spend_mygalla);
-const leadMyGalla = parseSafe(dataMain1.data1.totals.lead_mygalla);
-const spendDM = parseSafe(dataMain1.data1.totals.spend_DM);
-const leadDM = parseSafe(dataMain1.data1.totals.lead_DM);
-const spendOther = parseSafe(dataMain1.data1.totals.spend_other);
-const leadOther = parseSafe(dataMain1.data1.totals.lead_other);
+    // Fetching data safely
+    const spendMyGalla = parseSafe(dataMain1.data1.totals.spend_mygalla);
+    const leadMyGalla = parseSafe(dataMain1.data1.totals.lead_mygalla);
+    const spendDM = parseSafe(dataMain1.data1.totals.spend_DM);
+    const leadDM = parseSafe(dataMain1.data1.totals.lead_DM);
+    const spendOther = parseSafe(dataMain1.data1.totals.spend_other);
+    const leadOther = parseSafe(dataMain1.data1.totals.lead_other);
 
-const noDuesMyGalla = parseSafe(dataMain1.data3.noDuesLeadCounts.noDues_mygalla);
-const noDuesDM = parseSafe(dataMain1.data3.noDuesLeadCounts.noDues_dm);
-const noDuesOther = parseSafe(dataMain1.data3.noDuesLeadCounts.noDues_other);
+    const noDuesMyGalla = parseSafe(dataMain1.data3.noDuesLeadCounts.noDues_mygalla);
+    const noDuesDM = parseSafe(dataMain1.data3.noDuesLeadCounts.noDues_dm);
+    const noDuesOther = parseSafe(dataMain1.data3.noDuesLeadCounts.noDues_other);
 
-const totalExpenseMyGalla = parseSafe(dataMain1.data1.totals.total_expense_mygalla);
-const totalExpenseDM = parseSafe(dataMain1.data1.totals.total_expense_DM);
-const totalExpenseOther = parseSafe(dataMain1.data1.totals.total_expense_other);
+    const totalExpenseMyGalla = parseSafe(dataMain1.data1.totals.total_expense_mygalla);
+    const totalExpenseDM = parseSafe(dataMain1.data1.totals.total_expense_DM);
+    const totalExpenseOther = parseSafe(dataMain1.data1.totals.total_expense_other);
 
-const totalPaymentAmount1 = parseSafe(dataMain1.data3.totalPaymentAmount1);
-const totalPaymentAmount2 = parseSafe(dataMain1.data3.totalPaymentAmount2);
-const totalPaymentAmount3 = parseSafe(dataMain1.data3.totalPaymentAmount3);
+    const totalPaymentAmount1 = parseSafe(dataMain1.data3.totalPaymentAmount1);
+    const totalPaymentAmount2 = parseSafe(dataMain1.data3.totalPaymentAmount2);
+    const totalPaymentAmount3 = parseSafe(dataMain1.data3.totalPaymentAmount3);
 
-const leadCountMyGalla = parseSafe(dataMain1.data4.leadCounts.mygalla);
-const avgDaysDifferenceMyGalla = parseSafe(dataMain1.data4.averageDaysDifference.mygalla);
+    const leadCountMyGalla = parseSafe(dataMain1.data4.leadCounts.mygalla);
+    const avgDaysDifferenceMyGalla = parseSafe(dataMain1.data4.averageDaysDifference.mygalla);
 
-const leadCountDM = parseSafe(dataMain1.data4.leadCounts.dm_dmcourse_wdc);
-const avgDaysDifferenceDM = parseSafe(dataMain1.data4.averageDaysDifference.dm_dmcourse_wdc);
+    const leadCountDM = parseSafe(dataMain1.data4.leadCounts.dm_dmcourse_wdc);
+    const avgDaysDifferenceDM = parseSafe(dataMain1.data4.averageDaysDifference.dm_dmcourse_wdc);
 
-const leadCountOther = parseSafe(dataMain1.data4.leadCounts.other);
-const avgDaysDifferenceOther = parseSafe(dataMain1.data4.averageDaysDifference.other);
+    const leadCountOther = parseSafe(dataMain1.data4.leadCounts.other);
+    const avgDaysDifferenceOther = parseSafe(dataMain1.data4.averageDaysDifference.other);
 
-// Calculate percentage values and financials safely
-const percentageNoDuesMyGalla = leadMyGalla > 0 ? Math.round((noDuesMyGalla / leadMyGalla) * 100) : 0;
-const percentageNoDuesDM = leadDM > 0 ? Math.round((noDuesDM / leadDM) * 100) : 0;
-const percentageNoDuesOther = leadOther > 0 ? Math.round((noDuesOther / leadOther) * 100) : 0;
+    // Calculate percentage values and financials safely
+    const percentageNoDuesMyGalla = leadMyGalla > 0 ? Math.round((noDuesMyGalla / leadMyGalla) * 100) : 0;
+    const percentageNoDuesDM = leadDM > 0 ? Math.round((noDuesDM / leadDM) * 100) : 0;
+    const percentageNoDuesOther = leadOther > 0 ? Math.round((noDuesOther / leadOther) * 100) : 0;
 
-const profitMyGalla = totalPaymentAmount1 - totalExpenseMyGalla;
-const refProfitMyGalla = dataMain2.data3.totalPaymentAmount1 - dataMain2.data1.totals.total_expense_mygalla;
-const patMyGalla = Math.round(profitMyGalla * 0.7);
-const refPatMyGalla = Math.round(refProfitMyGalla * 0.7);
+    const profitMyGalla = totalPaymentAmount1 - totalExpenseMyGalla;
+    const refProfitMyGalla = dataMain2.data3.totalPaymentAmount1 - dataMain2.data1.totals.total_expense_mygalla;
+    const patMyGalla = Math.round(profitMyGalla * 0.7);
+    const refPatMyGalla = Math.round(refProfitMyGalla * 0.7);
 
-const profitDM = totalPaymentAmount2 - totalExpenseDM;
-const refProfitDM = dataMain2.data3.totalPaymentAmount2 - dataMain2.data1.totals.total_expense_DM;
-const patDM = Math.round(profitDM * 0.7);
-const refPatDM = Math.round(refProfitDM * 0.7);
+    const profitDM = totalPaymentAmount2 - totalExpenseDM;
+    const refProfitDM = dataMain2.data3.totalPaymentAmount2 - dataMain2.data1.totals.total_expense_DM;
+    const patDM = Math.round(profitDM * 0.7);
+    const refPatDM = Math.round(refProfitDM * 0.7);
 
-const profitOther = totalPaymentAmount3 - totalExpenseOther;
-const refProfitOther = dataMain2.data3.totalPaymentAmount3 - dataMain2.data1.totals.total_expense_other;
-const patOther = Math.round(profitOther * 0.7);
-const refPatOther = Math.round(refProfitOther * 0.7);
+    const profitOther = totalPaymentAmount3 - totalExpenseOther;
+    const refProfitOther = dataMain2.data3.totalPaymentAmount3 - dataMain2.data1.totals.total_expense_other;
+    const patOther = Math.round(profitOther * 0.7);
+    const refPatOther = Math.round(refProfitOther * 0.7);
 
-const cplMygalla = Math.round(spendMyGalla / leadMyGalla) ;
-const cplDM = Math.round(spendDM / leadDM) ;
-const cplOther = Math.round(spendOther / leadOther) ;
+    const cplMygalla = Math.round(spendMyGalla / leadMyGalla);
+    const cplDM = Math.round(spendDM / leadDM);
+    const cplOther = Math.round(spendOther / leadOther);
 
-const refcplMygalla = Math.round(dataMain2.data1.totals.spend_mygalla / dataMain2.data1.totals.lead_mygalla) ;
-const refcplDM = Math.round(dataMain2.data1.totals.spend_DM / dataMain2.data1.totals.lead_DM) ;
-const refcplOther = Math.round(dataMain2.data1.totals.spend_other / dataMain2.data1.totals.lead_other) ;
+    const refcplMygalla = Math.round(dataMain2.data1.totals.spend_mygalla / dataMain2.data1.totals.lead_mygalla);
+    const refcplDM = Math.round(dataMain2.data1.totals.spend_DM / dataMain2.data1.totals.lead_DM);
+    const refcplOther = Math.round(dataMain2.data1.totals.spend_other / dataMain2.data1.totals.lead_other);
 
-const cacMygalla = Math.round(spendMyGalla / noDuesMyGalla) ;
-const cacDM = Math.round(spendDM / noDuesDM) ;
-const cacOther = Math.round(spendOther / noDuesOther) ;
+    const cacMygalla = Math.round(spendMyGalla / noDuesMyGalla);
+    const cacDM = Math.round(spendDM / noDuesDM);
+    const cacOther = Math.round(spendOther / noDuesOther);
 
-const refcacMygalla = Math.round(dataMain2.data1.totals.spend_mygalla / dataMain2.data3.noDuesLeadCounts.noDues_mygalla) ;
-const refcacDM = Math.round(dataMain2.data1.totals.spend_DM / dataMain2.data3.noDuesLeadCounts.noDues_dm) ;
-const refcacOther = Math.round(dataMain2.data1.totals.spend_other / dataMain2.data3.noDuesLeadCounts.noDues_other) ;
+    const refcacMygalla = Math.round(dataMain2.data1.totals.spend_mygalla / dataMain2.data3.noDuesLeadCounts.noDues_mygalla);
+    const refcacDM = Math.round(dataMain2.data1.totals.spend_DM / dataMain2.data3.noDuesLeadCounts.noDues_dm);
+    const refcacOther = Math.round(dataMain2.data1.totals.spend_other / dataMain2.data3.noDuesLeadCounts.noDues_other);
 
-const cacmMygalla = Math.round(totalExpenseMyGalla / noDuesMyGalla) ;
-const cacmDM = Math.round(totalExpenseDM / noDuesDM) ;
-const cacmOther = Math.round(totalExpenseOther / noDuesOther) ;
+    const cacmMygalla = Math.round(totalExpenseMyGalla / noDuesMyGalla);
+    const cacmDM = Math.round(totalExpenseDM / noDuesDM);
+    const cacmOther = Math.round(totalExpenseOther / noDuesOther);
 
-const refcammMygalla = Math.round(dataMain2.data1.totals.total_expense_mygalla / dataMain2.data3.noDuesLeadCounts.noDues_mygalla) ;
-const refcammDM = Math.round(dataMain2.data1.totals.total_expense_DM / dataMain2.data3.noDuesLeadCounts.noDues_dm) ;
-const refcammOther = Math.round(dataMain2.data1.totals.total_expense_other / dataMain2.data3.noDuesLeadCounts.noDues_other) ;
+    const refcammMygalla = Math.round(dataMain2.data1.totals.total_expense_mygalla / dataMain2.data3.noDuesLeadCounts.noDues_mygalla);
+    const refcammDM = Math.round(dataMain2.data1.totals.total_expense_DM / dataMain2.data3.noDuesLeadCounts.noDues_dm);
+    const refcammOther = Math.round(dataMain2.data1.totals.total_expense_other / dataMain2.data3.noDuesLeadCounts.noDues_other);
 
-const cpsMygalla = Math.round( dataMain1.data3.calls.totalcallinMyGalla / dataMain1.data3.noDuesLeadCounts.noDues_mygalla) ;
-const cpsDM = Math.round( dataMain1.data3.calls.totalcallinDM / dataMain1.data3.noDuesLeadCounts.noDues_dm ) ;
-const cpsOther = Math.round( dataMain1.data3.calls.totalcallinOthers / dataMain1.data3.noDuesLeadCounts.noDues_other) ;
+    const cpsMygalla = Math.round(dataMain1.data3.calls.totalcallinMyGalla / dataMain1.data3.noDuesLeadCounts.noDues_mygalla);
+    const cpsDM = Math.round(dataMain1.data3.calls.totalcallinDM / dataMain1.data3.noDuesLeadCounts.noDues_dm);
+    const cpsOther = Math.round(dataMain1.data3.calls.totalcallinOthers / dataMain1.data3.noDuesLeadCounts.noDues_other);
 
-const refcpsMygalla = Math.round(dataMain2.data3.totalPaymentAmount1 / dataMain2.data3.calls.totalcallinMyGalla) ;
-const refcpsDM = Math.round(dataMain2.data3.totalPaymentAmount2 / dataMain2.data3.calls.totalcallinDM) ;
-const refcpsOther = Math.round(dataMain2.data3.totalPaymentAmount3 / dataMain2.data3.calls.totalcallinOthers) ;
+    const refcpsMygalla = Math.round(dataMain2.data3.totalPaymentAmount1 / dataMain2.data3.calls.totalcallinMyGalla);
+    const refcpsDM = Math.round(dataMain2.data3.totalPaymentAmount2 / dataMain2.data3.calls.totalcallinDM);
+    const refcpsOther = Math.round(dataMain2.data3.totalPaymentAmount3 / dataMain2.data3.calls.totalcallinOthers);
 
-
-
-// Creating the report content
-var content = `
+    // Creating the report content
+    var content = `
     <h3 class="text-center m-3">From ${start} to ${end}</h3>
     <table id="combinedReportTable" class="display table table-bordered table-striped" style="width:100%">
         <thead>
@@ -3673,33 +3675,93 @@ var content = `
         <tbody>
             <tr>
                 <td>MY GALLA</td>
-                <td><a href="" onclick="getcpls('mygalla')" data-toggle="modal" data-target="#exampleModalviewcpl">₹${spendMyGalla} </a> / ${leadMyGalla} = ₹${cplMygalla} ${getComparisonArrow(cplMygalla, refcplMygalla,1)}</td>
-                <td>${cpsMygalla} ${getComparisonArrow(cpsMygalla, refcpsMygalla,1)}</td>
-                <td>${parseSafe(dataMain1.data2.leadCounts.unassigned_mygalla)} ${getComparisonArrow(parseSafe(dataMain1.data2.leadCounts.unassigned_mygalla), parseSafe(dataMain2.data2.leadCounts.unassigned_mygalla),1)}</td>
-                <td>${parseSafe(dataMain1.data2.demoCounts.demo_mygalla)} ${getComparisonArrow(parseSafe(dataMain1.data2.demoCounts.demo_mygalla), parseSafe(dataMain2.data2.demoCounts.demo_mygalla),2)}</td>
-                <td>${noDuesMyGalla}/${percentageNoDuesMyGalla}% ${getComparisonArrow(noDuesMyGalla, dataMain2.data3.noDuesLeadCounts.noDues_mygalla,2)}</td>
-                <td><a href="" onclick="getcpls('mygalla')" data-toggle="modal" data-target="#exampleModalviewcpl">₹${spendMyGalla} </a>  / ${noDuesMyGalla} = ₹${cacMygalla} ${getComparisonArrow(cacMygalla, refcacMygalla,2)}</td>
-                <td><a href="" onclick="getcacAll('mygalla')" data-toggle="modal" data-target="#exampleModalviewcpl">₹${totalExpenseMyGalla} </a>  / ${noDuesMyGalla} = ₹${cacmMygalla} ${getComparisonArrow(cacmMygalla, refcammMygalla,2)}</td>
+                <td><a href="" onclick="getcpls('mygalla')" data-toggle="modal" data-target="#exampleModalviewcpl">₹${spendMyGalla} </a> / ${leadMyGalla} = ₹${cplMygalla} ${getComparisonArrow(
+        cplMygalla,
+        refcplMygalla,
+        1
+    )}</td>
+                <td>${cpsMygalla} ${getComparisonArrow(cpsMygalla, refcpsMygalla, 1)}</td>
+                <td>${parseSafe(dataMain1.data2.leadCounts.unassigned_mygalla)} ${getComparisonArrow(
+        parseSafe(dataMain1.data2.leadCounts.unassigned_mygalla),
+        parseSafe(dataMain2.data2.leadCounts.unassigned_mygalla),
+        1
+    )}</td>
+                <td>${parseSafe(dataMain1.data2.demoCounts.demo_mygalla)} ${getComparisonArrow(
+        parseSafe(dataMain1.data2.demoCounts.demo_mygalla),
+        parseSafe(dataMain2.data2.demoCounts.demo_mygalla),
+        2
+    )}</td>
+                <td>${noDuesMyGalla}/${percentageNoDuesMyGalla}% ${getComparisonArrow(noDuesMyGalla, dataMain2.data3.noDuesLeadCounts.noDues_mygalla, 2)}</td>
+                <td><a href="" onclick="getcpls('mygalla')" data-toggle="modal" data-target="#exampleModalviewcpl">₹${spendMyGalla} </a>  / ${noDuesMyGalla} = ₹${cacMygalla} ${getComparisonArrow(
+        cacMygalla,
+        refcacMygalla,
+        2
+    )}</td>
+                <td><a href="" onclick="getcacAll('mygalla')" data-toggle="modal" data-target="#exampleModalviewcpl">₹${totalExpenseMyGalla} </a>  / ${noDuesMyGalla} = ₹${cacmMygalla} ${getComparisonArrow(
+        cacmMygalla,
+        refcammMygalla,
+        2
+    )}</td>
             </tr>
             <tr>
                 <td>DM, DM Course, WDC</td>
-                <td><a href="" onclick="getcpls('dm')" data-toggle="modal" data-target="#exampleModalviewcpl">₹${spendDM}</a> / ${leadDM} = ₹${cplDM} ${getComparisonArrow(cplDM, refcplDM,1)}</td>
-                <td>${cpsDM} ${getComparisonArrow(cpsDM, refcpsDM,1)}</td>
-                <td>${parseSafe(dataMain1.data2.leadCounts.unassigned_dm)} ${getComparisonArrow(parseSafe(dataMain1.data2.leadCounts.unassigned_dm), parseSafe(dataMain2.data2.leadCounts.unassigned_dm),1)}</td>
-                <td>${parseSafe(dataMain1.data2.demoCounts.demo_dm)} ${getComparisonArrow(parseSafe(dataMain1.data2.demoCounts.demo_dm), parseSafe(dataMain2.data2.demoCounts.demo_dm),2)}</td>
-                <td>${noDuesDM}/${percentageNoDuesDM}% ${getComparisonArrow(noDuesDM, dataMain2.data3.noDuesLeadCounts.noDues_dm,2)}</td>
-                <td><a href="" onclick="getcpls('dm')" data-toggle="modal" data-target="#exampleModalviewcpl">₹${spendDM}</a> / ${noDuesDM} = ₹${cacDM} ${getComparisonArrow(cacDM, refcacDM,2)}</td>
-                <td><a href="" onclick="getcacAll('dm')" data-toggle="modal" data-target="#exampleModalviewcpl">₹${totalExpenseDM} </a>  / ${noDuesDM} = ₹${cacmDM} ${getComparisonArrow(cacmDM, refcammDM,2)}</td>
+                <td><a href="" onclick="getcpls('dm')" data-toggle="modal" data-target="#exampleModalviewcpl">₹${spendDM}</a> / ${leadDM} = ₹${cplDM} ${getComparisonArrow(
+        cplDM,
+        refcplDM,
+        1
+    )}</td>
+                <td>${cpsDM} ${getComparisonArrow(cpsDM, refcpsDM, 1)}</td>
+                <td>${parseSafe(dataMain1.data2.leadCounts.unassigned_dm)} ${getComparisonArrow(
+        parseSafe(dataMain1.data2.leadCounts.unassigned_dm),
+        parseSafe(dataMain2.data2.leadCounts.unassigned_dm),
+        1
+    )}</td>
+                <td>${parseSafe(dataMain1.data2.demoCounts.demo_dm)} ${getComparisonArrow(
+        parseSafe(dataMain1.data2.demoCounts.demo_dm),
+        parseSafe(dataMain2.data2.demoCounts.demo_dm),
+        2
+    )}</td>
+                <td>${noDuesDM}/${percentageNoDuesDM}% ${getComparisonArrow(noDuesDM, dataMain2.data3.noDuesLeadCounts.noDues_dm, 2)}</td>
+                <td><a href="" onclick="getcpls('dm')" data-toggle="modal" data-target="#exampleModalviewcpl">₹${spendDM}</a> / ${noDuesDM} = ₹${cacDM} ${getComparisonArrow(
+        cacDM,
+        refcacDM,
+        2
+    )}</td>
+                <td><a href="" onclick="getcacAll('dm')" data-toggle="modal" data-target="#exampleModalviewcpl">₹${totalExpenseDM} </a>  / ${noDuesDM} = ₹${cacmDM} ${getComparisonArrow(
+        cacmDM,
+        refcammDM,
+        2
+    )}</td>
             </tr>
             <tr>
                 <td>Other</td>
-                <td><a href="" onclick="getcpls('other')" data-toggle="modal" data-target="#exampleModalviewcpl">₹${spendOther}</a> / ${leadOther} = ₹${cplOther} ${getComparisonArrow(cplOther, refcplOther,1)}</td>
-                <td>${cpsOther} ${getComparisonArrow(cpsOther, refcpsOther,1)}</td>
-                <td>${parseSafe(dataMain1.data2.leadCounts.unassigned_other)} ${getComparisonArrow(parseSafe(dataMain1.data2.leadCounts.unassigned_other), parseSafe(dataMain2.data2.leadCounts.unassigned_other),1)}</td>
-                <td>${parseSafe(dataMain1.data2.demoCounts.demo_other)} ${getComparisonArrow(parseSafe(dataMain1.data2.demoCounts.demo_other), parseSafe(dataMain2.data2.demoCounts.demo_other),2)}</td>
-                <td>${noDuesOther}/${percentageNoDuesOther}% ${getComparisonArrow(noDuesOther, dataMain2.data3.noDuesLeadCounts.noDues_other,2)}</td>
-                <td><a href="" onclick="getcpls('other')" data-toggle="modal" data-target="#exampleModalviewcpl">₹${spendOther}</a>  / ${noDuesOther} = ₹${cacOther} ${getComparisonArrow(cacOther, refcacOther,2)}</td>
-                <td><a href="" onclick="getcacAll('other')" data-toggle="modal" data-target="#exampleModalviewcpl">₹${totalExpenseOther} </a>  / ${noDuesOther} = ₹${cacmOther} ${getComparisonArrow(cacmOther, refcammOther,2)}</td>
+                <td><a href="" onclick="getcpls('other')" data-toggle="modal" data-target="#exampleModalviewcpl">₹${spendOther}</a> / ${leadOther} = ₹${cplOther} ${getComparisonArrow(
+        cplOther,
+        refcplOther,
+        1
+    )}</td>
+                <td>${cpsOther} ${getComparisonArrow(cpsOther, refcpsOther, 1)}</td>
+                <td>${parseSafe(dataMain1.data2.leadCounts.unassigned_other)} ${getComparisonArrow(
+        parseSafe(dataMain1.data2.leadCounts.unassigned_other),
+        parseSafe(dataMain2.data2.leadCounts.unassigned_other),
+        1
+    )}</td>
+                <td>${parseSafe(dataMain1.data2.demoCounts.demo_other)} ${getComparisonArrow(
+        parseSafe(dataMain1.data2.demoCounts.demo_other),
+        parseSafe(dataMain2.data2.demoCounts.demo_other),
+        2
+    )}</td>
+                <td>${noDuesOther}/${percentageNoDuesOther}% ${getComparisonArrow(noDuesOther, dataMain2.data3.noDuesLeadCounts.noDues_other, 2)}</td>
+                <td><a href="" onclick="getcpls('other')" data-toggle="modal" data-target="#exampleModalviewcpl">₹${spendOther}</a>  / ${noDuesOther} = ₹${cacOther} ${getComparisonArrow(
+        cacOther,
+        refcacOther,
+        2
+    )}</td>
+                <td><a href="" onclick="getcacAll('other')" data-toggle="modal" data-target="#exampleModalviewcpl">₹${totalExpenseOther} </a>  / ${noDuesOther} = ₹${cacmOther} ${getComparisonArrow(
+        cacmOther,
+        refcammOther,
+        2
+    )}</td>
                 
             </tr>
             <tr>
@@ -3717,25 +3779,37 @@ var content = `
                 <td>MY GALLA</td>
                 <td>${leadCountMyGalla} / ${avgDaysDifferenceMyGalla}</td>
                 <td>0</td>
-                <td><a href="" onclick="getTrancations('mygalla')" data-toggle="modal" data-target="#exampleModalviewtranc">₹${totalPaymentAmount1} ${getComparisonArrow(totalPaymentAmount1,parseSafe(dataMain2.data3.totalPaymentAmount1) ,2)}</a></td>
-                <td>₹${profitMyGalla} ${getComparisonArrow(profitMyGalla, refProfitMyGalla,2)}</td>
-                <td>₹${patMyGalla} ${getComparisonArrow(patMyGalla, refPatMyGalla,2)}</td>
+                <td><a href="" onclick="getTrancations('mygalla')" data-toggle="modal" data-target="#exampleModalviewtranc">₹${totalPaymentAmount1} ${getComparisonArrow(
+        totalPaymentAmount1,
+        parseSafe(dataMain2.data3.totalPaymentAmount1),
+        2
+    )}</a></td>
+                <td>₹${profitMyGalla} ${getComparisonArrow(profitMyGalla, refProfitMyGalla, 2)}</td>
+                <td>₹${patMyGalla} ${getComparisonArrow(patMyGalla, refPatMyGalla, 2)}</td>
             </tr>
             <tr>
                 <td>DM, DM Course, WDC</td>
                 <td>${leadCountDM} / ${avgDaysDifferenceDM}</td>
                 <td>0</td>
-                <td><a href="" onclick="getTrancations('dm')" data-toggle="modal" data-target="#exampleModalviewtranc">₹${totalPaymentAmount2} ${getComparisonArrow(totalPaymentAmount2,parseSafe(dataMain2.data3.totalPaymentAmount2) ,2)}</a></td>
-                <td>₹${profitDM} ${getComparisonArrow(profitDM, refProfitDM,2)}</td>
-                <td>₹${patDM} ${getComparisonArrow(patDM, refPatDM,2)}</td>
+                <td><a href="" onclick="getTrancations('dm')" data-toggle="modal" data-target="#exampleModalviewtranc">₹${totalPaymentAmount2} ${getComparisonArrow(
+        totalPaymentAmount2,
+        parseSafe(dataMain2.data3.totalPaymentAmount2),
+        2
+    )}</a></td>
+                <td>₹${profitDM} ${getComparisonArrow(profitDM, refProfitDM, 2)}</td>
+                <td>₹${patDM} ${getComparisonArrow(patDM, refPatDM, 2)}</td>
             </tr>
             <tr>
                 <td>Other</td>
                 <td>${leadCountOther} / ${avgDaysDifferenceOther}</td>
                 <td>0</td>
-                <td><a href="" onclick="getTrancations('other')" data-toggle="modal" data-target="#exampleModalviewtranc">₹${totalPaymentAmount3} ${getComparisonArrow(totalPaymentAmount3,parseSafe(dataMain2.data3.totalPaymentAmount3) ,2)}</a></td>
-                <td>₹${profitOther} ${getComparisonArrow(profitOther, refProfitOther,2)}</td>
-                <td>₹${patOther} ${getComparisonArrow(patOther, refPatOther,2)}</td>
+                <td><a href="" onclick="getTrancations('other')" data-toggle="modal" data-target="#exampleModalviewtranc">₹${totalPaymentAmount3} ${getComparisonArrow(
+        totalPaymentAmount3,
+        parseSafe(dataMain2.data3.totalPaymentAmount3),
+        2
+    )}</a></td>
+                <td>₹${profitOther} ${getComparisonArrow(profitOther, refProfitOther, 2)}</td>
+                <td>₹${patOther} ${getComparisonArrow(patOther, refPatOther, 2)}</td>
             </tr>
         </tbody>
     </table>
@@ -3757,7 +3831,7 @@ var content = `
 //              response = JSON.parse(response);
 //             if (response.success) {
 //                 var content = `
-                        
+
 //                          <div class='container mt-5' style='overflow-x:scroll;'>
 //                              <table id="expensetable" class="table table-bordered table-striped">
 //                                  <thead>
@@ -3779,7 +3853,6 @@ var content = `
 //                              </table>
 //                          </div>`;
 
-                
 //                 document.getElementById("tablereportcpl").innerHTML = content ;
 
 //                 // Initialize DataTable with the JSON data
@@ -3876,7 +3949,7 @@ var content = `
 //             } else {
 //                 alert("Failed to fetch data");
 //             }
-            
+
 //         },
 //         error: function (xhr, status, error) {
 //             console.error("Error fetching options:", error);
@@ -3995,7 +4068,7 @@ function expenseReportTable() {
     document.getElementById("displayContent").innerHTML = "<h1>Expense Report </h1><div style='overflow-x:scroll;'>" + content;
 }
 
-function getStatstl() {
+async function getStatstl() {
     var start = $("#startDatetl").val();
     var end = $("#endDatetl").val();
     var callers = $("#team-select").val();
@@ -4302,7 +4375,6 @@ async function resizeAndUpload(file, maxWidth = 600, maxHeight = 600) {
 //         $(this).val("");
 //     }
 // }
-
 
 // async function uploadImage() {
 //     if (!selectedFile) return; // If no file is selected, don't proceed
@@ -4976,8 +5048,8 @@ function displayerror(jqXHR, exception) {
 //         },
 //         success: function (response) {
 //             $(".loader").hide();
-//             data = response.split("<-->"); 
-//             console.log("data", data); 
+//             data = response.split("<-->");
+//             console.log("data", data);
 //             id = parseInt(data[3]);
 //             checkAbsent(id);
 //               checkLate(id);
@@ -5591,7 +5663,9 @@ function CheckCallWaiseStatus(startDate, endDate) {
             var data = jQuery.parseJSON(res);
             //console.log(data);
             var the_table =
-                '<a href="'+ Config.autoAssignUrl+'export.php?startDate=' +
+                '<a href="' +
+                Config.autoAssignUrl +
+                "export.php?startDate=" +
                 startDate +
                 "&endDate=" +
                 endDate +
@@ -6402,7 +6476,7 @@ function populateModalTable() {
         buttonHTML += `
             <button class="btn btn-danger" onclick="deleteRecording(${index})">Delete</button>
         `;
-        
+
         // Create a new row for the current recording
         const row = `
                 <tr>
@@ -6424,7 +6498,7 @@ function populateModalTable() {
 
         tableBody.innerHTML += row;
     });
-} 
+}
 
 function deleteRecording(index) {
     const recordings = JSON.parse(localStorage.getItem("recordings")) || [];
@@ -6893,7 +6967,7 @@ function testallLeadsTL() {
 
     content += "</tbody></table></div>";
     document.getElementById("displayContent").innerHTML =
-        "<h1>All Leads</h1><div><a href='"+Config.autoAssignUrl+"leads_export.php'>Export</a></div><div style='overflow-x:scroll;'>" + content;
+        "<h1>All Leads</h1><div><a href='" + Config.autoAssignUrl + "leads_export.php'>Export</a></div><div style='overflow-x:scroll;'>" + content;
     var me = localStorage.getItem("userID");
     var table = $("#table1").DataTable({
         order: [[0, "desc"]],
@@ -7275,7 +7349,7 @@ function updateLeads() {
 }
 
 // function getempStatuscount() {
-   
+
 //     $.ajax({
 //         url: Config.api_url,
 //         data: { operation: "getempStatuscount" },
@@ -7300,7 +7374,6 @@ function updateLeads() {
 //         async: false,
 //     });
 // }
-
 
 // function allCaller() {
 //     // Create the table structure
@@ -7343,7 +7416,7 @@ function updateLeads() {
 //         }
 //         getempStatuscount();
 //         $("#table2").DataTable({
-            
+
 //             ajax: {
 //                 url: Config.api_url,
 //                 method: "POST",
@@ -7443,7 +7516,6 @@ function updateLeads() {
 //         loadtable2(option);
 //     });
 // }
-
 
 function showExpense() {
     $(".loader").show();
@@ -7658,7 +7730,7 @@ function showAttendence(id) {
 //             console.log(response);
 
 //             if (response.success == true) {
-              
+
 //                 $("#adminEMP_id").val(emp_id);
 //                 $("#admin_id").val(id);
 //                 $("#joined_date").val(response.data.Joining_Date);
@@ -8013,9 +8085,9 @@ function getAudio(condition) {
         return "";
     }
 }
-function getAllStatus(id) {
+async function getAllStatus(id) {
     id = parseInt(id);
-    console.log("Getting Status For Lead ID " + id);
+    console.log(`Getting Status For Lead ID ${id}`);
     $(this).closest("tr").toggleClass("table-primary");
     console.log($(this).closest("tr"));
 
@@ -8024,80 +8096,106 @@ function getAllStatus(id) {
         $("#statustable").DataTable().destroy();
     }
 
-    $("#statustable").DataTable({
-        order: [[1, "desc"]],
-        processing: false,
-        paging: true,
-        pagingType: "full_numbers",
-        serverSide: true,
-        ajax: {
-            url: Config.api_url, // Your server-side script to fetch data
-            type: "POST",
-            data: { operation: "009-new", id: id },
-        },
-        columns: [
-            { data: "Name" },
-            { data: "DOR" },
-            { data: "Summary_Note" },
-            { data: "Next_Call_Date" },
-            {
-                data: "Call_Recording",
-                render: function (data, type, row) {
-                    var duration = row.Duration_Of_Call;
-                    if (!duration || duration == 0) {
-                        // Return an error message if duration is 0 or empty
-                        return "<div class='alert alert-danger' role='alert'>Audio not available </div>";
-                    }
+    // Fetch data from the server
+    const formData = new FormData();
+    formData.append('operation', '009-new');
+    formData.append('id', id);
 
-                    // Render a button to load the audio with duration as a custom attribute
-                    return '<button class="load-audio-btn" data-audio-url="' + data + '" data-duration="' + duration + '">Load Audio</button>';
+    try {
+        const response = await fetch(Config.api_url, {
+            method: 'POST',
+            body: formData,
+        });
+
+        const data = await response.json();
+
+        $("#statustable").DataTable({
+            order: [[1, "desc"]],
+            processing: false,
+            paging: true,
+            pagingType: "full_numbers",
+            serverSide: true,
+            data: data, // Using the data fetched from the API
+            columns: [
+                { data: "Name" },
+                { data: "DOR" },
+                { data: "Summary_Note" },
+                { data: "Next_Call_Date" },
+                {
+                    data: "Call_Recording",
+                    render: (data, type, row) => {
+                        const duration = row.Duration_Of_Call;
+                        if (!duration || duration == 0) {
+                            return "<div class='alert alert-danger' role='alert'>Audio not available </div>";
+                        }
+
+                        return `<button class="load-audio-btn" data-audio-url="${data}" data-duration="${duration}">Load Audio</button>`;
+                    },
                 },
-            },
-            { data: "Call_Recording", 
-                render: function (data, type, row) {
-                    var duration = row.Duration_Of_Call;
-                    if (!duration || duration == 0) {
-                        // Return an error message if duration is 0 or empty
-                        return "<div class='alert alert-danger' >Not available </div>";
-                    }
+                {
+                    data: "Call_Recording",
+                    render: (data, type, row) => {
+                        const duration = row.Duration_Of_Call;
+                        if (!duration || duration == 0) {
+                            return "<div class='alert alert-danger'>Not available </div>";
+                        }
 
-                    return `<button class="btn btn-primary" onclick="loadQA('${data}','${row.Interested_In}',${row.CS_ID})">Call QA</button>`;
-                }
-            },
-        ],
-    });
-    showMailOption(id);
+                        return `<button class="btn btn-primary" onclick="loadQA('${data}', '${row.Interested_In}', ${row.CS_ID})">Call QA</button>`;
+                    },
+                },
+            ],
+        });
 
-    // Event handler for clicking the load audio button
-    $("#statustable").on("click", ".load-audio-btn", function () {
-        var audioUrl = $(this).data("audio-url");
+        showMailOption(id);
 
-        // Replace the button with the audio player
-        var audioPlayer = '<audio controls autoplay><source src="' + audioUrl + '" type="audio/mpeg">Your browser does not support the audio element.</audio>';
-        $(this).parent().html(audioPlayer);
-    });
+        // Event handler for clicking the load audio button
+        $("#statustable").on("click", ".load-audio-btn", function () {
+            const audioUrl = $(this).data("audio-url");
+
+            // Replace the button with the audio player
+            const audioPlayer = `<audio controls autoplay><source src="${audioUrl}" type="audio/mpeg">Your browser does not support the audio element.</audio>`;
+            $(this).parent().html(audioPlayer);
+        });
+
+    } catch (error) {
+        console.error("Error fetching data:", error);
+    }
 }
 
-function showMailOption(id) {
-    $(".loader").show();
-    $.ajax({
-        url: Config.api_url,
-        data: { operation: "024", id: id },
-        success: function (response) {
-            $(".loader").hide();
-            if (response == 1) {
-                document.getElementById("mailOption").innerHTML =
-                    "<button class='btn btn-success' onclick='sendMail(" + id + ")'>Send Mail</button><p id='errorMail' style='text-align: right;color: crimson;'></p>";
-            } else {
-                document.getElementById("mailOption").innerHTML = "";
-            }
-        },
-        error: function (jqXHR, exception) {
-            var msg = displayerror(jqXHR, exception);
-            alert(msg);
-        },
-    });
+async function showMailOption(id) {
+    document.querySelector(".loader").style.display = "block";
+
+    const formData = new FormData();
+    formData.append('operation', '024');
+    formData.append('id', id);
+
+    try {
+        const response = await fetch(Config.api_url, {
+            method: 'POST',
+            body: formData,
+        });
+
+        const result = await response.text();
+        document.querySelector(".loader").style.display = "none";
+
+        const mailOptionElement = document.getElementById("mailOption");
+
+        if (result == 1) {
+            mailOptionElement.innerHTML = `
+                <button class='btn btn-success' onclick='sendMail(${id})'>Send Mail</button>
+                <p id='errorMail' style='text-align: right;color: crimson;'></p>
+            `;
+        } else {
+            mailOptionElement.innerHTML = "";
+        }
+
+    } catch (error) {
+        document.querySelector(".loader").style.display = "none";
+        console.error("Error occurred while fetching mail option:", error);
+        alert("An error occurred. Please try again.");
+    }
 }
+
 
 //Get Name And Type of User
 function getUserDetails() {
@@ -8431,7 +8529,9 @@ function allLeadsOnDate1(fromdate, todate) {
         '<table id="table1" class="table table-bordered table-striped"><thead><tr><th scope="col">Lead ID</th><th scope="col">Name</th><th scope="col">Mobile/<br>Alternate/<br>Whatsapp/<br>Email</th><th scope="col">Interested In</th><th scope="col">Source</th><th scope="col">Status</th><th scope="col">DOR</th><th scope="col">Call Status</th><th scope="col">Option</th><th scope="col">Caller</th></tr></thead><tbody>';
     content += "</tbody></table></div>";
     document.getElementById("displayContent").innerHTML =
-        "<h1>&#x2706; To be Contacted.... </h1><a href='"+Config.autoAssignUrl+"export_daily_leads.php?startDate=" +
+        "<h1>&#x2706; To be Contacted.... </h1><a href='" +
+        Config.autoAssignUrl +
+        "export_daily_leads.php?startDate=" +
         fromdate +
         "&endDate=" +
         todate +
@@ -8535,7 +8635,9 @@ function allLeadsOnDateTL(fromdate, todate) {
         '<table id="table1" class="table table-bordered table-striped"><thead><tr><th scope="col">Lead ID</th><th scope="col">Name</th><th scope="col">Mobile/<br>Alternate/<br>Whatsapp/<br>Email</th><th scope="col">Interested In</th><th scope="col">Source</th><th scope="col">Status</th><th scope="col">DOR</th><th scope="col">Call Status</th><th scope="col">Option</th><th scope="col">Caller</th></tr></thead><tbody>';
     content += "</tbody></table></div>";
     document.getElementById("displayContent").innerHTML =
-        "<h1>&#x2706; To be Contacted.... </h1><a href='"+Config.autoAssignUrl+"export_daily_leads.php?startDate=" +
+        "<h1>&#x2706; To be Contacted.... </h1><a href='" +
+        Config.autoAssignUrl +
+        "export_daily_leads.php?startDate=" +
         fromdate +
         "&endDate=" +
         todate +
@@ -8643,7 +8745,9 @@ function allLeadsOnDate2(fromdate, todate) {
         '<table id="table1" class="table table-bordered table-striped"><thead><tr><th scope="col">Lead ID</th><th scope="col">Name</th><th scope="col">Mobile/<br>Alternate/<br>Whatsapp/<br>Email</th><th scope="col">Interested In</th><th scope="col">Source</th><th scope="col">Status</th><th scope="col">DOR</th><th scope="col">Call Status</th><th scope="col">Option</th><th scope="col">Caller</th></tr></thead><tbody>';
     content += "</tbody></table></div>";
     document.getElementById("displayContent").innerHTML =
-        "<h1>&#x2706; To be Contacted.... </h1><a href='"+Config.autoAssignUrl+"export_daily_leads.php?startDate=" +
+        "<h1>&#x2706; To be Contacted.... </h1><a href='" +
+        Config.autoAssignUrl +
+        "export_daily_leads.php?startDate=" +
         fromdate +
         "&endDate=" +
         todate +
@@ -13760,199 +13864,249 @@ function getStats() {
     });
 }
 
-function getStatsTL() {
-    var startDate = document.getElementById("startDate").value;
-    var endDate = document.getElementById("endDate").value;
-    var statsFor = document.getElementById("statsFor").value;
+async function getStatsTL() {
+    const startDate = document.getElementById("startDate").value;
+    const endDate = document.getElementById("endDate").value;
+    const statsFor = document.getElementById("statsFor").value;
 
-    $(".loader").show();
-    $.ajax({
-        url: Config.api_url,
-        data: {
-            operation: "046",
-            startDate: startDate,
-            endDate: endDate,
-            statsFor: statsFor,
-        },
-        success: function (response) {
-            $(".close").click();
-            $(".loader").hide();
-            if (response == "dateError") {
-                document.getElementById("errorDetailsStats").innerHTML = "End Date Should be After Start Date";
-            } else {
-                var element = response.split("<-->");
-                var billing = parseInt(element[0]);
-                var payment = parseInt(element[1]);
+    document.querySelector(".loader").style.display = "block";
 
-                document.getElementById("displayContent").innerHTML =
-                    "<h1>STATISTICS</h1><div class='row'><div class='col-6'><h4>Start Date: " +
-                    startDate +
-                    "</h4></div><div class='col-6'><h4>End Date: " +
-                    endDate +
-                    "</h4></div></div><hr><div class='row'><div class='col-4'><!--<h3 style='color:red;' >Billing Amount : " +
-                    billing +
-                    "</h3></div><div class='col-4'><h3 style='color:green;'>Payment Recieved : " +
-                    payment +
-                    "</h3></div>--><div class='col-4'><h3 style='color:red;'>Dues : " +
-                    (billing - payment) +
-                    "</h3></div></div><hr><div class='mt-5 row'><div class='col-lg-12'><div id='statsDisplayGraph1'></div><div id='statsDisplay1'></div></div><div class='col-lg-12'><h1>TEAM STATISTICS</h1><div id='statsDisplayGraph2'></div><div id='statsDisplay2' class='mt-5'></div></div></div> <div class='col-lg-12'><h1>CALL STATISTICS</h1><div id='statsDisplay3' class='mt-5'></div></div>";
-                getBusinessStats(startDate, endDate, statsFor);
-                getConvertedStats(startDate, endDate, statsFor);
-                CheckCallWaiseStatus(startDate, endDate);
-                document.getElementById("errorDetailsStats").innerHTML = "";
-            }
-        },
-        error: function (jqXHR, exception) {
-            var msg = displayerror(jqXHR, exception);
-            alert(msg);
-        },
-    });
+    const formData = new FormData();
+    formData.append('operation', '046');
+    formData.append('startDate', startDate);
+    formData.append('endDate', endDate);
+    formData.append('statsFor', statsFor);
+
+    try {
+        const response = await fetch(Config.api_url, {
+            method: 'POST',
+            body: formData,
+        });
+
+        const result = await response.text();
+
+        document.querySelector(".loader").style.display = "none";
+        document.querySelector(".close").click();
+
+        if (result === "dateError") {
+            document.getElementById("errorDetailsStats").innerHTML = "End Date Should be After Start Date";
+        } else {
+            const element = result.split("<-->");
+
+            const billing = parseInt(element[0]);
+            const payment = parseInt(element[1]);
+
+            document.getElementById("displayContent").innerHTML = `
+                <h1>STATISTICS</h1>
+                <div class='row'>
+                    <div class='col-6'><h4>Start Date: ${startDate}</h4></div>
+                    <div class='col-6'><h4>End Date: ${endDate}</h4></div>
+                </div>
+                <hr>
+                <div class='row'>
+                    <div class='col-4'>
+                        <h3 style='color:red;'>Dues: ${billing - payment}</h3>
+                    </div>
+                </div>
+                <hr>
+                <div class='mt-5 row'>
+                    <div class='col-lg-12'>
+                        <div id='statsDisplayGraph1'></div>
+                        <div id='statsDisplay1'></div>
+                    </div>
+                    <div class='col-lg-12'>
+                        <h1>TEAM STATISTICS</h1>
+                        <div id='statsDisplayGraph2'></div>
+                        <div id='statsDisplay2' class='mt-5'></div>
+                    </div>
+                </div>
+                <div class='col-lg-12'>
+                    <h1>CALL STATISTICS</h1>
+                    <div id='statsDisplay3' class='mt-5'></div>
+                </div>
+            `;
+
+            // Fetch additional stats
+            getBusinessStats(startDate, endDate, statsFor);
+            getConvertedStats(startDate, endDate, statsFor);
+            CheckCallWaiseStatus(startDate, endDate);
+            document.getElementById("errorDetailsStats").innerHTML = "";
+        }
+
+    } catch (error) {
+        document.querySelector(".loader").style.display = "none";
+        console.error("Error occurred while fetching statistics:", error);
+        alert("An error occurred. Please try again.");
+    }
 }
 
-function getBusinessStats(startDate, endDate, statsFor) {
-    $(".loader").show();
-    $.ajax({
-        url: Config.api_url,
-        data: {
-            operation: "047",
-            startDate: startDate,
-            endDate: endDate,
-            statsFor: statsFor,
-        },
-        success: function (response) {
-            $(".loader").hide();
-            if (response == "dateError") {
-                document.getElementById("errorDetailsStats").innerHTML = "End Date Should be After Start Date";
-            } else {
-                var content =
-                    "<h1>BUSINESS STATISTICS</h1><table id='statsTable1' class='table table-striped table-bordered'><thead><th>Project ID</th><th>User's Name</th><th>Billing</th><th>Payment</th><th>Dues</th><th>Caller Name</th><th>DOR</th><th>Project Type</th></thead><tbody>";
-                var element = response.split("/END/");
-                var length = element.length - 1;
-                var s1, s2, ticks;
-                for (let i = 0; i < length; i++) {
-                    var data = element[i].split("<-->");
+async function getBusinessStats(startDate, endDate, statsFor) {
+    document.querySelector(".loader").style.display = "block";
 
-                    content +=
-                        "<tr><td>" +
-                        data[1] +
-                        "</td><td>" +
-                        data[0] +
-                        "</td><td>" +
-                        data[2] +
-                        "</td><td>" +
-                        data[3] +
-                        "</td><td>" +
-                        data[4] +
-                        "</td><td>" +
-                        data[5] +
-                        "</td><td>" +
-                        data[6] +
-                        "</td><td>" +
-                        data[7] +
-                        "</td></tr>";
-                }
-                document.getElementById("errorDetailsStats").innerHTML = "";
-                document.getElementById("statsDisplay1").innerHTML = content + "</tbody></table>";
-                $("#statsTable1").DataTable();
+    const formData = new FormData();
+    formData.append('operation', '047');
+    formData.append('startDate', startDate);
+    formData.append('endDate', endDate);
+    formData.append('statsFor', statsFor);
+
+    try {
+        const response = await fetch(Config.api_url, {
+            method: 'POST',
+            body: formData,
+        });
+
+        const result = await response.text();
+
+        document.querySelector(".loader").style.display = "none";
+
+        if (result === "dateError") {
+            document.getElementById("errorDetailsStats").innerHTML = "End Date Should be After Start Date";
+        } else {
+            const element = result.split("/END/");
+            const length = element.length - 1;
+
+            let content = `
+                <h1>BUSINESS STATISTICS</h1>
+                <table id='statsTable1' class='table table-striped table-bordered'>
+                    <thead>
+                        <th>Project ID</th>
+                        <th>User's Name</th>
+                        <th>Billing</th>
+                        <th>Payment</th>
+                        <th>Dues</th>
+                        <th>Caller Name</th>
+                        <th>DOR</th>
+                        <th>Project Type</th>
+                    </thead>
+                    <tbody>
+            `;
+
+            for (let i = 0; i < length; i++) {
+                const data = element[i].split("<-->");
+
+                content += `
+                    <tr>
+                        <td>${data[1]}</td>
+                        <td>${data[0]}</td>
+                        <td>${data[2]}</td>
+                        <td>${data[3]}</td>
+                        <td>${data[4]}</td>
+                        <td>${data[5]}</td>
+                        <td>${data[6]}</td>
+                        <td>${data[7]}</td>
+                    </tr>
+                `;
             }
-        },
-        error: function (jqXHR, exception) {
-            var msg = displayerror(jqXHR, exception);
-            alert(msg);
-        },
-    });
+
+            document.getElementById("statsDisplay1").innerHTML = content + "</tbody></table>";
+            $("#statsTable1").DataTable();
+        }
+
+    } catch (error) {
+        document.querySelector(".loader").style.display = "none";
+        console.error("Error occurred while fetching business stats:", error);
+        alert("An error occurred. Please try again.");
+    }
 }
 
-function getConvertedStats(startDate, endDate, statsFor) {
-    $(".loader").show();
-    $.ajax({
-        url: Config.api_url,
-        data: {
-            operation: "048",
-            startDate: startDate,
-            endDate: endDate,
-            statsFor: statsFor,
-        },
-        success: function (response) {
-            $(".loader").hide();
-            if (response == "dateError") {
-                document.getElementById("errorDetailsStats").innerHTML = "End Date Should be After Start Date";
-            } else {
-                var content =
-                    "<table id='statsTable2' class='table table-striped table-bordered'><thead><th>Name</th><th>Converted</th><th>Calls Made</th><th>Not Connected Calls</th><th>Connected Calls</th><th>Calls Duration</th><th>Billing</th><th>Dues</th><th>Break Time</th></thead><tbody>";
-                var element = response.split("/END/");
-                var length = element.length - 1;
-                var s1 = [],
-                    s2 = [],
-                    ticks = [];
-                for (let i = 0; i < length; i++) {
-                    var data = element[i].split("<-->");
-                    s1[i] = parseInt(data[2]);
-                    s2[i] = parseInt(data[3]);
-                    ticks[i] = data[1];
-                    content +=
-                        "<tr><td>" +
-                        data[1] +
-                        "</td><td>" +
-                        data[2] +
-                        "</td><td>" +
-                        data[3] +
-                        "</td><td>" +
-                        data[4] +
-                        "</td><td>" +
-                        data[5] +
-                        "</td><td>" +
-                        data[6] +
-                        "</td><td>" +
-                        data[7] +
-                        "</td><td>" +
-                        data[8] +
-                        "</td><td>" +
-                        data[9] +
-                        "</td></tr>";
-                }
-                console.log(s1);
-                console.log(s2);
-                console.log(ticks);
-                plot2 = $.jqplot("statsDisplayGraph2", [s1, s2], {
-                    animate: !$.jqplot.use_excanvas,
-                    seriesDefaults: {
-                        renderer: $.jqplot.BarRenderer,
-                        pointLabels: { show: true },
-                    },
-                    legend: {
-                        show: true,
-                        location: "ne",
-                        labels: ["Converted", "Calls"],
-                        placement: "inside",
-                    },
-                    axes: {
-                        xaxis: {
-                            renderer: $.jqplot.CategoryAxisRenderer,
-                            ticks: ticks,
-                        },
-                    },
-                });
+async function getConvertedStats(startDate, endDate, statsFor) {
+    document.querySelector(".loader").style.display = "block";
 
-                $("#statsDisplayGraph2").bind("jqplotDataHighlight", function (ev, seriesIndex, pointIndex, data) {
-                    $("#info2").html("series: " + seriesIndex + ", point: " + pointIndex + ", data: " + data);
-                });
+    const formData = new FormData();
+    formData.append('operation', '048');
+    formData.append('startDate', startDate);
+    formData.append('endDate', endDate);
+    formData.append('statsFor', statsFor);
 
-                $("#statsDisplayGraph2").bind("jqplotDataUnhighlight", function (ev) {
-                    $("#info2").html("Nothing");
-                });
+    try {
+        const response = await fetch(Config.api_url, {
+            method: 'POST',
+            body: formData,
+        });
 
-                document.getElementById("errorDetailsStats").innerHTML = "";
-                document.getElementById("statsDisplay2").innerHTML = content + "</tbody></table>";
-                $("#statsTable2").DataTable();
+        const result = await response.text();
+
+        document.querySelector(".loader").style.display = "none";
+
+        if (result === "dateError") {
+            document.getElementById("errorDetailsStats").innerHTML = "End Date Should be After Start Date";
+        } else {
+            const element = result.split("/END/");
+            const length = element.length - 1;
+
+            let content = `
+                <table id='statsTable2' class='table table-striped table-bordered'>
+                    <thead>
+                        <th>Name</th>
+                        <th>Converted</th>
+                        <th>Calls Made</th>
+                        <th>Not Connected Calls</th>
+                        <th>Connected Calls</th>
+                        <th>Calls Duration</th>
+                        <th>Billing</th>
+                        <th>Dues</th>
+                        <th>Break Time</th>
+                    </thead>
+                    <tbody>
+            `;
+
+            const s1 = [], s2 = [], ticks = [];
+
+            for (let i = 0; i < length; i++) {
+                const data = element[i].split("<-->");
+
+                s1[i] = parseInt(data[2]);
+                s2[i] = parseInt(data[3]);
+                ticks[i] = data[1];
+
+                content += `
+                    <tr>
+                        <td>${data[1]}</td>
+                        <td>${data[2]}</td>
+                        <td>${data[3]}</td>
+                        <td>${data[4]}</td>
+                        <td>${data[5]}</td>
+                        <td>${data[6]}</td>
+                        <td>${data[7]}</td>
+                        <td>${data[8]}</td>
+                        <td>${data[9]}</td>
+                    </tr>
+                `;
             }
-        },
-        error: function (jqXHR, exception) {
-            var msg = displayerror(jqXHR, exception);
-            alert(msg);
-        },
-    });
+
+            console.log(s1, s2, ticks);
+
+            plot2 = $.jqplot("statsDisplayGraph2", [s1, s2], {
+                animate: !$.jqplot.use_excanvas,
+                seriesDefaults: {
+                    renderer: $.jqplot.BarRenderer,
+                    pointLabels: { show: true },
+                },
+                legend: {
+                    show: true,
+                    location: "ne",
+                    labels: ["Converted", "Calls"],
+                    placement: "inside",
+                },
+                axes: {
+                    xaxis: {
+                        renderer: $.jqplot.CategoryAxisRenderer,
+                        ticks: ticks,
+                    },
+                },
+            });
+
+            document.getElementById("statsDisplay2").innerHTML = content + "</tbody></table>";
+            $("#statsTable2").DataTable();
+        }
+
+    } catch (error) {
+        document.querySelector(".loader").style.display = "none";
+        console.error("Error occurred while fetching converted stats:", error);
+        alert("An error occurred. Please try again.");
+    }
 }
+
 
 // Notification
 
@@ -15312,21 +15466,8 @@ function getAllProjectPaymentSupport(id) {
                         var status = "Unverified";
                     }
                 }
-                content +=
-                    "<tr><td>Rs." +
-                    data[0] +
-                    "</td><td><button class='btn btn-primary' onClick=\"openNewTab('" +
-                    data[1] +
-                    "')\">Check Proof</button></td> +"
-                    "<td>" +
-                    data[3] +
-                    "</td><td><b>Updated By: </b>" +
-                    data[6] +
-                    "<hr>" +
-                    data[2] +
-                    "</td><td>" +
-                    status +
-                    "</td></tr>";
+                content += "<tr><td>Rs." + data[0] + "</td><td><button class='btn btn-primary' onClick=\"openNewTab('" + data[1] + "')\">Check Proof</button></td> +";
+                "<td>" + data[3] + "</td><td><b>Updated By: </b>" + data[6] + "<hr>" + data[2] + "</td><td>" + status + "</td></tr>";
             }
             document.getElementById("allProjectPayment").innerHTML = content + "</tbody></table><div class='container'><b>Total : Rs </b>" + amount + "</div>";
         },
@@ -16243,9 +16384,9 @@ function loadcallerdemoleads() {
             var demo_leads = parseInt(response.demo_leads);
 
             // Calculate the lead-to-demo ratio
-            var leadToDemoRatioToday = (leads_today > 0) ? (demo_leads_today / leads_today) : 0; // Prevent division by zero
-            var leadToDemoRatioTotal = (total_leads > 0) ? (demo_leads / total_leads) : 0; // Prevent division by zero
-            
+            var leadToDemoRatioToday = leads_today > 0 ? demo_leads_today / leads_today : 0; // Prevent division by zero
+            var leadToDemoRatioTotal = total_leads > 0 ? demo_leads / total_leads : 0; // Prevent division by zero
+
             // Format the ratio as a percentage (optional)
             var leadToDemoRatioTodayPercentage = (leadToDemoRatioToday * 100).toFixed(2) + "%";
             var leadToDemoRatioTotalPercentage = (leadToDemoRatioTotal * 100).toFixed(2) + "%";
