@@ -932,74 +932,6 @@
                 </div>
             </div>
 
-            <!-- Edit Member -->
-            <!-- <div class="modal fade" id="exampleModalEditMember" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
-                    <div class="modal-dialog" role="document">
-                        <div class="modal-content">
-                            <div class="modal-header">
-                                <h3 class="modal-title" id="exampleModalLabel">EDIT MEMBER</h3>
-                                <button type="button" class="btn-close" data-dismiss="modal" aria-label="Close">
-                                    <span aria-hidden="true">&times;</span>
-                                </button>
-                            </div>
-                            <div class="modal-body">
-                                <form>
-                                    <div class="form-group">
-                                        <label for="edit_CallerID" class="col-form-label">ID:</label>
-                                        <input type="text" disabled class="form-control" id="edit_CallerID" />
-                                    </div>
-                                    <div class="form-group">
-                                        <label for="edit_nameCaller" class="col-form-label">Name:</label>
-                                        <input type="text" class="form-control" id="edit_nameCaller" />
-                                    </div>
-                                    <div class="form-group">
-                                        <label for="edit_mobileCaller" class="col-form-label">Mobile:</label>
-                                        <input type="text" class="form-control" disabled id="edit_mobileCaller" />
-                                    </div>
-                                    <div class="form-group">
-                                        <label for="edit_passwordCaller" class="col-form-label">Password:</label>
-                                        <div class="input-group">
-                                            <input type="password" class="form-control" id="edit_passwordCaller" />
-                                            <div class="input-group-append">
-                                                <button class="btn btn-outline-secondary" type="button" id="togglePassword"> Show </button>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <script>
-                                        document.getElementById("togglePassword").addEventListener("click", function () {
-                                            const passwordField = document.getElementById("edit_passwordCaller");
-                                            const toggleButton = document.getElementById("togglePassword");
-                                            if (passwordField.type === "password") {
-                                                passwordField.type = "text";
-                                                toggleButton.textContent = "Hide";
-                                            } else {
-                                                passwordField.type = "password";
-                                                toggleButton.textContent = "Show";
-                                            }
-                                        });
-                                    </script>
-                                    <div class="form-group">
-                                        <label for="edit_type" class="col-form-label">Type:</label>
-                                        <select class="form-control" id="edit_type">
-                                            <option>Admin</option>
-                                            <option>Caller</option>
-                                            <option>TL</option>
-                                            <option>Developer</option>
-                                            <option>Support</option>
-                                        </select>
-                                    </div>
-                                </form>
-                            </div>
-                            <div class="modal-footer">
-                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                                <button type="button" class="btn btn-primary" onclick="editCaller()">Save Changes</button>
-                            </div>
-                            <p id="errorDetailsCallerFormEdit" style="text-align: right; color: crimson"></p>
-                        </div>
-                    </div>
-                </div> -->
-
             <!--Add Attendence-->
             <div class="modal fade" id="ModalAttendence" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
                 aria-hidden="true">
@@ -1232,13 +1164,9 @@
                                         <label for="formFile" class="form-label">Attachments</label>
                                         <input class="form-control" type="file" accept="image/*" id="newImageInputhr"
                                             onchange="handleFileSelecthr(event)" name="newImageInputhr" multiple />
-
-                                        <div style="margin-top: 10px">
-                                            <button id="removeImageBtn" type="button" onclick="clearFileInput()"
-                                                style="display: none" class="btn btn-danger">Remove All</button>
-                                        </div>
-
                                     </div>
+
+                                </div>
                             </form>
                         </div>
 
@@ -1402,7 +1330,7 @@
                                     <th>Summary</th>
                                     <th>Next Call</th>
                                     <th>Audio</th>
-                                    <th>Call Quality</th>
+                                    
 
                                 </thead>
                                 <tbody> </tbody>

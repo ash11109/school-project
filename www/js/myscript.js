@@ -506,7 +506,7 @@ async function getAdminMeta(id, emp_id) {
                     const updatedUrls = currentUrls.filter((currentUrl) => currentUrl !== url.trim());
                     imageInput.value = updatedUrls.join(";");
 
-                    checkAndToggleButtons(); // Update button visibility
+                  
                 };
 
                 // Append the image preview and the remove button to the wrapper
@@ -518,7 +518,7 @@ async function getAdminMeta(id, emp_id) {
             });
         }
 
-        checkAndToggleButtons(); // Update button visibility based on the current state
+       
     }
 }
 
@@ -1118,7 +1118,7 @@ async function handleFileSelecthr(event) {
                     const updatedUrls = currentUrls.filter((currentUrl) => currentUrl !== url.trim());
                     imageInput.value = updatedUrls.join(";");
 
-                    checkAndToggleButtons(); // Update button visibility
+                   
                 };
 
                 // Append the image preview and the remove button to the wrapper
@@ -1134,17 +1134,9 @@ async function handleFileSelecthr(event) {
         }
     });
 
-    checkAndToggleButtons(validFiles); // Show or hide buttons based on file validity
 }
 
-function checkAndToggleButtons(validFiles) {
-    const removeImageBtn = document.getElementById("removeImageBtn");
-    if (validFiles && selectedFiles.length > 0) {
-        removeImageBtn.style.display = "inline-block";
-    } else {
-        removeImageBtn.style.display = "none";
-    }
-}
+
 
 function updateFileUrl(imageUrlsString) {
     const fileUrlInput = document.getElementById("fileurl");
@@ -7834,7 +7826,7 @@ function clearFileInput() {
     selectedFiles = [];
     document.getElementById("image-preview-container").innerHTML = "";
     document.getElementById("newImageInputhr").value = "";
-    checkAndToggleButtons(false);
+
 }
 
 // function getAdminDetails(id) {
@@ -8085,37 +8077,46 @@ function getAudio(condition) {
         return "";
     }
 }
-async function getAllStatus(id) {
-    id = parseInt(id);
-    console.log(`Getting Status For Lead ID ${id}`);
-    $(this).closest("tr").toggleClass("table-primary");
-    console.log($(this).closest("tr"));
 
+
+async function getAllStatus(id) {
+    $("#statustable tbody").empty();
+    
     if ($.fn.DataTable.isDataTable("#statustable")) {
-        // DataTable already initialized, destroy it first
         $("#statustable").DataTable().destroy();
     }
 
-    // Fetch data from the server
-    const formData = new FormData();
-    formData.append('operation', '009-new');
-    formData.append('id', id);
+    id = parseInt(id);
+    console.log(`Getting Status For Lead ID ${id}`);
+    
+    // Toggle row highlighting
+    const rowElement = $(this).closest("tr");
+    rowElement.toggleClass("table-primary");
+    console.log(rowElement);
 
+    // Destroy existing DataTable instance if initialized
+    
     try {
+        // Fetch data
         const response = await fetch(Config.api_url, {
-            method: 'POST',
-            body: formData,
+            method: "POST",
+            body: new URLSearchParams({
+                operation: "009-new",
+                id: id,
+            }),
         });
 
-        const data = await response.json();
+        if (!response.ok) {
+            throw new Error("Failed to fetch status data.");
+        }
 
+        const result = await response.json();
+
+        // Initialize DataTable with fetched data
         $("#statustable").DataTable({
+            data: result,
             order: [[1, "desc"]],
-            processing: false,
-            paging: true,
-            pagingType: "full_numbers",
-            serverSide: true,
-            data: data, // Using the data fetched from the API
+            data : result.data,
             columns: [
                 { data: "Name" },
                 { data: "DOR" },
@@ -8125,22 +8126,21 @@ async function getAllStatus(id) {
                     data: "Call_Recording",
                     render: (data, type, row) => {
                         const duration = row.Duration_Of_Call;
-                        if (!duration || duration == 0) {
-                            return "<div class='alert alert-danger' role='alert'>Audio not available </div>";
+
+                        if (!duration || duration === 0) {
+                            return `
+                                <div class='alert alert-danger' role='alert'>
+                                    Audio not available
+                                </div>`;
                         }
 
-                        return `<button class="load-audio-btn" data-audio-url="${data}" data-duration="${duration}">Load Audio</button>`;
-                    },
-                },
-                {
-                    data: "Call_Recording",
-                    render: (data, type, row) => {
-                        const duration = row.Duration_Of_Call;
-                        if (!duration || duration == 0) {
-                            return "<div class='alert alert-danger'>Not available </div>";
-                        }
-
-                        return `<button class="btn btn-primary" onclick="loadQA('${data}', '${row.Interested_In}', ${row.CS_ID})">Call QA</button>`;
+                        return `
+                            <button class="load-audio-btn btn btn-info" data-audio-url="${data}" data-duration="${duration}">
+                                Load Audio
+                            </button>
+                            <button class="btn btn-primary" onclick="loadQA('${data}', '${row.Interested_In}', ${row.CS_ID})">
+                                Call QA
+                            </button>`;
                     },
                 },
             ],
@@ -8148,17 +8148,20 @@ async function getAllStatus(id) {
 
         showMailOption(id);
 
-        // Event handler for clicking the load audio button
+        // Event delegation for dynamically loaded audio buttons
         $("#statustable").on("click", ".load-audio-btn", function () {
             const audioUrl = $(this).data("audio-url");
 
             // Replace the button with the audio player
-            const audioPlayer = `<audio controls autoplay><source src="${audioUrl}" type="audio/mpeg">Your browser does not support the audio element.</audio>`;
+            const audioPlayer = `
+                <audio controls autoplay>
+                    <source src="${audioUrl}" type="audio/mpeg">
+                    Your browser does not support the audio element.
+                </audio>`;
             $(this).parent().html(audioPlayer);
         });
-
     } catch (error) {
-        console.error("Error fetching data:", error);
+        console.error("Error fetching or initializing DataTable:", error);
     }
 }
 
@@ -16613,72 +16616,6 @@ function deviceLoad() {
     checkRecordings();
 }
 
-let logMessages = [];
-
-// Override console methods
-["log", "warn", "error"].forEach(function (method) {
-    const original = console[method];
-    console[method] = function (...args) {
-        // Store logs with a timestamp
-        logMessages.push(`[${method.toUpperCase()}] ${new Date().toISOString()}: ${args.join(" ")}`);
-        original.apply(console, args);
-    };
-});
-
-function onError(error) {
-    const errorMessage = `Error code: ${error.code}, Message: ${error.message}`;
-    console.error("Recording Error:", errorMessage);
-}
-
-function saveLogsToFile() {
-    const logContent = logMessages.join("\n");
-
-    // Access the file system on the SD card
-    window.resolveLocalFileSystemURL(
-        cordova.file.externalRootDirectory,
-        function (directoryEntry) {
-            // Create or open the logs directory
-            directoryEntry.getDirectory(
-                "logs",
-                { create: true, exclusive: false },
-                function (logDir) {
-                    // Create or open the log file within the logs directory
-                    logDir.getFile(
-                        "appLogs.txt",
-                        { create: true, exclusive: false },
-                        function (fileEntry) {
-                            // Create a FileWriter object for the file
-                            fileEntry.createWriter(function (fileWriter) {
-                                fileWriter.onwriteend = function () {
-                                    console.log("Log file successfully appended to SD card.");
-                                };
-
-                                fileWriter.onerror = function (e) {
-                                    console.error("Failed to append to log file: " + e.toString());
-                                };
-
-                                // Move the write position to the end of the file
-                                fileWriter.seek(fileWriter.length);
-
-                                // Write the log content to the file
-                                fileWriter.write(logContent);
-                            });
-                        },
-                        function (error) {
-                            console.error("Error accessing log file: " + error.toString());
-                        }
-                    );
-                },
-                function (error) {
-                    console.error("Error creating log directory: " + error.toString());
-                }
-            );
-        },
-        function (error) {
-            console.error("Error accessing SD card: " + error.toString());
-        }
-    );
-}
 
 function onDeviceReady() {
     console.log("Running cordova-" + cordova.platformId + "@" + cordova.version);
