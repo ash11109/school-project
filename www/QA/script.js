@@ -1,7 +1,7 @@
 const OPENAI_API = "https://api.openai.com/v1/chat/completions";
 const MODEL = "gpt-4";
 const key =
-  "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";
+  "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";
 
 let CRM_AI_API = "https://teamka.in/z_ash_test/ash_ai_api.php";
 

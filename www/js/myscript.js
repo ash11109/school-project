@@ -8119,19 +8119,20 @@ async function getAllStatus(id) {
                         }
 
                         return `
-    <button class="load-audio-btn btn btn-info" data-audio-url="${data}" data-duration="${duration}">
-        Load Audio
-    </button>
-    ${
-        localStorage.userType === "Admin"
-            ? `
-        <button class="btn btn-primary" onclick="loadQA('${data}', '${row.Interested_In}', ${row.CS_ID})">
-            Call QA
-        </button>
-    `
-            : ""
-    }
-`;
+                            <button class="load-audio-btn btn btn-info" data-audio-url="${data}" data-duration="${duration}">
+                                Load Audio
+                            </button>
+                            ${
+                                localStorage.userType === "Admin" || localStorage.userType === "TL"
+                                    ? `
+                                <button class="btn btn-primary" onclick="loadQA('${data}', '${row.Interested_In}', ${row.CS_ID})">
+                                    Call QA
+                                </button>
+                            `
+                                    : ""
+                            }
+                        `;
+
                     },
                 },
             ],
