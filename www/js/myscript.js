@@ -505,8 +505,6 @@ async function getAdminMeta(id, emp_id) {
                     const currentUrls = imageInput.value.split(";").map((url) => url.trim());
                     const updatedUrls = currentUrls.filter((currentUrl) => currentUrl !== url.trim());
                     imageInput.value = updatedUrls.join(";");
-
-                  
                 };
 
                 // Append the image preview and the remove button to the wrapper
@@ -517,8 +515,6 @@ async function getAdminMeta(id, emp_id) {
                 imagePreviewContainer.appendChild(imagePreviewWrapper);
             });
         }
-
-       
     }
 }
 
@@ -1117,8 +1113,6 @@ async function handleFileSelecthr(event) {
                     const currentUrls = imageInput.value.split(";").map((url) => url.trim());
                     const updatedUrls = currentUrls.filter((currentUrl) => currentUrl !== url.trim());
                     imageInput.value = updatedUrls.join(";");
-
-                   
                 };
 
                 // Append the image preview and the remove button to the wrapper
@@ -1133,10 +1127,7 @@ async function handleFileSelecthr(event) {
             validFiles = false;
         }
     });
-
 }
-
-
 
 function updateFileUrl(imageUrlsString) {
     const fileUrlInput = document.getElementById("fileurl");
@@ -2368,58 +2359,54 @@ async function fetchMissedCalls() {
         }
 
         const data = await response.json();
-const admins = data.admins;
-const leads = data.leads;
-const missedCalls = data.missed_calls;
+        const admins = data.admins;
+        const leads = data.leads;
+        const missedCalls = data.missed_calls;
 
-// Step 1: Create a lookup for admins
-const adminLookup = new Map(admins.map((admin) => [admin.Admin_ID, admin.Name]));
+        // Step 1: Create a lookup for admins
+        const adminLookup = new Map(admins.map((admin) => [admin.Admin_ID, admin.Name]));
 
-// Step 2: Pre-filter relevant leads
-const relevantMobileNumbers = new Set(missedCalls.map((mc) => mc.Mobile_Number));
+        // Step 2: Pre-filter relevant leads
+        const relevantMobileNumbers = new Set(missedCalls.map((mc) => mc.Mobile_Number));
 
-const filteredLeads = leads.filter(
-    (lead) =>
-        relevantMobileNumbers.has(lead.Mobile) ||
-        relevantMobileNumbers.has(lead.Alternate_Mobile) ||
-        relevantMobileNumbers.has(lead.Whatsapp)
-);
+        const filteredLeads = leads.filter(
+            (lead) => relevantMobileNumbers.has(lead.Mobile) || relevantMobileNumbers.has(lead.Alternate_Mobile) || relevantMobileNumbers.has(lead.Whatsapp)
+        );
 
-// Create a lookup table for filtered leads
-const leadLookup = new Map();
-filteredLeads.forEach((lead) => {
-    if (lead.Mobile) leadLookup.set(lead.Mobile, lead);
-    if (lead.Alternate_Mobile) leadLookup.set(lead.Alternate_Mobile, lead);
-    if (lead.Whatsapp) leadLookup.set(lead.Whatsapp, lead);
-});
+        // Create a lookup table for filtered leads
+        const leadLookup = new Map();
+        filteredLeads.forEach((lead) => {
+            if (lead.Mobile) leadLookup.set(lead.Mobile, lead);
+            if (lead.Alternate_Mobile) leadLookup.set(lead.Alternate_Mobile, lead);
+            if (lead.Whatsapp) leadLookup.set(lead.Whatsapp, lead);
+        });
 
-// Step 3: Efficient mapping
-const joinedData = missedCalls.map((missedCall) => {
-    const adminName = adminLookup.get(missedCall.Admin_ID) || "Unknown";
-    const lead = leadLookup.get(missedCall.Mobile_Number);
+        // Step 3: Efficient mapping
+        const joinedData = missedCalls.map((missedCall) => {
+            const adminName = adminLookup.get(missedCall.Admin_ID) || "Unknown";
+            const lead = leadLookup.get(missedCall.Mobile_Number);
 
-    return {
-        ...missedCall,
-        Admin_ID: adminName,
-        Lead_ID: lead ? lead.Lead_ID : null,
-        Name: lead ? lead.Name : "Unknown",
-        number: missedCall.Mobile_Number,
-        Mobile: lead ? lead.Mobile : missedCall.Mobile_Number,
-        Alternate_Mobile: lead ? lead.Alternate_Mobile : null,
-        Whatsapp: lead ? lead.Whatsapp : null,
-        Email: lead ? lead.Email : null,
-        Interested_In: lead ? lead.Interested_In : null,
-        Source: lead ? lead.Source : null,
-        status_lead: lead ? lead.Status : null,
-        status: missedCall.status,
-        DOR: lead ? lead.DOR : null,
-        Caller: lead ? lead.Caller : null,
-        State: lead ? lead.State : null,
-        City: lead ? lead.City : null,
-        date: missedCall.DOR, // Replace this with the correct property if needed
-    };
-});
-
+            return {
+                ...missedCall,
+                Admin_ID: adminName,
+                Lead_ID: lead ? lead.Lead_ID : null,
+                Name: lead ? lead.Name : "Unknown",
+                number: missedCall.Mobile_Number,
+                Mobile: lead ? lead.Mobile : missedCall.Mobile_Number,
+                Alternate_Mobile: lead ? lead.Alternate_Mobile : null,
+                Whatsapp: lead ? lead.Whatsapp : null,
+                Email: lead ? lead.Email : null,
+                Interested_In: lead ? lead.Interested_In : null,
+                Source: lead ? lead.Source : null,
+                status_lead: lead ? lead.Status : null,
+                status: missedCall.status,
+                DOR: lead ? lead.DOR : null,
+                Caller: lead ? lead.Caller : null,
+                State: lead ? lead.State : null,
+                City: lead ? lead.City : null,
+                date: missedCall.DOR, // Replace this with the correct property if needed
+            };
+        });
 
         // Log or use the joined data
         console.log(joinedData);
@@ -6231,7 +6218,7 @@ function recordAudio(callDetails) {
         function () {
             console.log("Recording File Created .");
         },
-        onError // Use error callback for Media API errors
+      
     );
 
     myMedia.startRecord();
@@ -6256,7 +6243,7 @@ function stopRecordIncomingCall() {
         console.log("Recording stopped successfully.");
     } catch (e) {
         // Handle exceptions
-        onError(e);
+        console.log(e);
     }
 }
 function stopRecordMulti(lead_id, index, tableId) {
@@ -7826,7 +7813,6 @@ function clearFileInput() {
     selectedFiles = [];
     document.getElementById("image-preview-container").innerHTML = "";
     document.getElementById("newImageInputhr").value = "";
-
 }
 
 // function getAdminDetails(id) {
@@ -8078,24 +8064,23 @@ function getAudio(condition) {
     }
 }
 
-
 async function getAllStatus(id) {
     $("#statustable tbody").empty();
-    
+
     if ($.fn.DataTable.isDataTable("#statustable")) {
         $("#statustable").DataTable().destroy();
     }
 
     id = parseInt(id);
     console.log(`Getting Status For Lead ID ${id}`);
-    
+
     // Toggle row highlighting
     const rowElement = $(this).closest("tr");
     rowElement.toggleClass("table-primary");
     console.log(rowElement);
 
     // Destroy existing DataTable instance if initialized
-    
+
     try {
         // Fetch data
         const response = await fetch(Config.api_url, {
@@ -8116,7 +8101,7 @@ async function getAllStatus(id) {
         $("#statustable").DataTable({
             data: result,
             order: [[1, "desc"]],
-            data : result.data,
+            data: result.data,
             columns: [
                 { data: "Name" },
                 { data: "DOR" },
@@ -8135,12 +8120,19 @@ async function getAllStatus(id) {
                         }
 
                         return `
-                            <button class="load-audio-btn btn btn-info" data-audio-url="${data}" data-duration="${duration}">
-                                Load Audio
-                            </button>
-                            <button class="btn btn-primary" onclick="loadQA('${data}', '${row.Interested_In}', ${row.CS_ID})">
-                                Call QA
-                            </button>`;
+    <button class="load-audio-btn btn btn-info" data-audio-url="${data}" data-duration="${duration}">
+        Load Audio
+    </button>
+    ${
+        localStorage.userType === "Admin"
+            ? `
+        <button class="btn btn-primary" onclick="loadQA('${data}', '${row.Interested_In}', ${row.CS_ID})">
+            Call QA
+        </button>
+    `
+            : ""
+    }
+`;
                     },
                 },
             ],
@@ -8169,12 +8161,12 @@ async function showMailOption(id) {
     document.querySelector(".loader").style.display = "block";
 
     const formData = new FormData();
-    formData.append('operation', '024');
-    formData.append('id', id);
+    formData.append("operation", "024");
+    formData.append("id", id);
 
     try {
         const response = await fetch(Config.api_url, {
-            method: 'POST',
+            method: "POST",
             body: formData,
         });
 
@@ -8191,14 +8183,12 @@ async function showMailOption(id) {
         } else {
             mailOptionElement.innerHTML = "";
         }
-
     } catch (error) {
         document.querySelector(".loader").style.display = "none";
         console.error("Error occurred while fetching mail option:", error);
         alert("An error occurred. Please try again.");
     }
 }
-
 
 //Get Name And Type of User
 function getUserDetails() {
@@ -13875,14 +13865,14 @@ async function getStatsTL() {
     document.querySelector(".loader").style.display = "block";
 
     const formData = new FormData();
-    formData.append('operation', '046');
-    formData.append('startDate', startDate);
-    formData.append('endDate', endDate);
-    formData.append('statsFor', statsFor);
+    formData.append("operation", "046");
+    formData.append("startDate", startDate);
+    formData.append("endDate", endDate);
+    formData.append("statsFor", statsFor);
 
     try {
         const response = await fetch(Config.api_url, {
-            method: 'POST',
+            method: "POST",
             body: formData,
         });
 
@@ -13935,7 +13925,6 @@ async function getStatsTL() {
             CheckCallWaiseStatus(startDate, endDate);
             document.getElementById("errorDetailsStats").innerHTML = "";
         }
-
     } catch (error) {
         document.querySelector(".loader").style.display = "none";
         console.error("Error occurred while fetching statistics:", error);
@@ -13947,14 +13936,14 @@ async function getBusinessStats(startDate, endDate, statsFor) {
     document.querySelector(".loader").style.display = "block";
 
     const formData = new FormData();
-    formData.append('operation', '047');
-    formData.append('startDate', startDate);
-    formData.append('endDate', endDate);
-    formData.append('statsFor', statsFor);
+    formData.append("operation", "047");
+    formData.append("startDate", startDate);
+    formData.append("endDate", endDate);
+    formData.append("statsFor", statsFor);
 
     try {
         const response = await fetch(Config.api_url, {
-            method: 'POST',
+            method: "POST",
             body: formData,
         });
 
@@ -14004,7 +13993,6 @@ async function getBusinessStats(startDate, endDate, statsFor) {
             document.getElementById("statsDisplay1").innerHTML = content + "</tbody></table>";
             $("#statsTable1").DataTable();
         }
-
     } catch (error) {
         document.querySelector(".loader").style.display = "none";
         console.error("Error occurred while fetching business stats:", error);
@@ -14016,14 +14004,14 @@ async function getConvertedStats(startDate, endDate, statsFor) {
     document.querySelector(".loader").style.display = "block";
 
     const formData = new FormData();
-    formData.append('operation', '048');
-    formData.append('startDate', startDate);
-    formData.append('endDate', endDate);
-    formData.append('statsFor', statsFor);
+    formData.append("operation", "048");
+    formData.append("startDate", startDate);
+    formData.append("endDate", endDate);
+    formData.append("statsFor", statsFor);
 
     try {
         const response = await fetch(Config.api_url, {
-            method: 'POST',
+            method: "POST",
             body: formData,
         });
 
@@ -14053,7 +14041,9 @@ async function getConvertedStats(startDate, endDate, statsFor) {
                     <tbody>
             `;
 
-            const s1 = [], s2 = [], ticks = [];
+            const s1 = [],
+                s2 = [],
+                ticks = [];
 
             for (let i = 0; i < length; i++) {
                 const data = element[i].split("<-->");
@@ -14102,14 +14092,12 @@ async function getConvertedStats(startDate, endDate, statsFor) {
             document.getElementById("statsDisplay2").innerHTML = content + "</tbody></table>";
             $("#statsTable2").DataTable();
         }
-
     } catch (error) {
         document.querySelector(".loader").style.display = "none";
         console.error("Error occurred while fetching converted stats:", error);
         alert("An error occurred. Please try again.");
     }
 }
-
 
 // Notification
 
@@ -16616,7 +16604,6 @@ function deviceLoad() {
     checkRecordings();
 }
 
-
 function onDeviceReady() {
     console.log("Running cordova-" + cordova.platformId + "@" + cordova.version);
     cordova.plugins.backgroundMode.enable();
@@ -16667,7 +16654,7 @@ function onDeviceReady() {
                         console.log("Recording stopped successfully.");
                     } catch (e) {
                         // Handle exceptions
-                        onError(e);
+                        console.log(e);
                     }
                 }
                 break;
