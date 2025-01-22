@@ -4193,7 +4193,6 @@ function getLast30Days() {
 
 function run15() {
     console.log("runned");
-    callerDataMonth();
     callerDataToday();
     addMissedCall();
 }
@@ -6391,7 +6390,7 @@ function uploadPhoto(imageURI, callDetails, callback) {
                 document.getElementById("summary_note").value = "";
                 alert("Status Uploaded", JSON.stringify(r));
                 console.log("Upload sucess");
-                saveLogsToFile();
+                
                 getAllStatus(leadId);
                 // alert("upload success");
                 callback(true);
@@ -6400,7 +6399,7 @@ function uploadPhoto(imageURI, callDetails, callback) {
                 $(".loader").hide();
                 alert("upload failed");
                 console.log("Upload Failed");
-                saveLogsToFile();
+                
                 callback(false);
             },
             options
