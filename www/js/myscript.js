@@ -2709,27 +2709,32 @@ document.addEventListener("DOMContentLoaded", function () {
 
                     let x = 1; // Declare x outside the loop
 
-                    data.members.forEach(function (option) {
-                        var isSelected = false;
-                    
-                        // Check if the option is selected
-                        if (data.selected) {
-                            isSelected = data.selected.some((selectedMember) => selectedMember.Admin_ID.trim() === option.Admin_ID.trim());
-                        }
-                    
-                        console.log(isSelected);
-                    
-                        // Append the option to the select element
-                        $("#mb-select").append(
-                            $("<option>", {
-                                value: option.Admin_ID,
-                                text: x + ". " + option.Name + " - " + option.Type, // Use x for numbering
-                                selected: isSelected,
-                            })
-                        );
-                    
-                        x++; // Increment x
-                    });
+// Sort the members by the "Type" property
+data.members.sort((a, b) => a.Type.localeCompare(b.Type));
+
+// Iterate through the sorted members
+data.members.forEach(function (option) {
+    var isSelected = false;
+
+    // Check if the option is selected
+    if (data.selected) {
+        isSelected = data.selected.some((selectedMember) => selectedMember.Admin_ID.trim() === option.Admin_ID.trim());
+    }
+
+    console.log(isSelected);
+
+    // Append the option to the select element
+    $("#mb-select").append(
+        $("<option>", {
+            value: option.Admin_ID,
+            text: x + ". " + option.Name + " - " + option.Type, // Use x for numbering
+            selected: isSelected,
+        })
+    );
+
+    x++; // Increment x
+});
+
 
 
                     $("#mb-select").selectpicker("refresh");
