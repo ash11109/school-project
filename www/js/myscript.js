@@ -618,7 +618,7 @@ async function allCaller() {
                     {
                         data: "metaStatus",
                         render: function (data, type, row) {
-                            return `<button class="btn btn-success" onclick="showAttendence(${row.Admin_ID})">Show</button>`;
+                            return `<button class="btn btn-success" onclick="showAttendence(${row.EMP_ID})">Show</button>`;
                         },
                     },
                 ],
@@ -2035,6 +2035,7 @@ async function login() {
             localStorage.setItem("userID", data.userID);
             localStorage.setItem("userName", data.userName);
             localStorage.setItem("userType", data.userType);
+            localStorage.setItem("empID", data.empID);
 
             window.location.href = data.dashboardURL; // Redirect to the appropriate dashboard
         } else {
@@ -2695,6 +2696,7 @@ document.addEventListener("DOMContentLoaded", function () {
         var selectedTL = $(this).val();
         if (selectedTL) {
             // Make AJAX call to get data based on the selected TL
+            $("#mb-select").empty();
             $.ajax({
                 url: Config.api_url,
                 method: "POST",
@@ -2705,20 +2707,30 @@ document.addEventListener("DOMContentLoaded", function () {
                     // For example:
                     console.log(data);
 
+                    let x = 1; // Declare x outside the loop
+
                     data.members.forEach(function (option) {
                         var isSelected = false;
+                    
+                        // Check if the option is selected
                         if (data.selected) {
                             isSelected = data.selected.some((selectedMember) => selectedMember.Admin_ID.trim() === option.Admin_ID.trim());
                         }
+                    
                         console.log(isSelected);
+                    
+                        // Append the option to the select element
                         $("#mb-select").append(
                             $("<option>", {
                                 value: option.Admin_ID,
-                                text: option.Name + " - " + option.Type,
+                                text: x + ". " + option.Name + " - " + option.Type, // Use x for numbering
                                 selected: isSelected,
                             })
                         );
+                    
+                        x++; // Increment x
                     });
+
 
                     $("#mb-select").selectpicker("refresh");
                 },

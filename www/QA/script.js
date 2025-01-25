@@ -19,13 +19,7 @@ likeDislikeButtons.forEach(button => {
   });
 });
 
-document.getElementById("submit-1").addEventListener("click", function () {
-  handleFeedback("details-1");
-});
 
-document.getElementById("submit-2").addEventListener("click", function () {
-  handleFeedback("details-2");
-});
 
 // Handle feedback submission
 function handleFeedback(detailsId) {
@@ -70,6 +64,7 @@ function loadQA(){
 async function startQA(audio_url, interested_in,c_id,cs_id) {
   
   let mp3_url = await genrateMp3Url(audio_url, c_id, cs_id);
+  console.log(mp3_url);
   let transcription =  await getTranscription();
   if ( transcription == null ) {
     await startTranscription(mp3_url);

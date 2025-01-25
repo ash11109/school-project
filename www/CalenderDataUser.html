@@ -138,94 +138,9 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.4/moment.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.13/index.global.min.js"></script>
     <script>
-        function calculateNodues() {
-            var countnodues = parseInt($("#nodues-count").text(), 10);
-            var countincentive = parseInt($("#noDuesincentive").text(), 10);
-
-            if (countnodues > 0) {
-                $("#nodues-count").css("color", "green");
-                var totalnodues = countincentive * countnodues;
-                $("#nodues-amount")
-                    .css("color", "green")
-                    .html("+₹" + totalnodues);
-            } else {
-                $("#nodues-count").css("color", "white");
-                $("#nodues-amount").css("color", "white").html("+₹00");
-            }
-
-            return totalnodues || 0; // Ensure totalnodues returns 0 if countnodues is 0
-        }
-
-        function calculateAbsentDues() {
-            var countAbsentallowed = parseInt($("#alowed-absent").text(), 10);
-            var countAbsent = parseInt($("#absent-count").text(), 10);
-            var countAbsentdue = parseInt($("#dueabsent").text(), 10);
-            var totalAbsent = 0;
-
-            if (countAbsent > countAbsentallowed) {
-                $("#absent-count").css("color", "red");
-                totalAbsent = (countAbsentallowed - countAbsent) * countAbsentdue;
-                $("#absent-dues")
-                    .css("color", "red")
-                    .html("₹" + totalAbsent)
-                    .css("display", "block");
-                console.log("greater");
-            } else if (countAbsent === 0) {
-                $("#absent-count").css("color", "green");
-                $("#absent-dues").css("color", "red").html("+₹100").css("display", "block");
-                console.log("absent is zero");
-            } else if (countAbsent < countAbsentallowed) {
-                $("#absent-count").css("color", "green");
-                $("#absent-dues").css("color", "green").html("").css("display", "none");
-                console.log("less");
-            }
-
-            return totalAbsent;
-        }
-
-        function calculateLateDues() {
-            var countlate = parseInt($("#late-count").text(), 10);
-            var countlateallowed = parseInt($("#allowed-late").text(), 10);
-            var countlatedue = parseInt($("#dueLate").text(), 10);
-            var totalLate = 0;
-
-            if (countlate > countlateallowed) {
-                $("#late-count").css("color", "red");
-                totalLate = (countlateallowed - countlate) * countlatedue;
-                $("#late-dues")
-                    .css("color", "red")
-                    .html("₹" + totalLate)
-                    .css("display", "block");
-            } else if (countlate < countlateallowed) {
-                $("#late-count").css("color", "green");
-                $("#late-dues").css("color", "green").html("").css("display", "none");
-            }
-
-            return totalLate;
-        }
-
-        function calculateDailySalary() {
-            var countTotalsal = parseInt($("#total-sal").text(), 10);
-            var countDailySal = Math.floor(countTotalsal / 30);
-            var countpresent = parseInt($("#present").text(), 10);
-
-            var totalAbsent = calculateAbsentDues();
-            var totalLate = calculateLateDues();
-            var totalnodues = calculateNodues();
-
-            var dailysalary = countDailySal * countpresent + totalAbsent + totalLate + totalnodues;
-            console.log("Daily Salary Calculation:", countDailySal, countpresent, totalAbsent, totalLate, totalnodues);
-            console.log("Final Daily Salary:", dailysalary);
-
-            $("#daily-sal").html("₹" + dailysalary);
-        }
-
-        function designTiles() {
-            calculateDailySalary();
-        }
 
         document.addEventListener("DOMContentLoaded", function () {
-            const id = localStorage.getItem("selectedUser") || localStorage.getItem("userID");
+            const id = localStorage.getItem("selectedUser") || localStorage.getItem("empID");
 
             function formatDate(date) {
                 const year = date.getFullYear();
@@ -234,29 +149,7 @@
                 return `${year}-${month}-${day}`;
             }
 
-            function noDues(startDate, endDate) {
-                //  console.log(startDate, endDate);
-
-                $.ajax({
-                    url: Config.api_url,
-                    data: {
-                        operation: "getNoDues",
-                        user_id: id,
-                        start: startDate,
-                        end: endDate,
-                    },
-                    method: "POST",
-                    success: function (response) {
-                        response = JSON.parse(response);
-
-                        $("#nodues-count").html(response.data);
-                        designTiles();
-                    },
-                    error: function (jqXHR, textStatus, errorThrown) {
-                        console.error(textStatus, errorThrown);
-                    },
-                });
-            }
+            
 
             function loadData() {
                 $.ajax({
@@ -266,7 +159,7 @@
                     success: function (response) {
                         response = JSON.parse(response);
                         console.log(response);
-                        $("#Name").html(response.data.Name);
+                        $("#Name").html(response.meta.username);
                         $("#JDate").html("Joined on :" + response.data.Joining_Date);
                         $("#RTime").html("Reporting Time: " + response.data.Reporting_Time);
                         $("#total-sal").html(response.meta.basicSalary);
@@ -424,9 +317,6 @@
                                     // Otherwise, set the endDate to the last day of the visible month
                                     endDate = formatDate(new Date(dateInfo.start.getFullYear(), dateInfo.start.getMonth() + 1, 0)); // Last day of the visible month
                                 }
-
-                                noDues(startDate, endDate);
-                                console.log(startDate, endDate);
 
                                 var currentMonth = dateInfo.view.currentStart.getMonth();
                                 var currentYear = dateInfo.view.currentStart.getFullYear();
