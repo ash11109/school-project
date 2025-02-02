@@ -1,3 +1,204 @@
+async function transferTask(){
+    let taskID = $("#transferTaskId").val();
+    let projID = $("#projDetails").val();
+    let assignedTo = $("#assignedTo").val();
+    let assignedWork = $("#assignedWork").val();
+    let remarks = $("#remarksProjAssign").val();
+    let deadline = $("#deadline").val();
+    let taskPriority = $("#taskPriority").val();
+
+    if (taskID == ""|| !taskID) {
+        alert("Please fill in all the fields");
+        return;
+    }
+
+    const response = await fetch(Config.api_url, {
+        method: "POST",
+        body: new URLSearchParams({
+            operation: "transferTask",
+            taskID: taskID,
+            projID: projID,
+            assignedTo: assignedTo,
+            assignedBy: localStorage.getItem("userID"),
+            assignedWork: assignedWork,
+            remarks: remarks,
+            deadline: deadline,
+            taskPriority: taskPriority,
+        }),
+    });
+
+    if (response.ok) {
+        const data =  await response.json();
+        console.log(data);
+        if(data.success == true){
+            alert("Task transfered successfully");
+            $('#exampleModalAssignProj').modal('hide');
+            assignedByMe();
+            taskTransferredMail(taskID)
+        }
+        else{alert("Failed to transfer task");}
+    }else{
+        alert("Failed to transfer task");
+    }
+}
+
+// Function to open the modal for assigning a task
+function openAssignModal() {
+    // Change modal title and button text dynamically
+    $('#exampleModalAssignProj').find('.modal-title').text('ASSIGN PROJECT');
+    $('#modalTaskAssignButton').text('Assign Task').attr('onclick', 'assignProjectTask()');
+
+    // Optionally, reset form fields if needed
+    $('#transferTaskId').val('');  // Reset hidden field
+    $('#assignedWork').val('');     // Reset assigned work input
+    $('#remarksProjAssign').val(''); // Reset remarks input
+    $('#projDetails').val('');     // Reset project select dropdown
+    $('#assignedTo').val('');      // Reset assign to select dropdown
+    $('#deadline').val('');        // Reset deadline input
+    $('#taskPriority').val('');    // Reset priority select dropdown
+
+    // Show the modal
+    $('#exampleModalAssignProj').modal('show');
+}
+
+// Function to open the modal for editing an existing task
+async function openEditModal(taskId) {
+    // Change modal title and button text dynamically for edit mode
+    $('#exampleModalAssignProj').find('.modal-title').text('Transfer Task');
+    $('#modalTaskAssignButton').text('Transfer').attr('onclick', `transferTask()`);
+
+     // Optionally, reset form fields if needed
+     $('#transferTaskId').val('');  // Reset hidden field
+     $('#assignedWork').val('');     // Reset assigned work input
+     $('#remarksProjAssign').val(''); // Reset remarks input
+     $('#projDetails').val('');     // Reset project select dropdown
+     $('#assignedTo').val('');      // Reset assign to select dropdown
+     $('#deadline').val('');        // Reset deadline input
+     $('#taskPriority').val('');    // Reset priority select dropdown
+
+    const response = await fetch(Config.api_url, {
+        method: "POST",
+        body: new URLSearchParams({
+            operation: "getTaskByID",
+            taskID: taskId,
+           
+        }),
+    });
+
+    if (response.ok) {
+        const result = await response.json();
+       // console.log(data);
+        $("#transferTaskId").val(result.data.Task_ID);
+        $("#projDetails").val(result.data.PD_ID);
+        $("#assignedTo").val(result.data.Assigned_To);
+        $("#assignedWork").val(result.data.Work);
+        $("#remarksProjAssign").val(result.data.Remark);
+        $("#deadline").val(result.data.Deadline);
+        $("#taskPriority").val(result.data.Task_Priority);
+
+    }else{
+        alert("Error failed to get task");
+    }
+
+    // Show the modal
+    $('#exampleModalAssignProj').modal('show');
+}
+
+
+// async function getTaskByID(taskID) {
+
+//     const response = await fetch(Config.api_url, {
+//         method: "POST",
+//         body: new URLSearchParams({
+//             operation: "getTaskByID",
+//             taskID: taskID,
+           
+//         }),
+//     });
+
+//     if (response.ok) {
+//         const data = await response.json();
+//         console.log(data);
+//         $("#transferTaskId").val(data.taskID);
+//         $("#projDetails").val(data.pd_id);
+//         $("#assignedTo").val(data.assignedTo);
+//         $("#assignedWork").val(data.assignedWork);
+//         $("#remarksProjAssign").val(data.remarksProjAssign);
+//         $("#deadline").val(data.deadline);
+//         $("#taskPriority").val(data.taskPriority);
+
+//         // var pd_id = document.getElementById("projDetails").value;
+//         // var assignedTo = document.getElementById("assignedTo").value;
+//         // var assignedWork = document.getElementById("assignedWork").value;
+//         // var remarksProjAssign = document.getElementById("remarksProjAssign").value;
+//         // var deadline = document.getElementById("deadline").value;
+//         // var taskPriority = document.getElementById("taskPriority").value;
+//     }else{
+//         alert("Error failed to get task");
+//     }
+// }
+
+// Function to initialize dynamic tabs
+function setupDynamicTabs() {
+
+  let tabCounter = 0; // To ensure unique IDs for new tabs
+
+  // Function to add a new tab dynamically
+  function addTab(url, title) {
+    tabCounter++;
+
+    // Unique IDs for the new tab and its content
+    const tabId = `tab-${tabCounter}`;
+    const tabContentId = `tab-content-${tabCounter}`;
+
+    // Add a new tab dynamically
+    const tabHTML = `
+      <li class="nav-item" role="presentation">
+        <button class="nav-link" id="${tabId}-tab" data-bs-toggle="tab" data-bs-target="#${tabContentId}" type="button" role="tab" aria-controls="${tabContentId}" aria-selected="false">
+          ${title} <span class="close-tab" data-tab-id="${tabId}">&times;</span>
+        </button>
+      </li>`;
+    document.getElementById("dynamicTabs").insertAdjacentHTML("beforeend", tabHTML);
+
+    // Add corresponding content dynamically
+    const tabContentHTML = `
+      <div class="tab-pane fade" id="${tabContentId}" role="tabpanel" aria-labelledby="${tabId}-tab">
+        <iframe src="${url}" style="width:100%; height:200vh; border:none;"></iframe>
+      </div>`;
+    document.getElementById("dynamicTabContent").insertAdjacentHTML("beforeend", tabContentHTML);
+
+    // Activate the newly created tab
+    const newTab = new bootstrap.Tab(document.getElementById(`${tabId}-tab`));
+    newTab.show();
+  }
+
+  // Attach the `addTab` function globally
+  openTab = addTab;
+
+  // Event listener for closing tabs
+  document.getElementById("dynamicTabs").addEventListener("click", function (e) {
+    if (e.target.classList.contains("close-tab")) {
+      const tabId = e.target.getAttribute("data-tab-id");
+      const tabElement = document.getElementById(tabId + "-tab");
+      const tabContentId = tabElement.getAttribute("data-bs-target");
+
+      // Remove tab and corresponding content
+      tabElement.parentElement.remove();
+      document.querySelector(tabContentId).remove();
+
+      // Activate the last remaining tab (if any)
+      const remainingTabs = document.querySelectorAll("#dynamicTabs .nav-link");
+      if (remainingTabs.length > 0) {
+        const lastTab = remainingTabs[remainingTabs.length - 1];
+        const lastTabInstance = new bootstrap.Tab(lastTab);
+        lastTabInstance.show();
+      }
+    }
+  });
+}
+
+ 
+
 async function getempStatuscount() {
     try {
         const formData = new FormData();
@@ -35,7 +236,13 @@ function loadQA(link, type, id) {
     localStorage.setItem("AI_QA_link", link);
     localStorage.setItem("AI_QA_Intrested_IN", type);
     localStorage.setItem("AI_QA_CS_ID", id);
-    window.open("./QA/callquality.html", "_blank");
+   
+    if(localStorage.getItem("userType") == "Admin") {
+        window.open("./QA/callquality.html", "_blank");
+    }else {
+        $(".btn-close").click();
+        openTab('./QA/callquality.html','Call QA');
+    }
 }
 
 // Function to fetch data from the API
@@ -833,6 +1040,25 @@ async function addNewProjMail(id) {
             method: "POST",
             body: new URLSearchParams({
                 operation: "addNewProjMail",
+                id: id,
+            }),
+        });
+
+        const responseData = await response.json();
+        sendMailNew(responseData);
+        console.log(responseData);
+    } catch (error) {
+        const msg = displayerror(error);
+        alert(msg);
+    }
+}
+
+async function taskTransferredMail(id) {
+    try {
+        const response = await fetch(Config.api_url, {
+            method: "POST",
+            body: new URLSearchParams({
+                operation: "taskTransferredMail",
                 id: id,
             }),
         });
@@ -2580,20 +2806,31 @@ async function getusersnew() {
         }
 
         const data = await response.json();
-        console.log(data);
+      
 
-        // Populate the select options
+        let x = 1; // Declare x outside the loop
+
+        // Sort the members by the "Type" property
+        data.sort((a, b) => a.Type.localeCompare(b.Type));
+        
+        // Iterate through the sorted members
         data.forEach(function (option) {
+            
+         
+            // Append the option to the select element
             $("#team-select").append(
                 $("<option>", {
                     value: option.Admin_ID,
-                    text: `${option.Name} - ${option.Type}`,
+                    text: x + ". " + option.Name + " - " + option.Type, // Use x for numbering
+                   
                 })
             );
+        
+            x++; // Increment x
         });
-
-        // Refresh the select picker (if applicable)
+        
         $("#team-select").selectpicker("refresh");
+
     } catch (error) {
         console.error("Error fetching options:", error);
         // Optionally, display the error to the user
@@ -4073,10 +4310,17 @@ async function getStatstl() {
     localStorage.setItem("end", end);
     localStorage.setItem("teamMembers", JSON.stringify(callers));
 
-    var newUrl = Config.domain + "NewTLdata.html";
+   
+
+    if(localStorage.getItem("userType") == "Admin") {
+        var newUrl = Config.domain + "NewTLdata.html";
 
     // Open the new URL in a new window/tab
     window.open(newUrl, "_blank");
+    }else {
+        $(".btn-close").click();
+        openTab('NewTLdata.html','Time Wise Report');
+    }
 }
 
 // function showTeam() {
@@ -8175,7 +8419,7 @@ async function getAllStatus(id) {
 }
 
 async function showMailOption(id) {
-    document.querySelector(".loader").style.display = "block";
+    $(".loader").show();
 
     const formData = new FormData();
     formData.append("operation", "024");
@@ -8188,7 +8432,7 @@ async function showMailOption(id) {
         });
 
         const result = await response.text();
-        document.querySelector(".loader").style.display = "none";
+        $(".loader").hide();
 
         const mailOptionElement = document.getElementById("mailOption");
 
@@ -8201,7 +8445,7 @@ async function showMailOption(id) {
             mailOptionElement.innerHTML = "";
         }
     } catch (error) {
-        document.querySelector(".loader").style.display = "none";
+        $(".loader").hide();
         console.error("Error occurred while fetching mail option:", error);
         alert("An error occurred. Please try again.");
     }
@@ -15818,7 +16062,7 @@ function showfulltsk(tpe, id, dta) {
 // Task Assigned by self
 function assignedByMe() {
     var content =
-        '<table id="tableProjects" class="table table-bordered table-striped"><thead><th>TaskID</th><th>Project :</th><th>Assigned By :</th><th>Assigned To<Br>Completed By :</th><th>Work :</th><th>Remark :</th><th>Assigned On :</th><th>Priority :</th><th>Deadline :</th><th>Completion Date :</th><th>Status :</th><th>Rating :</th></thead><tbody>';
+        '<table id="tableProjects" class="table table-bordered table-striped"><thead><th>TaskID</th><th>Project :</th><th>Assigned By :</th><th>Assigned To<Br>Completed By :</th><th>Work :</th><th>Remark :</th><th>Assigned On :</th><th>Priority :</th><th>Deadline :</th><th>Completion Date :</th><th>Status :</th><th>Transfer :</th><th>Rating :</th></thead><tbody>';
     document.getElementById("displayContent").innerHTML =
         "<h1>Tasks Assigned by me</h1><button class='btn btn-link' onclick='assignedByMe()'>Assigned By Me</button><div style='overflow-x:scroll;'>" + content + "</tbody></table>";
     var id = localStorage.getItem("userID");
@@ -15906,6 +16150,18 @@ function assignedByMe() {
                 data: null,
                 render: function (data, type, row) {
                     return row[10];
+                },
+            },
+            {
+                data: null,
+                render: function (data, type, row) {
+                    // console.log(row[9]);
+                    if (!row[9]) {
+                        special = " <button class='btn btn-primary' onclick='openEditModal(" + row[14] + ");'>Transfer</button>";
+                        return special;
+                    } else {
+                        return '';
+                    }
                 },
             },
             {

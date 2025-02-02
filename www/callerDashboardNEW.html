@@ -457,7 +457,7 @@
                 Project Details
             </div>
         </button>
-        <button class="color-1" data-toggle="modal" data-target="#exampleModalAssignProj" >
+        <button class="color-1" onclick="openAssignModal()" >
             <div><i class="fa fa-server iconsize"></i></div>
             <div>
                 Assign TASK
@@ -1413,105 +1413,60 @@
           </div>
 
           <!-- Assign Project  -->
-          <div
-            class="modal fade"
-            id="exampleModalAssignProj"
-            tabindex="-1"
-            role="dialog"
-            aria-labelledby="exampleModalLabel"
-            aria-hidden="true"
-          >
-            <div class="modal-dialog modal-xl" role="document">
-              <div class="modal-content">
-                <div class="modal-header">
-                  <h3 class="modal-title" id="exampleModalLabel">
-                    ASSIGN PROJECT
-                  </h3>
-                  <button
-                    type="button"
-                    class="btn-close"
-                    data-dismiss="modal"
-                    aria-label="Close"
-                  >
-                    <span aria-hidden="true">&times;</span>
-                  </button>
-                </div>
-                <div class="container modal-body">
-                  <form>
-                    <div class="row form-group">
-                      <div class="col-md-12 form-group">
-                        <label for="projDetails" class="col-form-label"
-                          >Project :</label
-                        >
-                      <select class="form-control" data-live-search="true" id="projDetails"></select>
-                      </div>
-                      <div class="col-md-6 form-group">
-                        <label for="assignedTo" class="col-form-label"
-                          >Assign To :</label
-                        >
-                        <select class="form-control" id="assignedTo"></select>
-                      </div>
-                      <div class="col-md-6 form-group">
-                        <label for="assignedWork" class="col-form-label"
-                          >Work :</label
-                        >
-                         <select class="form-control" id="assignedWork">
-                            <option>Callback Request</option> 
-                         </select>
-                        
-                      </div>
-                      <div class="col-md-12 form-group">
-                        <label for="remarksProjAssign" class="col-form-label"
-                          >Remarks :</label
-                        >
-                        <textarea
-                          rows="3"
-                          class="form-control"
-                          id="remarksProjAssign"
-                        ></textarea>
-                      </div>
-                      <div class="col-md-6 form-group">
-                        <label for="deadline" class="col-form-label"
-                          >Deadline :</label
-                        >
-                        <input class="form-control" id="deadline" type="date" />
-                      </div>
-                      <div class="col-md-6 form-group">
-                        <label for="taskPriority" class="col-form-label"
-                          >Priority :</label
-                        >
-                        <select class="form-control" id="taskPriority">
-                          <option>Urgent</option>
-                          <option>Normal</option>
-                          <option>Super Urgent</option>
-                        </select>
-                      </div>
-                    </div>
-                  </form>
-                </div>
-                <div class="modal-footer">
-                  <button
-                    type="button"
-                    class="btn btn-secondary"
-                    data-dismiss="modal"
-                  >
-                    Close
-                  </button>
-                  <button
-                    type="button"
-                    class="btn btn-primary"
-                    onclick="assignProjectTask()"
-                  >
-                    Assign Task
-                  </button>
-                </div>
-                <p
-                  id="errorDetailsAssignTask"
-                  style="text-align: right; color: crimson"
-                ></p>
-              </div>
+        <div class="modal fade" id="exampleModalAssignProj" tabindex="-1" role="dialog"
+        aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-xl" role="document">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h3 class="modal-title" id="exampleModalLabel">ASSIGN PROJECT</h3>
+              <button type="button" class="btn-close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
             </div>
+            <div class="container modal-body">
+              <form>
+                <input type="hidden" id="transferTaskId" value="" />
+                <div class="row form-group">
+                  <div class="col-md-12 form-group">
+                    <label for="projDetails" class="col-form-label">Project :</label>
+                    <select class="form-control" data-live-search="true" id="projDetails"></select>
+                  </div>
+                  <div class="col-md-6 form-group">
+                    <label for="assignedTo" class="col-form-label">Assign To :</label>
+                    <select class="form-control" id="assignedTo"></select>
+                  </div>
+                  <div class="col-md-6 form-group">
+                    <label for="assignedWork" class="col-form-label">Work :</label>
+                    <input type="text" class="form-control" id="assignedWork">
+                  </div>
+                  <div class="col-md-12 form-group">
+                    <label for="remarksProjAssign" class="col-form-label">Remarks :</label>
+                    <textarea rows=3 class="form-control" id="remarksProjAssign"></textarea>
+                  </div>
+                  <div class="col-md-6 form-group">
+                    <label for="deadline" class="col-form-label">Deadline :</label>
+                    <input class="form-control" id="deadline" type="date">
+                  </div>
+                  <div class="col-md-6 form-group">
+                    <label for="taskPriority" class="col-form-label">Priority :</label>
+                    <select class="form-control" id="taskPriority">
+                      <option>Urgent</option>
+                      <option>Normal</option>
+                      <option>Super Urgent</option>
+                    </select>
+                  </div>
+
+                </div>
+              </form>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+              <button type="button" class="btn btn-primary" id="modalTaskAssignButton" onclick="assignProjectTask()">Assign Task</button>
+            </div>
+            <p id="errorDetailsAssignTask" style="text-align: right;color: crimson;"></p>
           </div>
+        </div>
+      </div>
 
           <!-- Add Rating and Feedback -->
           <div

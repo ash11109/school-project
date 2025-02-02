@@ -1,7 +1,7 @@
 const OPENAI_API = "https://api.openai.com/v1/chat/completions";
 const MODEL = "gpt-4";
 const key =
-  "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";
+  "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";
 
 let CRM_AI_API = "https://teamka.in/z_ash_test/ash_ai_api.php";
 
@@ -57,7 +57,8 @@ function loadQA(){
   type = localStorage.getItem("AI_QA_Intrested_IN");
   cs_id = localStorage.getItem("AI_QA_CS_ID");
   id = localStorage.getItem("userID");
-  startQA(link, type,id,cs_id)
+  console.log(link, type,id,cs_id);
+  startQA(link, type,id,cs_id);
   document.getElementById("loader").style.display = "block";
 }
 

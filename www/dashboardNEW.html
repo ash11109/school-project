@@ -97,6 +97,8 @@
             background-color: rgba(0, 0, 0, 0.5);
         }
 
+      
+
         td span {
             font-size: 14px;
             font-weight: 300;
@@ -299,7 +301,7 @@
                 </li>
 
                 <li>
-                    <a href="#" data-toggle="modal" data-target="#exampleModalAssignProj">Assign TASK</a>
+                    <a href="#" onclick="openAssignModal()">Assign TASK</a>
                 </li>
 
                 <li>
@@ -440,145 +442,147 @@
                 </div>
             </nav>
 
-            <div class="newcontainer" style="margin-top: 10px">
-                <div class="my-top-buttons-div">
-                    <button class="color-1" id="leadButton" data-toggle="modal" data-target="#exampleModal">
-                        <div><i class="fa fa-plus iconsize"></i></div>
-                        <div>Add Leads</div>
-                    </button>
-                    <button class="color-4" onclick="testallLeads()">
-                        <div><i class="fa fa-user iconsize"></i></div>
-                        <div>All Leads</div>
-                    </button>
-                    <!-- <button class="color-3" onclick="syncSheet()">
+              <div class="tab-pane fade show active" id="main-content" role="tabpanel" aria-labelledby="main-tab">
+                <div class="newcontainer" style="margin-top: 10px">
+                    <div class="my-top-buttons-div">
+                        <button class="color-1" id="leadButton" data-toggle="modal" data-target="#exampleModal">
+                            <div><i class="fa fa-plus iconsize"></i></div>
+                            <div>Add Leads</div>
+                        </button>
+                        <button class="color-4" onclick="testallLeads()">
                             <div><i class="fa fa-user iconsize"></i></div>
-                            <div>Sync Leads</div>
-                        </button> -->
-                    <button class="color-3"
-                        onclick="window.open(Config.autoAssignUrl+'ash_auto_lead_assign.php', '_blank')">
-                        <div><i class="fa fa-user iconsize"></i></div>
-                        <div>Assign Leads</div>
-                    </button>
-                    <!-- <button class="color-2" data-toggle="modal" data-target="#exampleModal2">
+                            <div>All Leads</div>
+                        </button>
+                        <!-- <button class="color-3" onclick="syncSheet()">
+                                <div><i class="fa fa-user iconsize"></i></div>
+                                <div>Sync Leads</div>
+                            </button> -->
+                        <button class="color-3"
+                            onclick="window.open(Config.autoAssignUrl+'ash_auto_lead_assign.php', '_blank')">
                             <div><i class="fa fa-user iconsize"></i></div>
-                            <div>Add Member</div>
-                        </button> -->
-                    <button class="color-5" data-toggle="modal" data-target="#modalmembers" onclick="getMembers()">
-                        <div><i class="fa fa-database iconsize"></i></div>
-                        <div>Manage Team</div>
-                        <div class="my-top-buttons-div-last-child">Manage Team Members</div>
-                    </button>
-                    <button class="color-3" onclick="allCaller()">
-                        <div><i class="fa fa-user iconsize"></i></div>
-                        <div>All Members</div>
-                    </button>
-
-                    <button class="color-4" onclick="rawData()">
-                        <div><i class="fa fa-database iconsize"></i></div>
-                        <div>Raw Data</div>
-                        <div class="my-top-buttons-div-last-child">Raw Data Grocery</div>
-                    </button>
-                    <button class="color-1" onclick="rawDataService()">
-                        <div><i class="fa fa-plus-square-o iconsize"></i></div>
-                        <div>Raw Data</div>
-                        <div class="my-top-buttons-div-last-child">Raw Data Services</div>
-                    </button>
-                    <button class="color-5" data-toggle="modal" data-target="#exampleModalprojDetails"
-                        onclick="fillProjectDetailsForm()">
-                        <div><i class="fa fa-plus-square-o iconsize"></i></div>
-                        <div>Add Project</div>
-                        <div class="my-top-buttons-div-last-child">Add Project Details</div>
-                    </button>
-                    <button class="color-4" onclick="getProjectDetails()">
-                        <div><i class="fa fa-address-card iconsize"></i></div>
-                        <div>My Project</div>
-                        <div class="my-top-buttons-div-last-child">Project Details</div>
-                    </button>
-                    <button class="color-2" data-toggle="modal" data-target="#exampleModalAssignProj">
-                        <div><i class="fa fa-server iconsize"></i></div>
-                        <div>Assign TASK</div>
-                    </button>
-                    <button class="color-1" onclick="getAssignedTask()">
-                        <div><i class="fa fa-list-alt iconsize"></i></div>
-                        <div>TASK</div>
-                        <div class="my-top-buttons-div-last-child">Assigned TASK By ME</div>
-                    </button>
-                    <button class="color-5" onclick="assignedToMe()">
-                        <div><i class="fa fa-history iconsize"></i></div>
-                        <div>My Tasks</div>
-                    </button>
-                    <button class="color-3" onclick="getUnverifiedPayment()">
-                        <div><i class="fa fa-history iconsize"></i></div>
-                        <div>Payments</div>
-                    </button>
-                    <button class="color-2" onclick="projectRenewals()">
-                        <div><i class="fa fa-history iconsize"></i></div>
-                        <div>Project Renewals</div>
-                    </button>
-                    <button class="color-4" data-toggle="modal" data-target="#exampleModalStats">
-                        <div><i class="fa fa-history iconsize"></i></div>
-                        <div>Statistics</div>
-                    </button>
-                    <button class="color-3" onclick="supportTicket()">
-                        <div><i class="fa fa-unlock iconsize"></i></div>
-                        <div>Ticket</div>
-                        <div class="my-top-buttons-div-last-child">Support Ticket</div>
-                    </button>
-                    <button class="color-1" onclick="testLoadOrphanLeadsADMIN()">
-                        <div><i class="fa fa-unlock iconsize"></i></div>
-                        <div>Orphan Leads</div>
-                        <div class="my-top-buttons-div-last-child">New Orphan Leads</div>
-                    </button>
-                    <button class="color-5" data-toggle="modal" data-target="#exampleModalDate1">
-                        <div><i class="fa fa-calendar-times-o iconsize"></i></div>
-                        <div>My Followup</div>
-                        <div class="my-top-buttons-div-last-child">New Next Call Search</div>
-                    </button>
-
-                    <button class="color-2" onclick="getAdmins()" data-toggle="modal" data-target="#ModalAttendence">
-                        <div><i class="fa fa-calendar-times-o iconsize"></i></div>
-                        <div>Attendance</div>
-                    </button>
-                    <button class="color-3" onclick="fetchMissedCalls()">
-                        <div><i class="fa fa-calendar-times-o iconsize"></i></div>
-                        <div>Missed Call</div>
-                    </button>
-                    <button class="color-1" onclick="getDevices()">
-                        <div><i class="fa fa-clock-o iconsize"></i></div>
-                        <div>Allowed devices</div>
-                    </button>
-                    <button class="color-4" onclick="getComplaint()">
-                        <div><i class="fa fa-clock-o iconsize"></i></div>
-                        <div>Complaints</div>
-                    </button>
-                    <button class="color-5" data-toggle="modal" data-target="#adminReportModal">
-                        <div><i class="fa fa-file iconsize"></i></div>
-                        <div>Admin Report</div>
-                    </button>
-                    <button class="color-3" onclick="fetchUserActivity()" data-toggle="modal"
-                        data-target="#deviceStatusModal">
-                        <div><i class="fa fa-file iconsize"></i></div>
-                        <div>Get Active users</div>
-                    </button>
-                    <button class="color-5" onclick="window.open(Config.domain+'realtimedatatl.html', '_blank')">
-                        <div><i class="fa fa-server iconsize"></i></div>
-                        <div>Stats</div>
-                        <div class="my-top-buttons-div-last-child">Real time stats</div>
-                    </button>
-                    <button id="leadButton" class="color-1" data-toggle="modal" onclick="getusersnew()"
-                        data-target="#exampleModaltl">
-                        <div><i class="fa fa-stack-exchange iconsize"></i></div>
-                        <div>Reports</div>
-                        <div class="my-top-buttons-div-last-child">Time vise stats</div>
-                    </button>
-                    <button class="color-2" onclick="window.open(Config.domain+'hrdata.html', '_blank')">
-                        <div><i class="fa fa-bookmark iconsize"></i></div>
-                        <div>HR Data</div>
-                        <div class="my-top-buttons-div-last-child">data for hr</div>
-                    </button>
+                            <div>Assign Leads</div>
+                        </button>
+                        <!-- <button class="color-2" data-toggle="modal" data-target="#exampleModal2">
+                                <div><i class="fa fa-user iconsize"></i></div>
+                                <div>Add Member</div>
+                            </button> -->
+                        <button class="color-5" data-toggle="modal" data-target="#modalmembers" onclick="getMembers()">
+                            <div><i class="fa fa-database iconsize"></i></div>
+                            <div>Manage Team</div>
+                            <div class="my-top-buttons-div-last-child">Manage Team Members</div>
+                        </button>
+                        <button class="color-3" onclick="allCaller()">
+                            <div><i class="fa fa-user iconsize"></i></div>
+                            <div>All Members</div>
+                        </button>
+    
+                        <button class="color-4" onclick="rawData()">
+                            <div><i class="fa fa-database iconsize"></i></div>
+                            <div>Raw Data</div>
+                            <div class="my-top-buttons-div-last-child">Raw Data Grocery</div>
+                        </button>
+                        <button class="color-1" onclick="rawDataService()">
+                            <div><i class="fa fa-plus-square-o iconsize"></i></div>
+                            <div>Raw Data</div>
+                            <div class="my-top-buttons-div-last-child">Raw Data Services</div>
+                        </button>
+                        <button class="color-5" data-toggle="modal" data-target="#exampleModalprojDetails"
+                            onclick="fillProjectDetailsForm()">
+                            <div><i class="fa fa-plus-square-o iconsize"></i></div>
+                            <div>Add Project</div>
+                            <div class="my-top-buttons-div-last-child">Add Project Details</div>
+                        </button>
+                        <button class="color-4" onclick="getProjectDetails()">
+                            <div><i class="fa fa-address-card iconsize"></i></div>
+                            <div>My Project</div>
+                            <div class="my-top-buttons-div-last-child">Project Details</div>
+                        </button>
+                        <button class="color-2" onclick="openAssignModal()">
+                            <div><i class="fa fa-server iconsize"></i></div>
+                            <div>Assign TASK</div>
+                        </button>
+                        <button class="color-1" onclick="getAssignedTask()">
+                            <div><i class="fa fa-list-alt iconsize"></i></div>
+                            <div>TASK</div>
+                            <div class="my-top-buttons-div-last-child">Assigned TASK By ME</div>
+                        </button>
+                        <button class="color-5" onclick="assignedToMe()">
+                            <div><i class="fa fa-history iconsize"></i></div>
+                            <div>My Tasks</div>
+                        </button>
+                        <button class="color-3" onclick="getUnverifiedPayment()">
+                            <div><i class="fa fa-history iconsize"></i></div>
+                            <div>Payments</div>
+                        </button>
+                        <button class="color-2" onclick="projectRenewals()">
+                            <div><i class="fa fa-history iconsize"></i></div>
+                            <div>Project Renewals</div>
+                        </button>
+                        <button class="color-4" data-toggle="modal" data-target="#exampleModalStats">
+                            <div><i class="fa fa-history iconsize"></i></div>
+                            <div>Statistics</div>
+                        </button>
+                        <button class="color-3" onclick="supportTicket()">
+                            <div><i class="fa fa-unlock iconsize"></i></div>
+                            <div>Ticket</div>
+                            <div class="my-top-buttons-div-last-child">Support Ticket</div>
+                        </button>
+                        <button class="color-1" onclick="testLoadOrphanLeadsADMIN()">
+                            <div><i class="fa fa-unlock iconsize"></i></div>
+                            <div>Orphan Leads</div>
+                            <div class="my-top-buttons-div-last-child">New Orphan Leads</div>
+                        </button>
+                        <button class="color-5" data-toggle="modal" data-target="#exampleModalDate1">
+                            <div><i class="fa fa-calendar-times-o iconsize"></i></div>
+                            <div>My Followup</div>
+                            <div class="my-top-buttons-div-last-child">New Next Call Search</div>
+                        </button>
+    
+                        <button class="color-2" onclick="getAdmins()" data-toggle="modal" data-target="#ModalAttendence">
+                            <div><i class="fa fa-calendar-times-o iconsize"></i></div>
+                            <div>Attendance</div>
+                        </button>
+                        <button class="color-3" onclick="fetchMissedCalls()">
+                            <div><i class="fa fa-calendar-times-o iconsize"></i></div>
+                            <div>Missed Call</div>
+                        </button>
+                        <button class="color-1" onclick="getDevices()">
+                            <div><i class="fa fa-clock-o iconsize"></i></div>
+                            <div>Allowed devices</div>
+                        </button>
+                        <button class="color-4" onclick="getComplaint()">
+                            <div><i class="fa fa-clock-o iconsize"></i></div>
+                            <div>Complaints</div>
+                        </button>
+                        <button class="color-5" data-toggle="modal" data-target="#adminReportModal">
+                            <div><i class="fa fa-file iconsize"></i></div>
+                            <div>Admin Report</div>
+                        </button>
+                        <button class="color-3" onclick="fetchUserActivity()" data-toggle="modal"
+                            data-target="#deviceStatusModal">
+                            <div><i class="fa fa-file iconsize"></i></div>
+                            <div>Get Active users</div>
+                        </button>
+                        <button class="color-5" onclick="window.open(Config.domain+'realtimedatatl.html', '_blank')">
+                            <div><i class="fa fa-server iconsize"></i></div>
+                            <div>Stats</div>
+                            <div class="my-top-buttons-div-last-child">Real time stats</div>
+                        </button>
+                        <button id="leadButton" class="color-1" data-toggle="modal" onclick="getusersnew()"
+                            data-target="#exampleModaltl">
+                            <div><i class="fa fa-stack-exchange iconsize"></i></div>
+                            <div>Reports</div>
+                            <div class="my-top-buttons-div-last-child">Time vise stats</div>
+                        </button>
+                        <button class="color-2" onclick="window.open(Config.domain+'hrdata.html', '_blank')">
+                            <div><i class="fa fa-bookmark iconsize"></i></div>
+                            <div>HR Data</div>
+                            <div class="my-top-buttons-div-last-child">data for hr</div>
+                        </button>
+                    </div>
+    
                 </div>
-
-            </div>
+              </div>
 
 
             <!--Add Device-->
@@ -1575,59 +1579,60 @@
             </div>
 
             <!-- Assign Project  -->
-            <div class="modal fade" id="exampleModalAssignProj" tabindex="-1" role="dialog"
-                aria-labelledby="exampleModalLabel" aria-hidden="true">
-                <div class="modal-dialog modal-xl" role="document">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <h3 class="modal-title" id="exampleModalLabel">ASSIGN TASK</h3>
-                            <button type="button" class="btn-close" data-dismiss="modal" aria-label="Close">
-                                <span aria-hidden="true">&times;</span>
-                            </button>
-                        </div>
-                        <div class="container modal-body">
-                            <form>
-                                <div class="row form-group">
-                                    <div class="col-md-12 form-group">
-                                        <label for="projDetails" class="col-form-label">Project :</label>
-                                        <select class="form-control" data-live-search="true" id="projDetails"></select>
-                                    </div>
-                                    <div class="col-md-6 form-group">
-                                        <label for="assignedTo" class="col-form-label">Assign To :</label>
-                                        <select class="form-control" id="assignedTo"></select>
-                                    </div>
-                                    <div class="col-md-6 form-group">
-                                        <label for="assignedWork" class="col-form-label">Work :</label>
-                                        <input type="text" class="form-control" id="assignedWork" />
-                                    </div>
-                                    <div class="col-md-12 form-group">
-                                        <label for="remarksProjAssign" class="col-form-label">Remarks :</label>
-                                        <textarea rows="3" class="form-control" id="remarksProjAssign"></textarea>
-                                    </div>
-                                    <div class="col-md-6 form-group">
-                                        <label for="deadline" class="col-form-label">Deadline :</label>
-                                        <input class="form-control" id="deadline" type="date" />
-                                    </div>
-                                    <div class="col-md-6 form-group">
-                                        <label for="taskPriority" class="col-form-label">Priority :</label>
-                                        <select class="form-control" id="taskPriority">
-                                            <option>Urgent</option>
-                                            <option>Normal</option>
-                                            <option>Super Urgent</option>
-                                        </select>
-                                    </div>
-                                </div>
-                            </form>
-                        </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                            <button type="button" class="btn btn-primary" onclick="assignProjectTask()">Assign
-                                Task</button>
-                        </div>
-                        <p id="errorDetailsAssignTask" style="text-align: right; color: crimson"></p>
-                    </div>
-                </div>
+        <div class="modal fade" id="exampleModalAssignProj" tabindex="-1" role="dialog"
+        aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-xl" role="document">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h3 class="modal-title" id="exampleModalLabel">ASSIGN PROJECT</h3>
+              <button type="button" class="btn-close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
             </div>
+            <div class="container modal-body">
+              <form>
+                <input type="hidden" id="transferTaskId" value="" />
+                <div class="row form-group">
+                  <div class="col-md-12 form-group">
+                    <label for="projDetails" class="col-form-label">Project :</label>
+                    <select class="form-control" data-live-search="true" id="projDetails"></select>
+                  </div>
+                  <div class="col-md-6 form-group">
+                    <label for="assignedTo" class="col-form-label">Assign To :</label>
+                    <select class="form-control" id="assignedTo"></select>
+                  </div>
+                  <div class="col-md-6 form-group">
+                    <label for="assignedWork" class="col-form-label">Work :</label>
+                    <input type="text" class="form-control" id="assignedWork">
+                  </div>
+                  <div class="col-md-12 form-group">
+                    <label for="remarksProjAssign" class="col-form-label">Remarks :</label>
+                    <textarea rows=3 class="form-control" id="remarksProjAssign"></textarea>
+                  </div>
+                  <div class="col-md-6 form-group">
+                    <label for="deadline" class="col-form-label">Deadline :</label>
+                    <input class="form-control" id="deadline" type="date">
+                  </div>
+                  <div class="col-md-6 form-group">
+                    <label for="taskPriority" class="col-form-label">Priority :</label>
+                    <select class="form-control" id="taskPriority">
+                      <option>Urgent</option>
+                      <option>Normal</option>
+                      <option>Super Urgent</option>
+                    </select>
+                  </div>
+
+                </div>
+              </form>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+              <button type="button" class="btn btn-primary" id="modalTaskAssignButton" onclick="assignProjectTask()">Assign Task</button>
+            </div>
+            <p id="errorDetailsAssignTask" style="text-align: right;color: crimson;"></p>
+          </div>
+        </div>
+      </div>
 
             <!-- Add Rating and Feedback -->
             <div class="modal fade" id="exampleModalFeedbackTask" tabindex="-1" role="dialog"

@@ -1,5 +1,6 @@
 
 let selectedFiles = []; // Files selected but not uploaded
+let openTab;
 // const Config = {
 //     api_url: "https://teamka.in/crm1/APIs/api.php",
 //     domain : "http://localhost/live/www/",

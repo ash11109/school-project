@@ -16,6 +16,7 @@
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/datatables@1.10.18/media/js/jquery.dataTables.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.1/js/bootstrap-select.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.3.0/exceljs.min.js"></script>
     <script src="./js/constant.js"></script>
 
     <link href="
@@ -509,23 +510,23 @@
                                     <div class="format-select">
                                         <div class="form-check">
                                             <input class="form-check-input" type="radio" name="flexRadioDefault"
-                                                id="flexRadioDefault1">
-                                            <label class="form-check-label" for="flexRadioDefault1">
-                                                Format 1
+                                                id="template1">
+                                            <label class="form-check-label" for="template1">
+                                                Format IDFC
                                             </label>
                                         </div>
                                         <div class="form-check">
                                             <input class="form-check-input" type="radio" name="flexRadioDefault"
-                                                id="flexRadioDefault2" checked>
-                                            <label class="form-check-label" for="flexRadioDefault2">
-                                                Format 2
+                                                id="template2" checked>
+                                            <label class="form-check-label" for="template2">
+                                                Format AXIS
                                             </label>
                                         </div>
                                     </div>
                                     <div class="footer-btn"><button type="button" class="btn btn-secondary"
                                             data-dismiss="modal"> Close </button></div>
-                                    <div class="footer-btn"><button type="button" class="btn btn-primary"
-                                            data-dismiss="modal"> Export </button>
+                                    <div class="footer-btn"><button type="button" onclick="exportData()"
+                                            class="btn btn-primary" data-dismiss="modal"> Export </button>
                                     </div>
                                 </div>
                             </div>
@@ -562,9 +563,8 @@
                         </div>
 
                         <div class="overf" style="overflow-x: scroll">
-                            <div class="export d-flex justify-content-center">
-                                <button class="btn btn-primary" data-toggle="modal" data-target="#exportModal"
-                                    onclick="getusersnew()">Export</button>
+                            <div id="exportdiv" class="export d-flex justify-content-center">
+                                
                             </div>
                             <table id="adminStatsTable" class="adminStatsTable display table-striped table-bordered"
                                 style="width: 100%">
@@ -598,16 +598,18 @@
 <script>
 
     let globalData = {};
+    let globalExportData = {};
 
     async function getusersnew() {
         try {
+            // Fetch data from the server
             const response = await fetch(Config.api_url, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/x-www-form-urlencoded",
                 },
                 body: new URLSearchParams({
-                    operation: "getUsers-hr",
+                    operation: "getAmountByMonth",
                     id: localStorage.getItem("userID"),
                 }),
             });
@@ -617,24 +619,272 @@
             }
 
             const data = await response.json();
-            console.log(data);
 
-            // Populate the select options
-            data.data.forEach(function (option) {
-                $("#team-select").append(
-                    $("<option>", {
-                        value: option.EMP_ID,
-                        text: `${option.Name}`,
-                    })
-                );
-            });
+            if (data.success === true) {
+                globalExportData = data;
+                console.log("Data received:", data);
 
-            // Refresh the select picker (if applicable)
-            $("#team-select").selectpicker("refresh");
+                // Load the template using ExcelJS
+                const templateResponse = await fetch("template.xlsx"); // Path to your template
+                const templateArrayBuffer = await templateResponse.arrayBuffer();
+
+                const workbook = new ExcelJS.Workbook();
+                await workbook.xlsx.load(templateArrayBuffer);
+
+                // Access the worksheet you want to modify
+                const worksheet = workbook.getWorksheet(1); // Assuming it's the first sheet
+
+                // Start filling data from the appropriate row (e.g., row 3 in your example)
+                let rowIndex = 3; // Adjust based on your template
+                data.data.forEach((row) => {
+                    const excelRow = worksheet.getRow(rowIndex);
+
+                    // Fill in the data
+                    excelRow.getCell("A").value = row.Name; // Beneficiary Name
+                    excelRow.getCell("B").value = row.Account_Number; // Beneficiary Account Number
+                    excelRow.getCell("C").value = row.IFSC; // IFSC
+                    excelRow.getCell("D").value = "NEFT"; // Transaction Type
+                    excelRow.getCell("E").value = "YOUR_DEBIT_ACCOUNT"; // Debit Account Number
+                    //excelRow.getCell("F").value = new Date().toLocaleDateString("en-GB"); // Transaction Date
+                    excelRow.getCell("G").value = row.Paid_Amount; // Amount
+                    excelRow.getCell("H").value = "INR"; // Currency
+                    excelRow.getCell("I").value = ""; // Beneficiary Email ID (Optional)
+
+                    // Commit the row changes to preserve formatting
+                    excelRow.commit();
+                    rowIndex++;
+                });
+
+                // Export and download the modified file
+                const buffer = await workbook.xlsx.writeBuffer();
+                const blob = new Blob([buffer], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
+
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement("a");
+                a.href = url;
+                a.download = `Filled_Template_${Date.now()}.xlsx`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+
+                console.log("Modified XLS file generated and download triggered.");
+            } else {
+                alert("Error Getting Data");
+            }
         } catch (error) {
             console.error("Error fetching options:", error);
-            // Optionally, display the error to the user
-            alert(error); // Assuming displayError is defined elsewhere
+            alert(error);
+        }
+    }
+
+
+    async function fetchAndPopulateMembers(month, year) {
+        try {
+            const response = await fetch(Config.api_url, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/x-www-form-urlencoded",
+                },
+                body: new URLSearchParams({
+                    operation: "getAmountByMonth", // Adjust to match your backend operation
+                    month: month,
+                    year: year
+                }),
+            });
+
+            if (!response.ok) {
+                throw new Error("Failed to fetch team members.");
+            }
+
+            const data = await response.json();
+            if (data.success === true) {
+                globalExportData = data;
+                $("#team-select").empty();
+                const teamSelect = document.getElementById("team-select");
+
+                // Add "All" option
+                const allOption = document.createElement("option");
+                allOption.value = "All"; // Use a value to represent "All"
+                allOption.textContent = "All"; // Display text for the option
+                allOption.selected = true; // Set it as the default selected option
+                teamSelect.appendChild(allOption);
+
+                // Add other options
+                data.users.forEach((member) => {
+                    const option = document.createElement("option");
+                    option.value = member.Emp_ID;
+                    option.textContent = `${member.Name}`;
+                    teamSelect.appendChild(option);
+                });
+
+                // Refresh select picker
+                $("#team-select").selectpicker("refresh");
+
+                // Add event listener for handling "All" vs other options
+                $("#team-select").on("change", function () {
+                    const selectedValues = $(this).val(); // Get selected values
+
+                    if (selectedValues.includes("All") && selectedValues.length > 1) {
+                        // If "All" is selected and another option is selected, deselect "All"
+                        $(this)
+                            .find("option[value='All']")
+                            .prop("selected", false);
+                    } else if (selectedValues.includes("All")) {
+                        // If only "All" is selected, deselect all other options
+                        $(this)
+                            .find("option[value!='All']")
+                            .prop("selected", false);
+                    }
+
+                    // Refresh the picker to reflect changes
+                    $(this).selectpicker("refresh");
+                });
+            }
+
+            else {
+                alert("Error fetching members.");
+            }
+        } catch (error) {
+            console.error("Error fetching members:", error);
+            alert(error.message);
+        }
+    }
+
+
+    async function exportData() {
+
+        const paymentDate = document.getElementById("paymentDate").value;
+        const selectedMembers = $("#team-select").val(); // Bootstrap Select Picker
+        const selectedFormat = document.querySelector("input[name='flexRadioDefault']:checked").id;
+
+        if (!paymentDate) {
+            alert("Please select a payment date.");
+            return;
+        }
+
+        if (!selectedMembers || selectedMembers.length === 0) {
+            alert("Please select at least one member.");
+            return;
+        }
+
+        console.log("Payment Date:", paymentDate);
+        console.log("Selected Members:", selectedMembers);
+        console.log("Selected Format:", selectedFormat);
+
+        // Call function to generate Excel
+        await generateExcel(paymentDate, selectedMembers, selectedFormat);
+    }
+
+
+    async function generateExcel(paymentDate, selectedMembers, selectedFormat) {
+        try {
+            // Fetch the template based on selected format
+            const templateUrl =
+                selectedFormat === "template1" ? "template1.xlsx" : "template2.xlsx";
+
+            const templateResponse = await fetch(templateUrl);
+            const templateArrayBuffer = await templateResponse.arrayBuffer();
+
+            const workbook = new ExcelJS.Workbook();
+            await workbook.xlsx.load(templateArrayBuffer);
+
+            const worksheet = workbook.getWorksheet(1); // Adjust sheet index as needed
+
+            // Define column mappings and starting row for each template
+            const templateConfig = {
+                template1: {
+                    startRow: 3,
+                    columns: {
+                        debitAccountNumber: "E",
+                        transactionAmount: "G",
+                        transactionCurrency: "H",
+                        beneficiaryName: "A",
+                        beneficiaryAccountNumber: "B",
+                        beneficiaryIFSC: "C",
+                        transactionDate: "F",
+                        transactionType: "D",
+                    },
+                },
+                template2: {
+                    startRow: 2,
+                    columns: {
+                        debitAccountNumber: "A",
+                        transactionAmount: "B",
+                        transactionCurrency: "C",
+                        beneficiaryName: "D",
+                        beneficiaryAccountNumber: "E",
+                        beneficiaryIFSC: "F",
+                        transactionDate: "G",
+                        transactionType: "H",
+                        refrenceNumber: "I",
+                        nickName: "J",
+                    },
+                },
+            };
+
+            const config = templateConfig[selectedFormat];
+            if (!config) {
+                throw new Error("Invalid template format selected.");
+            }
+
+            // If "All" is selected, use all users from globalExportData
+            const dataToExport =
+                selectedMembers.includes("All")
+                    ? globalExportData.users
+                    : globalExportData.users.filter((member) =>
+                        selectedMembers.includes(member.Emp_ID)
+                    );
+
+            if (!dataToExport.length) {
+                console.warn("No matching data found for selected members.");
+                alert("No matching data found for the selected members.");
+                return;
+            }
+
+            // Populate the Excel file
+            let rowIndex = config.startRow;
+            debitAccountAxis='924020040344594';
+            debitAccountIdfc=70299299007;
+
+            dataToExport.forEach((memberData) => {
+                const row = worksheet.getRow(rowIndex);
+
+                // Use real data from globalExportData
+                row.getCell(config.columns.debitAccountNumber).value = selectedFormat !== "template1" ? debitAccountAxis : debitAccountIdfc ;
+                row.getCell(config.columns.transactionAmount).value = memberData.Paid_Amount || 0; // Replace with transaction amount
+                row.getCell(config.columns.transactionCurrency).value = "INR"; // Replace with currency
+                row.getCell(config.columns.beneficiaryName).value = memberData.Name || "Unknown"; // Replace with name
+                row.getCell(config.columns.beneficiaryAccountNumber).value = memberData.Account_Number || "XXXXXXXXXX"; // Replace with account number
+                row.getCell(config.columns.beneficiaryIFSC).value = memberData.IFSC || "N/A"; // Replace with IFSC
+                row.getCell(config.columns.transactionDate).value = paymentDate; // Replace with transaction date
+                row.getCell(config.columns.transactionType).value = "NEFT";
+
+                if (selectedFormat !== "template1") {
+                    row.getCell(config.columns.refrenceNumber).value = memberData.Emp_ID || "N/A";
+                    row.getCell(config.columns.nickName).value = memberData.Name || "Unknown";
+                }
+
+                row.commit();
+                rowIndex++;
+            });
+
+            // Generate the Excel file
+            const buffer = await workbook.xlsx.writeBuffer();
+            const blob = new Blob([buffer], {
+                type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+            });
+
+            // Trigger file download
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement("a");
+            a.href = url;
+            a.download = `Export_${paymentDate}.xlsx`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+        } catch (error) {
+            console.error("Error generating Excel:", error);
+            alert("Error generating Excel file.");
         }
     }
 
@@ -1462,6 +1712,9 @@
         event.classList.add("active");
         const year = document.getElementById("year").value;
 
+        $("#exportdiv").html(`<button class="btn btn-primary" data-toggle="modal" data-target="#exportModal"
+                                    onclick="fetchAndPopulateMembers(${month}, ${year})">Export</button>`);
+
         $.ajax({
             url: Config.api_url,
             method: "POST",
@@ -1617,7 +1870,7 @@
                             // If a status is not found in the order, assign a large number to push it to the bottom
                             return (order[a] || 99) - (order[b] || 99);
                         };
-                        // Initialize the DataTable with new data
+                        
                         $("#adminStatsTable").DataTable({
                             responsive: true,
                             autoWidth: false,
