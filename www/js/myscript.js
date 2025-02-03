@@ -49,7 +49,7 @@ async function checkPresent() {
 
     // Send API request using fetch
     try {
-        const response = await fetch(api_url, { // Add `await` here
+        const response = await fetch(Config.api_url, { // Add `await` here
             method: "POST",
             headers: {
                 "Content-Type": "application/x-www-form-urlencoded",
