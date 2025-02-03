@@ -370,12 +370,13 @@
                   <div class="stats d-flex">
 
 
-                    <div class="mr-5">
-                      <button onclick="breakFun(this)" value="1">start break</button>
-                    </div>
 
                     <div class="mr-5">
                       <form class="d-flex">
+                        <label class="switch">
+                          <input type="checkbox" id="darkModeToggle">
+                          <span class="slider round"></span>
+                        </label>
                         <div class="">
                           <input type="text" class="form-control" id="searchLeadBy"
                             placeholder="Search using Contact No./Email" />
@@ -504,7 +505,12 @@
                     Missed Call
                   </div>
                 </button>
-      
+                <button class="color-2" onclick="breakFun(this)" value="1">
+                  <div><i class="fa fa-calendar-times-o iconsize"></i></div>
+                  <div>
+                    Start Break
+                  </div>
+                </button>
       
       
                 <div class="my-top-buttons-div2">
@@ -1762,12 +1768,14 @@
   <script src="js/all.js"></script>
 
   <script>
+    checkPresent();
     loadcallerstats();
     loadcallerdemoleads();
     fetchData();
     todayTL();
     teamData();
     getCallers();
+
     
   </script>
   

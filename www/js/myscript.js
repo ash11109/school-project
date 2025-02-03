@@ -42,6 +42,49 @@ async function transferTask(){
     }
 }
 
+async function checkPresent() {
+    var user_id = localStorage.getItem("empID");
+    // Today date in yyyy-mm-dd format
+    var today = new Date().toLocaleDateString('en-CA'); // 'en-CA' outputs YYYY-MM-DD
+
+    // Send API request using fetch
+    try {
+        const response = await fetch(api_url, { // Add `await` here
+            method: "POST",
+            headers: {
+                "Content-Type": "application/x-www-form-urlencoded",
+            },
+            body: new URLSearchParams({
+                operation: "checkPresent",
+                user_id: user_id,
+                today: today,
+            }),
+        });
+
+        if (!response.ok) {
+            throw new Error(`Error fetching results: ${response.statusText}`);
+        }
+
+        const results = await response.json();
+        console.log(results);
+
+        // Check the result
+        if (results.success == false ) {
+            // Clear localStorage and redirect
+            localStorage.removeItem("userID");
+            localStorage.removeItem("userName");
+            localStorage.removeItem("userType");
+            localStorage.removeItem("lead_id");
+            localStorage.removeItem("empID");
+            window.location.href = "./index.html";
+        }
+
+    } catch (error) {
+        console.error("Error:", error);
+        alert(error);
+    }
+}
+
 // Function to open the modal for assigning a task
 function openAssignModal() {
     // Change modal title and button text dynamically
@@ -105,38 +148,7 @@ async function openEditModal(taskId) {
 }
 
 
-// async function getTaskByID(taskID) {
 
-//     const response = await fetch(Config.api_url, {
-//         method: "POST",
-//         body: new URLSearchParams({
-//             operation: "getTaskByID",
-//             taskID: taskID,
-           
-//         }),
-//     });
-
-//     if (response.ok) {
-//         const data = await response.json();
-//         console.log(data);
-//         $("#transferTaskId").val(data.taskID);
-//         $("#projDetails").val(data.pd_id);
-//         $("#assignedTo").val(data.assignedTo);
-//         $("#assignedWork").val(data.assignedWork);
-//         $("#remarksProjAssign").val(data.remarksProjAssign);
-//         $("#deadline").val(data.deadline);
-//         $("#taskPriority").val(data.taskPriority);
-
-//         // var pd_id = document.getElementById("projDetails").value;
-//         // var assignedTo = document.getElementById("assignedTo").value;
-//         // var assignedWork = document.getElementById("assignedWork").value;
-//         // var remarksProjAssign = document.getElementById("remarksProjAssign").value;
-//         // var deadline = document.getElementById("deadline").value;
-//         // var taskPriority = document.getElementById("taskPriority").value;
-//     }else{
-//         alert("Error failed to get task");
-//     }
-// }
 
 // Function to initialize dynamic tabs
 function setupDynamicTabs() {
