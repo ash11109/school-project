@@ -1790,29 +1790,34 @@ async function login() {
 }
 
 async function Logout() {
-    const user_id = localStorage.getItem("userID");
 
-    try {
-        const response = await fetch(Config.api_url, {
-            method: "POST",
-            body: new URLSearchParams({
-                operation: "001-1",
-                user_id: user_id,
-            }),
-        });
+    if ( confirm("Are you sure ?")) {
 
-        // If response is not ok, throw an error
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
+        const user_id = localStorage.getItem("userID");
+    
+        try {
+            const response = await fetch(Config.api_url, {
+                method: "POST",
+                body: new URLSearchParams({
+                    operation: "001-1",
+                    user_id: user_id,
+                }),
+            });
+    
+            // If response is not ok, throw an error
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+    
+            localStorage.removeItem("userID");
+            localStorage.removeItem("userName");
+            localStorage.removeItem("userType");
+            localStorage.removeItem("lead_id");
+            window.location.href = "./index.html";
+        } catch (error) {
+            displayError(error);
         }
 
-        localStorage.removeItem("userID");
-        localStorage.removeItem("userName");
-        localStorage.removeItem("userType");
-        localStorage.removeItem("lead_id");
-        window.location.href = "./index.html";
-    } catch (error) {
-        displayError(error);
     }
 }
 
@@ -6411,12 +6416,156 @@ function gettrcount() {
     });
 }
 
-function testallLeads() {
+async function get_all_shop_order_count() {
+
+    let req = await fetch("https://master.mygalla.com/master_api/index.php?type=061&total=shopdata", {
+        method: 'POST',
+        redirect: 'follow'
+      });
+    let res = await req.json();
+    return res;
+
+}
+
+function get_shop_data(mobile_no , shop_data , type ) {
+    
+    if ( type == 'MY Galla' ) {
+        let data = shop_data.filter( item => item.mobile == mobile_no ) ;
+        return data.length == 0 ? 'N/A' : `
+            <a herf="#" onclick="get_single_shop_data(${mobile_no})" data-toggle="modal" class="btn-edit" data-target="#shop_data_Modal" style="text-decoration:none;">
+                Order in last 7 days : ${data[0].last_7days}
+            </a>
+        `;
+    } else {
+        return 'N/A';
+    }
+    
+}
+
+async function get_single_shop_data (mobile_no) {
+    
+    let shop_data = await get_all_shop_order_count();
+
+    let data = shop_data.filter( item => item.mobile == mobile_no ) ;
+    data = data.length == 0 ? 'N/A' : data[0] ;
+
+    let req = await fetch(`https://master.mygalla.com/master_api/index.php?type=064&mobile=${mobile_no}`, {
+        method: 'POST',
+        redirect: 'follow'
+      });
+    let res = await req.json();
+
+    console.log(res);
+    
+    
+    $("#single_shop_data").html(`
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Data</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <th>Mobile</th>
+                    <td>${data.mobile}</td>
+                </tr>
+                <tr>
+                    <th>Full Name</th>
+                    <td>${data.full_name}</td>
+                </tr>
+                <tr>
+                    <th>Shop Name</th>
+                    <td>${data.shop_name}</td>
+                </tr>
+                <tr>
+                    <th>Email</th>
+                    <td>${data.email}</td>
+                </tr>
+                <tr>
+                    <th>Total order</th>
+                    <td>${data.order_count}</td>
+                </tr>
+                <tr>
+                    <th>Order in last 7 days</th>
+                    <td>${data.last_7days}</td>
+                </tr>
+            </tbody>
+        </table>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Total Category</th>
+                    <th>Total Stock</th>
+                    <th>Email Verified</th>
+                    <th>Profile Completed</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>${res.shop_category_count}</td>
+                    <td>${res.shop_stock_count}</td>
+                    <td>${res.email_status}</td>
+                    <td>${res.profile_completed}</td>
+                </tr>
+            </tbody>
+        </table>
+    `);
+}
+
+async function testallLeads() {
     // alert("test1")
-    var content =
-        '<div class="d-flex justify-content-center"><div class="btn-item" onclick="loadtable()">All Leads</div><div class="btn-item" id="new">NEW </div><div class="btn-item" id="demo">Demo done </div><div class="btn-item" id="mail">Proposail Mailed </div><div class="btn-item" id="unassigned">Unassigned <span id="noti2">0</span> </div><div class="btn-item" id="converted">Converted </div><div class="btn-item" id="pending">Pending </div><div class="btn-item" id="followup">Followup </div><div class="btn-item" id="dead">DEAD </div><div class="btn-item " id="reregistered">Reregistered <span id="noti1">0</span></div><div class="btn-item" id="transferred">Transferred <span id="noti3">0</span></div><div class="btn-item" id="monster">Marked Monster </div></div><table id="table1" class="table table-bordered table-striped"><thead><tr><th scope="col">Lead ID</th><th scope="col">Name</th><th scope="col">Mobile/<br>Alternate/<br>Whatsapp/<br>Email</th><th scope="col">State/<br>City</th><th scope="col">Interested In</th><th scope="col">Source</th><th scope="col">Status</th><th scope="col">DOR</th><th scope="col">Summary DOR</th><th scope="col">Option</th><th scope="col">Caller</th></tr></thead><tbody>';
-    content += "</tbody></table></div>";
-    document.getElementById("displayContent").innerHTML = "<h1>All Leads</h1><div style='overflow-x:scroll;'>" + content;
+
+    let shop_data = await get_all_shop_order_count() ;
+
+    var content = `
+        <div class="d-flex justify-content-center">
+            <div class="btn-item" onclick="loadtable()">All Leads</div>
+            <div class="btn-item" id="new">NEW </div>
+            <div class="btn-item" id="demo">Demo done </div>
+            <div class="btn-item" id="mail">Proposail Mailed </div>
+            <div class="btn-item" id="unassigned">
+                Unassigned <span id="noti2">0</span>
+            </div>
+            <div class="btn-item" id="converted">Converted </div>
+            <div class="btn-item" id="pending">Pending </div>
+            <div class="btn-item" id="followup">Followup </div>
+            <div class="btn-item" id="dead">DEAD </div>
+            <div class="btn-item " id="reregistered">
+                Reregistered <span id="noti1">0</span>
+            </div>
+            <div class="btn-item" id="transferred">
+                Transferred <span id="noti3">0</span>
+            </div>
+            <div class="btn-item" id="monster">Marked Monster </div>
+        </div>
+        <table id="table1" class="table table-bordered table-striped">
+            <thead>
+                <tr>
+                    <th scope="col">Lead ID</th>
+                    <th scope="col">Name</th>
+                    <th scope="col">Mobile/<br>Alternate/<br>Whatsapp/<br>Email</th>
+                    <th scope="col">State/<br>City</th>
+                    <th scope="col">Interested In</th>
+                    <th scope="col">Source</th>
+                    <th scope="col">Status</th>
+                    <th scope="col">DOR</th>
+                    <th scope="col">Summary DOR</th>
+                    <th scope="col">Option</th>
+                    <th scope="col">Caller</th>
+                    <th scope="col">Data</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+    `;
+    document.getElementById("displayContent").innerHTML = `
+        <h1>All Leads</h1>
+        <div style='overflow-x:scroll;'> 
+            ${content}
+        `;
 
     $("#table1 button").click(function () {
         // Get the clicked button
@@ -6547,6 +6696,12 @@ function testallLeads() {
                     targets: 10,
                     render: function (data, type, row, meta) {
                         return row[10];
+                    },
+                },
+                {
+                    targets: 11,
+                    render: function (data, type, row, meta) {
+                        return get_shop_data(row[2] , shop_data , row[6]);
                     },
                 },
             ],
@@ -8660,11 +8815,53 @@ function getDate2() {
 
 //////Functions for the Caller Page
 
-function testmyLeads() {
-    var content =
-        '<div class="d-flex justify-content-center"><div class="btn-item" onclick="loadtable()">All Leads</div><div class="btn-item" id="new">NEW </div><div class="btn-item" id="demo">Demo done </div><div class="btn-item" id="mail">Proposail Mailed </div><div class="btn-item" id="converted">Converted </div><div class="btn-item" id="pending">Pending </div><div class="btn-item" id="followup">Followup </div><div class="btn-item" id="dead">DEAD </div><div class="btn-item " id="reregistered">Reregistered <span id="noti1">0</span></div><div class="btn-item" id="transferred">Transferred <span id="noti3">0</span></div><div class="btn-item " id="assigned">Assigned</div><div class="btn-item" id="monster">Marked Monster </div></div><table id="table1" class="table table-bordered table-striped"><thead><tr><th scope="col">Lead ID</th><th scope="col">Name</th><th scope="col">Mobile/<br>Alternate/<br>Whatsapp/<br>Email</th><th scope="col">State/<br>City</th><th scope="col">Interested In</th><th scope="col">Source</th><th scope="col">Status</th><th scope="col">DOR</th><th scope="col">Summary DOR</th><th scope="col">Option</th><th scope="col">Caller</th></tr></thead><tbody>';
-    content += "</tbody></table></div>";
-    document.getElementById("displayContent").innerHTML = "<h1>All Leads</h1><div style='overflow-x:scroll;'>" + content;
+async function testmyLeads() {
+    
+    let shop_data = await get_all_shop_order_count() ;
+
+    var content = `
+        <div class="d-flex justify-content-center">
+            <div class="btn-item" onclick="loadtable()">All Leads</div>
+            <div class="btn-item" id="new">NEW </div>
+            <div class="btn-item" id="demo">Demo done </div>
+            <div class="btn-item" id="mail">Proposail Mailed </div>
+            <div class="btn-item" id="converted">Converted </div>
+            <div class="btn-item" id="pending">Pending </div>
+            <div class="btn-item" id="followup">Followup </div>
+            <div class="btn-item" id="dead">DEAD </div>
+            <div class="btn-item " id="reregistered">
+                Reregistered <span id="noti1">0</span>
+            </div>
+            <div class="btn-item" id="transferred">
+                Transferred <span id="noti3">0</span>
+            </div>
+            <div class="btn-item " id="assigned">Assigned</div>
+            <div class="btn-item" id="monster">Marked Monster </div>
+            </div>
+            <table id="table1" class="table table-bordered table-striped">
+                <thead>
+                    <tr>
+                        <th scope="col">Lead ID</th>
+                        <th scope="col">Name</th>
+                        <th scope="col">Mobile/<br>Alternate/<br>Whatsapp/<br>Email</th>
+                        <th scope="col">State/<br>City</th><th scope="col">Interested In</th>
+                        <th scope="col">Source</th>
+                        <th scope="col">Status</th>
+                        <th scope="col">DOR</th>
+                        <th scope="col">Summary DOR</th>
+                        <th scope="col">Option</th><th scope="col">Caller</th>
+                        <th scope="col">Data</th>
+                    </tr>
+                </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+    `;
+    document.getElementById("displayContent").innerHTML = `
+        <h1>All Leads</h1>
+        <div style='overflow-x:scroll;'>
+        ${content}
+    `;
 
     var option = "default";
 
@@ -8789,6 +8986,12 @@ function testmyLeads() {
                         return row[10];
                     },
                 },
+                {
+                    targets: 11,
+                    render: function (data, type, row, meta) {
+                        return get_shop_data(row[2] , shop_data , row[6]);
+                    },
+                },
             ],
             createdRow: function (row, data, index) {
                 if (data[8] == "New") {
@@ -8903,13 +9106,60 @@ function testmyLeads() {
     });
 }
 
-function leadsTL() {
-    var content =
-        '<div class="d-flex justify-content-center"><div class="btn-item" onclick="loadtable()">All Leads</div><div class="btn-item" id="new">NEW </div><div class="btn-item" id="demo">Demo done </div><div class="btn-item" id="mail">Proposail Mailed </div><div class="btn-item" id="unassigned">Unassigned <span id="noti2">0</span> </div><div class="btn-item" id="converted">Converted </div><div class="btn-item" id="pending">Pending </div><div class="btn-item" id="followup">Followup </div><div class="btn-item" id="dead">DEAD </div><div class="btn-item " id="reregistered">Reregistered <span id="noti1">0</span></div><div class="btn-item" id="transferred">Transferred <span id="noti3">0</span></div><div class="btn-item" id="monster">Marked Monster </div></div><table id="table1" class="table table-bordered table-striped"><thead><tr><th scope="col">Lead ID</th><th scope="col">Name</th><th scope="col">Mobile/<br>Alternate/<br>Whatsapp/<br>Email</th><th scope="col">State/<br>City</th><th scope="col">Interested In</th><th scope="col">Source</th><th scope="col">Status</th><th scope="col">DOR</th><th scope="col">Summary DOR</th><th scope="col">Option</th><th scope="col">Caller</th></tr></thead><tbody>';
-    content += "</tbody></table></div>";
-    document.getElementById("displayContent").innerHTML = "<h1>All Leads</h1><div style='overflow-x:scroll;'>" + content;
+async function leadsTL() {
 
-    var option = "default";
+    // alert(1);
+
+    let shop_data = await get_all_shop_order_count() ;
+
+    var content = `
+        <div class="d-flex justify-content-center">
+            <div class="btn-item" onclick="loadtable()">All Leads</div>
+            <div class="btn-item" id="new">NEW </div>
+            <div class="btn-item" id="demo">Demo done </div>
+            <div class="btn-item" id="mail">Proposail Mailed </div>
+            <div class="btn-item" id="unassigned">
+                Unassigned <span id="noti2">0</span>
+            </div>
+            <div class="btn-item" id="converted">Converted </div>
+            <div class="btn-item" id="pending">Pending </div>
+            <div class="btn-item" id="followup">Followup </div>
+            <div class="btn-item" id="dead">DEAD </div>
+            <div class="btn-item " id="reregistered">
+                Reregistered <span id="noti1">0</span>
+            </div>
+            <div class="btn-item" id="transferred">
+                Transferred <span id="noti3">0</span>
+            </div>
+            <div class="btn-item" id="monster">Marked Monster </div>
+        </div>
+        <table id="table1" class="table table-bordered table-striped">
+            <thead>
+                <tr>
+                    <th scope="col">Lead ID</th>
+                    <th scope="col">Name</th>
+                    <th scope="col">Mobile/<br>Alternate/<br>Whatsapp/<br>Email</th>
+                    <th scope="col">State/<br>City</th>
+                    <th scope="col">Interested In</th>
+                    <th scope="col">Source</th>
+                    <th scope="col">Status</th>
+                    <th scope="col">DOR</th>
+                    <th scope="col">Summary DOR</th>
+                    <th scope="col">Option</th>
+                    <th scope="col">Caller</th>
+                    <th scope="col">Data</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+    `;
+
+    document.getElementById("displayContent").innerHTML = `
+        <h1>All Leads</h1>
+        <div style='overflow-x:scroll;'>
+        ${content} 
+    `;
 
     getrecount();
     getuncount();
@@ -9030,6 +9280,12 @@ function leadsTL() {
                     targets: 10,
                     render: function (data, type, row, meta) {
                         return row[10];
+                    },
+                },
+                {
+                    targets: 11,
+                    render: function (data, type, row, meta) {
+                        return get_shop_data(row[2] , shop_data , row[6]);
                     },
                 },
             ],
