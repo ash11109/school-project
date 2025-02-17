@@ -9163,6 +9163,8 @@ async function leadsTL() {
         ${content} 
     `;
 
+    var option = "default";
+
     getrecount();
     getuncount();
     gettrcount();
