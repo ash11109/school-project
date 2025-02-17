@@ -6423,6 +6423,7 @@ async function get_all_shop_order_count() {
         redirect: 'follow'
       });
     let res = await req.json();
+    
     return res;
 
 }
@@ -6454,9 +6455,6 @@ async function get_single_shop_data (mobile_no) {
         redirect: 'follow'
       });
     let res = await req.json();
-
-    console.log(res);
-    
     
     $("#single_shop_data").html(`
         <table class="table">
@@ -6478,6 +6476,10 @@ async function get_single_shop_data (mobile_no) {
                 <tr>
                     <th>Shop Name</th>
                     <td>${data.shop_name}</td>
+                </tr>
+                <tr>
+                    <th>Shop Name</th>
+                    <td><a href="${data.shop_link}">website link</a></td>
                 </tr>
                 <tr>
                     <th>Email</th>
