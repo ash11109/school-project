@@ -636,3 +636,73 @@ a.article:hover {
 
 }
 
+/* timline code 22-02-2025  */
+
+.time {
+    box-shadow: 1px 1px 12px #cccccc87;
+    background-color: #f7f7f7;
+    padding: 13px;
+    border-radius: 10px;
+    position: relative;
+    width: 95%;
+    margin-left: auto;
+    margin-bottom: 7px;
+  }
+  .timeline {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 24px;
+    padding: 20px;
+  }
+  .time h2 {
+    font-size: 12px;
+    color: red;
+  }
+  .time p {
+    font-size: 11px;
+    margin-top: 10px;
+    color: red;
+  }
+  .time::after {
+    content: "";
+    display: block;
+    width: 5px;
+    height: 64px;
+    background-color: red;
+    position: absolute;
+    left: -3%;
+    top: 0px;
+
+  }
+  .time::before {
+    content: "";
+    display: block;
+    width: 9px;
+    height: 9px;
+    background-color: red;
+    position: absolute;
+    top: 41%;
+    left: -3.3%;
+    border-radius: 50%;
+    z-index: 1;
+  }
+
+  .active::before {
+    background-color: green !important;
+  }
+  .active p ,
+  .active h2 {
+    color: green !important;
+  }
+  .active::after {
+    background-color: green !important;
+  }
+  /* .time5::after{
+display: none;
+} */
+  .timeline > .time:nth-child(1)::after {
+    display: none;
+  }
+
+/* timline code 22-02-2025  */
