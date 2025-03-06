@@ -7028,6 +7028,328 @@ async function get_single_shop_data(mobile_no) {
   print_shop_timeline(res);
 }
 
+async function allLeadsShopSize(s) {
+  let srch = s.value ;
+  if ( srch != '' ) {
+    all_leads_shop_size (srch) ;
+  }
+}
+
+async function all_leads_shop_size (srch) {
+
+  alert(srch);
+
+  let shop_data = await get_all_shop_order_count();
+
+  var content = `
+        <div class="d-flex justify-content-center">
+            <div class="btn-item" onclick="loadtable()">All Leads</div>
+            <div class="btn-item" id="new">NEW </div>
+            <div class="btn-item" id="demo">Demo done </div>
+            <div class="btn-item" id="mail">Proposail Mailed </div>
+            <div class="btn-item" id="unassigned">
+                Unassigned <span id="noti2">0</span>
+            </div>
+            <div class="btn-item" id="converted">Converted </div>
+            <div class="btn-item" id="pending">Pending </div>
+            <div class="btn-item" id="followup">Followup </div>
+            <div class="btn-item" id="dead">DEAD </div>
+            <div class="btn-item " id="reregistered">
+                Reregistered <span id="noti1">0</span>
+            </div>
+            <div class="btn-item" id="transferred">
+                Transferred <span id="noti3">0</span>
+            </div>
+            <div class="btn-item" id="monster">Marked Monster </div>
+        </div>
+        <div>
+          <select id="Shop_Size" name="Shop_Size" onchange="allLeadsShopSize(this)">
+              <option value="">Shop Size</option>
+              <option value="No Shop">I Don't Have A Shop</option>
+              <option value="-300">Less Than 300 Sq Ft</option>
+              <option value="300-600">300-600 Sq Ft</option>
+              <option value="600-1000">600-1000 Sq Ft</option>
+              <option value="1000+">Above 1000 Sq Ft</option>
+          </select>
+        </div>
+        <table id="table1" class="table table-bordered table-striped">
+            <thead>
+                <tr>
+                    <th scope="col">Lead ID</th>
+                    <th scope="col">Name</th>
+                    <th scope="col">Mobile/<br>Alternate/<br>Whatsapp/<br>Email</th>
+                    <th scope="col">State/<br>City</th>
+                    <th scope="col">Interested In</th>
+                    <th scope="col">Source</th>
+                    <th scope="col">Status</th>
+                    <th scope="col">DOR</th>
+                    <th scope="col">Summary DOR</th>
+                    <th scope="col">Option</th>
+                    <th scope="col">Caller</th>
+                    <th scope="col">Data</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+    `;
+  document.getElementById("displayContent").innerHTML = `
+        <h1>All Leads</h1>
+        <div style='overflow-x:scroll;'> 
+            ${content}
+        `;
+
+  $("#table1 button").click(function () {
+    // Get the clicked button
+    const clickedButton = $(this);
+
+    // Find the closest table row (TR) element
+    const clickedRow = clickedButton.closest("tr");
+
+    // Add the "highlited" class to the row
+    clickedRow.addClass("table-primary");
+  });
+  var option = "default";
+
+  getrecount();
+  gettrcount();
+  getuncount();
+
+  function loadtable() {
+    if ($.fn.DataTable.isDataTable("#table1")) {
+      // If DataTable is already initialized, destroy it
+      $("#table1").DataTable().destroy();
+    }
+    var table = $("#table1").DataTable({
+      order: [],
+      processing: false,
+      paging: true,
+      pagingType: "full_numbers",
+      serverSide: true,
+      ajax: {
+        url: Config.api_url,
+        method: "POST",
+        data: { operation: "20250001", option: option , srch : srch },
+        beforeSend: function () {
+          $(".loader").show();
+        },
+        complete: function () {
+          $(".loader").hide();
+        },
+      },
+      columnDefs: [
+        {
+          targets: 0,
+          render: function (data, type, row, meta) {
+            return row[0];
+          },
+        },
+        {
+          targets: 1,
+          render: function (data, type, row, meta) {
+            return row[1];
+          },
+        },
+        {
+          targets: 2,
+          render: function (data, type, part, meta) {
+            // console.log(meta)
+            if (type === "display") {
+              var index = meta.row;
+              data = `
+                        <a href="javascript:void(0)" onclick="makeCall('${part[1]}', '${part[0]}', '${part[2]}', ${index})">${part[2]}</a><br>
+                        <a href="javascript:void(0)" onclick="makeCall('${part[1]}', '${part[0]}','${part[3]}', ${index})">${part[3]}</a><br>
+                        <a href="https://api.whatsapp.com/send?phone=91${part[4]}">${part[4]}</a><br>
+                        ${part[5]}<br>
+                        <button style="display: none;" data-toggle="modal" data-target="#exampleModal4" data-whatever="${part[0]}" id="save-id-${index}" onclick="stopRecord('${part[0]}', ${index})">End Call</button>
+                      `;
+            }
+            return data;
+          },
+        },
+
+        {
+          targets: 3,
+          render: function (data, type, row, meta) {
+            if (type === "display") {
+              data = row[11] + "<br/>" + row[12];
+            }
+            return data;
+          },
+        },
+        {
+          targets: 4,
+          render: function (data, type, row, meta) {
+            return row[6];
+          },
+        },
+        {
+          targets: 5,
+          render: function (data, type, row, meta) {
+            return row[7];
+          },
+        },
+        {
+          targets: 6,
+          render: function (data, type, row, meta) {
+            return row[8];
+          },
+        },
+        {
+          targets: 7,
+          render: function (data, type, row, meta) {
+            return row[9];
+          },
+        },
+        {
+          targets: 8,
+          render: function (data, type, row, meta) {
+            return row[14];
+          },
+        },
+        {
+          targets: 9,
+          render: function (data, type, part, meta) {
+            if (type === "display") {
+              var index = meta.row;
+              data =
+                '<button data-toggle="modal" class="btn-edit" data-target="#exampleModal3" onclick="fillUpdateForm(' +
+                part[0] +
+                ')">Edit</button><br><button class="btn-status" data-toggle="modal" data-target="#exampleModal4" data-whatever="' +
+                part[0] +
+                '" onclick="getAllStatus(' +
+                part[0] +
+                ')">Status</button>';
+            }
+            return data;
+          },
+        },
+        {
+          targets: 10,
+          render: function (data, type, row, meta) {
+            return row[10];
+          },
+        },
+        {
+          targets: 11,
+          render: function (data, type, row, meta) {
+            return get_shop_data(row[2], shop_data, row[6]);
+          },
+        },
+      ],
+      createdRow: function (row, data, index) {
+        if (data[8] == "New") {
+          $("td:eq(6)", row).css({ "background-color": "red", color: "white" });
+        } else if (data[8] == "Converted") {
+          $("td:eq(6)", row).css({
+            "background-color": "green",
+            color: "white",
+          });
+        } else if (data[8] == "Proposail Mailed") {
+          $("td:eq(6)", row).css({
+            "background-color": "yellow",
+            color: "black",
+          });
+        } else if (data[8] == "Pending") {
+          $("td:eq(6)", row).css({
+            "background-color": "orange",
+            color: "white",
+          });
+        } else {
+          //$('td:eq(6)', row).css({'background-color': 'red','color':'white'});
+        }
+
+        const statusButton = $(row).find(".btn-status");
+        const editButton = $(row).find(".btn-edit");
+
+        // Function to highlight the clicked row
+        function highlightRow(tr) {
+          // Remove "highlighted" class from all table rows (optional)
+          $("table#table1 tr").removeClass("table-primary");
+
+          // Add "highlighted" class to the clicked row
+          tr.addClass("table-primary");
+        }
+
+        // Click event for status button
+        statusButton.on("click", function () {
+          // Get the table row (TR) of the clicked button
+          var tr = $(this).closest("tr");
+          highlightRow(tr);
+        });
+
+        // Click event for edit button
+        editButton.on("click", function () {
+          // Get the table row (TR) of the clicked button
+          var tr = $(this).closest("tr");
+          highlightRow(tr);
+        });
+      },
+    });
+  }
+
+  loadtable();
+
+  // Loop through all buttons with class 'btn-item'
+  $(".btn-item").each(function () {
+    // Attach click event listener
+    $(this).on("click", function () {
+      // Get the id of the clicked button
+      $(".btn-item").removeClass("active");
+
+      // Add 'bhj' class to the clicked button
+      $(this).addClass("active");
+      var id = $(this).attr("id");
+
+      // Assign option based on the id of the clicked button
+      switch (id) {
+        case "demo":
+          option = "demo";
+          break;
+        case "reregistered":
+          option = "registered";
+          break;
+        case "mail":
+          option = "mailed";
+          break;
+        case "converted":
+          option = "converted";
+          break;
+        case "transferred":
+          option = "transferred";
+          break;
+        case "pending":
+          option = "pending";
+          break;
+        case "followup":
+          option = "followup";
+          break;
+        case "dead":
+          option = "dead";
+          break;
+        case "unassigned":
+          option = "unassigned";
+          break;
+        case "new":
+          option = "new";
+          break;
+        case "monster":
+          option = "monster";
+          break;
+        default:
+          // Default option if id doesn't match any specific case
+          option = "default";
+          break;
+      }
+
+      // Call loadtable() function with the updated option
+      loadtable();
+    });
+  });
+}
+
+
+
 async function testallLeads() {
   // alert("test1")
 
@@ -7053,6 +7375,16 @@ async function testallLeads() {
                 Transferred <span id="noti3">0</span>
             </div>
             <div class="btn-item" id="monster">Marked Monster </div>
+        </div>
+        <div>
+          <select id="Shop_Size" name="Shop_Size" onchange="allLeadsShopSize(this)">
+              <option value="">Shop Size</option>
+              <option value="No Shop">I Don't Have A Shop</option>
+              <option value="-300">Less Than 300 Sq Ft</option>
+              <option value="300-600">300-600 Sq Ft</option>
+              <option value="600-1000">600-1000 Sq Ft</option>
+              <option value="1000+">Above 1000 Sq Ft</option>
+          </select>
         </div>
         <table id="table1" class="table table-bordered table-striped">
             <thead>
