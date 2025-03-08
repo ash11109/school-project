@@ -1882,34 +1882,34 @@ function addMissedCall() {
   );
 }
 
-async function syncSheet() {
-  try {
-    // Show the loader
-    $(".loader").show();
+// async function syncSheet() {
+//   try {
+//     // Show the loader
+//     $(".loader").show();
 
-    const response = await fetch(
-      "https://teamka.in/crm1/APIs/ash_auto_lead_add.php",
-      {
-        method: "POST",
-      }
-    );
+//     const response = await fetch(
+//       "https://teamka.in/crm1/APIs/ash_auto_lead_add.php",
+//       {
+//         method: "POST",
+//       }
+//     );
 
-    if (!response.ok) {
-      throw new Error(`Error syncing sheet: ${response.statusText}`);
-    }
+//     if (!response.ok) {
+//       throw new Error(`Error syncing sheet: ${response.statusText}`);
+//     }
 
-    const responseData = await response.text(); // Assuming the response is plain text
-    console.log(responseData);
-    alert(responseData);
-  } catch (error) {
-    console.error("Error syncing sheet:", error);
-    // Optionally, display the error to the user
-    displayError(error); // Assuming `displayError` is defined elsewhere
-  } finally {
-    // Hide the loader regardless of success or error
-    $(".loader").hide();
-  }
-}
+//     const responseData = await response.text(); // Assuming the response is plain text
+//     console.log(responseData);
+//     alert(responseData);
+//   } catch (error) {
+//     console.error("Error syncing sheet:", error);
+//     // Optionally, display the error to the user
+//     displayError(error); // Assuming `displayError` is defined elsewhere
+//   } finally {
+//     // Hide the loader regardless of success or error
+//     $(".loader").hide();
+//   }
+// }
 
 function checkUserStatus(requiredUserType) {
   // Get the user details from localStorage
@@ -8385,9 +8385,11 @@ function showExpense() {
                     case "5":
                       return "Cash";
                     case "6":
-                      return "My Galla HDFC";
+                      return "My Galla IDFC";
                     case "7":
                       return "Kalam Foundation Axis Bank";
+                    case "8":
+                      return "EKalam Foundation IDFC";
                     default:
                       return row["From_Account"];
                   }
