@@ -1,7 +1,7 @@
 //live  
 // const Config = {
 //     api_url: "https://teamka.in/crm1/APIs/api_development.php",
-//     domain : "https://teamka.in/www/",
+//     domain : "https://teamka.in/Live/www/",
 //     autoAssignUrl : "https://teamka.in/crm1/APIs/ash_auto_lead_assign.php"
 // };
 //dev
