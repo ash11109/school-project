@@ -398,27 +398,27 @@
                 function fetchData(start, end) {
                     return Promise.all([
                         $.ajax({
-                            url: api_url,
+                            url: Config.api_url,
                             method: "POST",
                             data: { operation: "callStatus", start: start, end: end },
                         }),
                         $.ajax({
-                            url: api_url,
+                            url: Config.api_url,
                             method: "POST",
                             data: { operation: "pendingStatus", start: start, end: end },
                         }),
                         $.ajax({
-                            url: api_url,
+                            url: Config.api_url,
                             method: "POST",
                             data: { operation: "otherStatus", start: start, end: end },
                         }),
                         $.ajax({
-                            url: api_url,
+                            url: Config.api_url,
                             method: "POST",
                             data: { operation: "getRatioData", start: start, end: end },
                         }),
                         $.ajax({
-                            url: api_url,
+                            url: Config.api_url,
                             method: "POST",
                             data: { operation: "getUsers", id: localStorage.getItem("userID") },
                         }),
@@ -1053,7 +1053,7 @@
                     pagingType: "full_numbers",
                     serverSide: true,
                     ajax: {
-                        url: api_url,
+                        url: Config.api_url,
                         method: "POST",
                         data: {
                             operation: "077-new",
